@@ -23,6 +23,10 @@ let theme: Theme = createTheme({
 theme = responsiveFontSizes(theme);
 
 const containers: StyleSet = {
+    authOptionHeader: {
+        margin: "1.5em 0 1em 0",
+        textAlign: "center"
+    },
     backgroundContainer: {
         backgroundColor: "#eff6fd",
         minHeight: "100vh",
@@ -32,7 +36,7 @@ const containers: StyleSet = {
         padding: "0 2em 0 2em",
     },
     form: {
-        padding: "2em 2em 2em 2em",     // top right bottom left
+        padding: "2em 2em 3em 2em",     // top right bottom left
         margin: "2em 0 2em 0",          // top right bottom left
         borderRadius: "1.25em",
     }
@@ -66,7 +70,20 @@ const avatar: StyleSet = {
         width: "1.25em",
         height: "1.25em",
         borderRadius: "0.25em",
-    }
+    },
+    header: {
+        width: "2em",
+        height: "2em",
+        cursor: "pointer",
+        transition: "opacity 0.2s ease-in-out",
+        "&:hover": {
+            opacity: 0.9
+        }
+    },
+    large: {
+        width: "3em",
+        height: "3em"
+    },
 }
 
 const button: StyleSet = {
@@ -88,7 +105,7 @@ const button: StyleSet = {
     },
     authOption: {
         backgroundColor: "#eff6fd",
-        borderColor: "#725aa2",
+        // borderColor: "#725aa2",
         borderRadius: "1.25em",
         justifyContent: "flex-start",
         textAlign: "left",
@@ -98,7 +115,7 @@ const button: StyleSet = {
         padding: "0.9em 1em 0.9em 1em", 
         margin: "0em 0 1em 0",
         "&:hover": {
-            borderColor: "#725aa2",
+            borderColor: "#29262a",
             backgroundColor: "#e1e8ef"
         }
     }

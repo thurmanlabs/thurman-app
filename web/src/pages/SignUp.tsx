@@ -17,7 +17,7 @@ export default function SignUp() {
     return (
         <BackgroundContainer>
             <SimpleFormContainer>
-                <AuthOptions options={options} />
+                <AuthOptions authType="Sign up" options={options} />
             </SimpleFormContainer>
         </BackgroundContainer>
     );
