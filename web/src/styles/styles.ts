@@ -46,7 +46,6 @@ const header: StyleSet = {
     appBar: {
         backgroundColor: "#FFFFFE",
         boxShadow: "none",
-        borderBottom: "1px solid #AEAEAE",
     },
     toolbar: {
         display: "flex",
@@ -67,8 +66,8 @@ const header: StyleSet = {
 
 const avatar: StyleSet = {
     small: {
-        width: "1.25em",
-        height: "1.25em",
+        width: "1em",
+        height: "1em",
         borderRadius: "0.25em",
     },
     header: {
@@ -104,19 +103,19 @@ const button: StyleSet = {
         fontWeight: 700,
     },
     authOption: {
-        backgroundColor: "#eff6fd",
-        // borderColor: "#725aa2",
+        backgroundColor: "#FFFFFE",
+        borderColor: "#C5C5C5",
         borderRadius: "1.25em",
         justifyContent: "flex-start",
         textAlign: "left",
         textTransform: "none",
         color: "#29262a",
-        fontWeight: 600,
+        fontWeight: 500,
         padding: "0.9em 1em 0.9em 1em", 
-        margin: "0em 0 1em 0",
+        margin: "0em 0 0.75em 0",
         "&:hover": {
             borderColor: "#29262a",
-            backgroundColor: "#e1e8ef"
+            backgroundColor: "#F2F1F0"
         }
     }
 }

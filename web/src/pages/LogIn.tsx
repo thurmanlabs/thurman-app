@@ -1,4 +1,5 @@
 import React from "react";
+import { ConnectionType } from "../web3react/connections";
 import BackgroundContainer from "../components/BackgroundContainer";
 import ContentContainer from "../components/ContentContainer";
 import SimpleFormContainer from "../components/SimpleFormContainer";
@@ -8,10 +9,10 @@ import coinbaseWallet from "../assets/images/coinbase-wallet.png";
 import walletConnect from "../assets/images/wallet-connect.png";
 
 const options = [
-    { avatar: metaMask, name: "MetaMask", onClick: () => { } },
-    { avatar: coinbaseWallet, name: "Coinbase Wallet", onClick: () => { } },
-    { avatar: walletConnect, name: "WalletConnect", onClick: () => { } },
-    { avatar: "", name: "Sign up with email", onClick: () => { } },
+    { avatar: metaMask, name: "MetaMask", connectionType: ConnectionType.INJECTED },
+    { avatar: coinbaseWallet, name: "Coinbase Wallet", connectionType: ConnectionType.INJECTED },
+    { avatar: walletConnect, name: "WalletConnect", connectionType: ConnectionType.INJECTED },
+    { avatar: "", name: "Sign up with email", connectionType: ConnectionType.INJECTED },
 ];
 
 export default function LogIn() {

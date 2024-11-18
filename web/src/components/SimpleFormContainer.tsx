@@ -10,7 +10,11 @@ export default function SimpleFormContainer({ children }: SimpleFormContainerPro
     return (
         <Grid container justifyContent="center" sx={styles.containers.form}>
             <Grid item xs={12} md={6}>
-                <Paper sx={styles.containers.form}>
+                <Paper sx={{
+                    ...styles.containers.form,
+                    backgroundColor: "#FFFFFE",
+                    boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)",
+                }}>
                     {children}
                 </Paper>
             </Grid>

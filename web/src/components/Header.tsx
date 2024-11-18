@@ -3,9 +3,7 @@ import {
   AppBar, 
   Avatar, 
   Toolbar, 
-  Typography, 
-  Box, 
-  Button 
+  Box,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { styles } from "../styles/styles";

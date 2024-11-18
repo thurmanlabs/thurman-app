@@ -35,7 +35,7 @@ export default function AuthOptions({ authType, options }: AuthOptionsProps) {
                     <AuthOption
                         avatar={option.avatar}
                         name={option.name}
-                        onClick={option.onClick}
+                        connectionType={option.connectionType}
                     />
                 </Grid>
             ))}
