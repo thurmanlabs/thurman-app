@@ -120,10 +120,56 @@ const button: StyleSet = {
     }
 }
 
+const accountDropdown: StyleSet = {
+    avatar: {
+        width: "2em",
+        height: "2em",
+        backgroundColor: "#725aa2"
+    },
+    walletIcon: {
+        fontSize: 20
+    },
+    popper: {
+        zIndex: 1300
+    },
+    paper: {
+        mt: 1,
+        minWidth: 240,
+        borderRadius: 2,
+        overflow: "hidden",
+        backgroundColor: "#FFFFFE",
+        boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)"
+    },
+    contentBox: {
+        p: 2
+    },
+    addressText: {
+        mt: 0.5
+    },
+    disconnectBox: {
+        p: 1,
+        '&:hover': {
+            bgcolor: "error.lighter",
+            cursor: "pointer"
+        }
+    },
+    disconnectText: {
+        color: "error.main",
+        display: "flex",
+        alignItems: "center",
+        p: 1
+    },
+    disconnectIcon: {
+        mr: 1,
+        fontSize: 20
+    }
+}
+
 export const styles = {
     containers,
     header,
     avatar,
     button,
     theme,
+    accountDropdown,
 }

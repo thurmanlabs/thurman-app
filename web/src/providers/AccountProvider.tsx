@@ -35,19 +35,27 @@ function AccountProviderInner({ children }: { children: React.ReactNode }) {
     // const signup = async () => {};
 
     const login = async (c: ConnectionType) => {
-        let walletConnectionType = await tryActivateConnector(getConnection(c).connector);
-        if (!walletConnectionType) {
-            return;
+        try {
+            let walletConnectionType = await tryActivateConnector(getConnection(c).connector);
+            if (!walletConnectionType) {
+                return;
         }
-        setConnectionType(walletConnectionType);
+            setConnectionType(walletConnectionType);
+        } catch (err) {
+            console.error(err);
+        }
     }
 
     const logout = async (c: ConnectionType) => {
-        let walletConnectionType = await tryDeactivateConnector(getConnection(c).connector);
-        if (walletConnectionType === undefined) {
-            return;
+        try {
+            let walletConnectionType = await tryDeactivateConnector(getConnection(c).connector);
+            if (walletConnectionType === undefined) {
+                return;
+            }
+            setConnectionType(walletConnectionType);
+        } catch (err) {
+            console.error(err);
         }
-        setConnectionType(walletConnectionType);
     }
 
     return (

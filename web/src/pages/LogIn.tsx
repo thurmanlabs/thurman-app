@@ -10,9 +10,9 @@ import walletConnect from "../assets/images/wallet-connect.png";
 
 const options = [
     { avatar: metaMask, name: "MetaMask", connectionType: ConnectionType.INJECTED },
-    { avatar: coinbaseWallet, name: "Coinbase Wallet", connectionType: ConnectionType.INJECTED },
-    { avatar: walletConnect, name: "WalletConnect", connectionType: ConnectionType.INJECTED },
-    { avatar: "", name: "Sign up with email", connectionType: ConnectionType.INJECTED },
+    { avatar: coinbaseWallet, name: "Coinbase Wallet", connectionType: ConnectionType.COINBASE_WALLET },
+    { avatar: walletConnect, name: "WalletConnect", connectionType: ConnectionType.WALLET_CONNECT },
+    { avatar: "", name: "Log in with email", connectionType: ConnectionType.INJECTED },
 ];
 
 export default function LogIn() {

@@ -7,12 +7,16 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { styles } from "../styles/styles";
+import useAccount from "../hooks/useAccount";
 import NavigateButton from "./NavigateButton";
 import ContentContainer from "./ContentContainer";
 import thurman from "../assets/images/thurman.png";
+import AccountDropdown from "./AccountDropdown";
 
 export default function Header() {
     const navigate = useNavigate();
+    const { userAccount } = useAccount();
+
   return (
     <AppBar position="sticky" sx={styles.header.appBar}>
       <ContentContainer>
@@ -24,20 +28,24 @@ export default function Header() {
           />
 
         <Box sx={styles.header.authSection}>
-          <NavigateButton 
-            variant="text" 
-            to="/login"
-            sx={styles.button.text}
-          >
+            {userAccount ? (<AccountDropdown />) : (
+              <>
+              <NavigateButton 
+              variant="text" 
+              to="/login"
+              sx={styles.button.text}
+              >
             Log in
-          </NavigateButton>
-          <NavigateButton 
-            variant="contained"
-            to="/signup"
-            sx={styles.button.primary}
-          >
-            Sign up
-          </NavigateButton>
+            </NavigateButton>
+            <NavigateButton 
+              variant="contained"
+              to="/signup"
+              sx={styles.button.primary}
+            >
+              Sign up
+                </NavigateButton>
+              </>
+            )}
         </Box>
         </Toolbar>
       </ContentContainer>
