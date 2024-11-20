@@ -1,8 +1,4 @@
-import { 
-    createContext, 
-    Dispatch, 
-    SetStateAction 
-} from "react";
+import { createContext } from "react";
 
 import { ConnectionType } from "../web3react/connections";
 

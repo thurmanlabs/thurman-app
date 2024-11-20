@@ -85,10 +85,19 @@ const avatar: StyleSet = {
     },
 }
 
+const forms: StyleSet = {
+    textField: {
+        margin: "0.5em 0",
+        "& .MuiOutlinedInput-root": {
+            borderRadius: "1.25em", 
+        }
+    },
+}
+
 const button: StyleSet = {
     primary: {
         background: "linear-gradient(90deg, #725aa2 0%, #29262a 100%)",
-        color: "white",
+        color: "#FFFFFE",
         borderRadius: "1.25em",
         textTransform: "none",
         fontWeight: 700,
@@ -96,6 +105,10 @@ const button: StyleSet = {
         "&:hover": {
             background: "linear-gradient(90deg, #725aa2 20%, #29262a 100%)", // Slight shift on hover
         },
+        "&:disabled": {
+            background: "#E0E0E0",
+            color: "#A0A0A0"
+        }
     },
     text: {
         color: "#725aa2",
@@ -172,4 +185,5 @@ export const styles = {
     button,
     theme,
     accountDropdown,
+    forms,
 }

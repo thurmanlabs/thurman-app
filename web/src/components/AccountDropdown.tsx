@@ -11,8 +11,8 @@ import {
     Box,
     Fade
 } from "@mui/material";
-import LogoutIcon from '@mui/icons-material/Logout';
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import LogoutIcon from "@mui/icons-material/Logout";
+import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import { styles } from "../styles/styles";
 
 function shortenAddress(address: string, chars = 4): string {
