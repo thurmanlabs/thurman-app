@@ -1,16 +1,14 @@
 import express, { Express, Request, Response, NextFunction } from "express";
 import cors from "cors";
-import dotenv from "dotenv";
+import { config } from "./config";
 import http from "http";
 import createError from "http-errors";
 import expressWinston from "express-winston";
 import winston from "winston";
 
-dotenv.config();
-
+const { port, apiPrefix } = config;
 const app: Express = express();
 const server = http.createServer(app);
-const port = process.env.PORT || 8080;
 
 // Winston logger configuration
 const loggerOptions: expressWinston.LoggerOptions = {
