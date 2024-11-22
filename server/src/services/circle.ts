@@ -16,6 +16,16 @@ type CreateWalletReturnParams = {
     address: string | undefined;
 }
 
+const formatBlockchainData = (walletId: string | undefined, blockchains: Blockchain[]): { chainId: string, name: string, walletId: string }[] => {
+    return blockchains.map(blockchain => ({
+        chainId: blockchain.toString() === "MATIC" ? "137" : 
+                blockchain.toString() === "MATIC-AMOY" ? "80002" : 
+                blockchain.toString() === "ETH-SEPOLIA" ? "11155111" : "",
+        name: blockchain.toString(),
+        walletId: walletId ?? ""
+    }));
+};
+
 export const createDeveloperWallet = async ({
     accountType,
     blockchains,
@@ -44,10 +54,7 @@ export const createDeveloperWallet = async ({
             accountType: "EOA",
             name: wallet.data?.wallets[0].name,
             userId: wallet.data?.wallets[0].refId ? parseInt(wallet.data?.wallets[0].refId) : undefined,
-            blockchains: [
-                { chainId: "137", name: "MATIC", walletId: walletId ?? "" }, 
-                { chainId: "80002", name: "MATIC-AMOY", walletId: walletId ?? "" }
-            ]
+            blockchains: formatBlockchainData(walletId, blockchains)
         });
 
         return {
