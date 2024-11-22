@@ -63,3 +63,5 @@ authRouter.post("/signup", async (req: express.Request, res: express.Response) =
         });
     }
 });
+
+export default authRouter;

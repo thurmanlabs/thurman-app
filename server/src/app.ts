@@ -5,6 +5,7 @@ import http from "http";
 import createError from "http-errors";
 import expressWinston from "express-winston";
 import winston from "winston";
+import authRouter from "./routes/auth";
 
 const { port, apiPrefix } = config;
 const app: Express = express();
@@ -53,10 +54,7 @@ app.use(express.urlencoded({ extended: true }));
 // Request logging middleware
 app.use(expressWinston.logger(loggerOptions));
 
-// Routes
-app.get("/api/test", (req, res) => {
-    res.json({ message: "Hello from the backend!" });
-});
+app.use("/api/auth", authRouter);
 
 // Catch 404 and forward to error handler
 app.use((req: Request, res: Response, next: NextFunction) => {
