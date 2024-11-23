@@ -54,7 +54,7 @@ app.use(express.urlencoded({ extended: true }));
 // Request logging middleware
 app.use(expressWinston.logger(loggerOptions));
 
-app.use("/api/auth", authRouter);
+app.use(`${apiPrefix}/auth`, authRouter);
 
 // Catch 404 and forward to error handler
 app.use((req: Request, res: Response, next: NextFunction) => {

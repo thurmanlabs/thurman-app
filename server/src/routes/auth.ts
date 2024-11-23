@@ -4,7 +4,8 @@ import {
     signup,
     SignupParams,
     SignupReturnParams,
-    AUTH_TOKEN_COOKIE
+    AUTH_TOKEN_COOKIE,
+    login
 } from "../services/auth";
 import { config } from "../config";
 
@@ -60,6 +61,52 @@ authRouter.post("/signup", async (req: express.Request, res: express.Response) =
         console.error('Signup error:', err);
         return res.status(500).json({
             errorMessage: err instanceof Error ? err.message : "Internal server error"
+        });
+    }
+});
+
+authRouter.post("/login", async (req: express.Request, res: express.Response) => {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+        return res.status(400).json({
+            errorMessage: "Missing required fields"
+        });
+    }
+
+    try {
+        const loginResult = await login({ email, password });
+        if (!loginResult) {
+            return res.status(400).json({
+                errorMessage: "Invalid credentials"
+            });
+        }
+        const { token, user } = loginResult;
+        if (token && user) {
+            setAuthCookie(res, token);
+            return res.status(200).send({
+                user,
+                token
+            });
+        }
+    } catch (error) {
+        console.error("Login error:", error);
+        return res.status(500).json({
+            errorMessage: "Internal server error"
+        });
+    }
+});
+
+authRouter.post("/logout", async (req: express.Request, res: express.Response) => {
+    try {
+        setAuthCookie(res, "");
+        return res.status(200).json({
+            message: "Successfully logged out"
+        });
+    } catch (error) {
+        console.error("Logout error: ", error);
+        return res.status(500).json({
+            errorMessage: "Failed to logout"
         });
     }
 });

@@ -1,5 +1,6 @@
 import {
-    createUser
+    createUser,
+    validateUser
 } from "./users";
 import {
     createWallet
@@ -7,5 +8,6 @@ import {
 
 export {
     createUser,
-    createWallet
+    createWallet,
+    validateUser
 }

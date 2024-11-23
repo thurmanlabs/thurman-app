@@ -1,7 +1,7 @@
 import { AccountType, Blockchain } from "@circle-fin/developer-controlled-wallets";
 import { verify, sign, Secret, JwtPayload } from "jsonwebtoken";
 import { config } from "../config";
-import { createUser } from "../prisma/models";
+import { createUser, validateUser } from "../prisma/models";
 import { createDeveloperWallet } from "./circle";
 
 export const AUTH_TOKEN_COOKIE = "thurmanlabs";
@@ -28,6 +28,25 @@ type CreateTokenParams = {
     walletId: string | null | undefined;
     address: string | undefined;
 }
+
+type LoginParams = {
+    email: string;
+    password: string;
+};
+
+type LoginReturnParams = {
+    token: Secret;
+    user: {
+        id: number;
+        email: string | null;
+        wallets: {
+            id: string | null;
+            name: string | null;
+            address: string;
+            custodyType: string;
+        }[];
+    };
+};
 
 export const createToken = (
     email: string,
@@ -79,6 +98,54 @@ export const signup = async ({
 
     } catch (error) {
         console.error("Signup failed: ", error);
+        return null;
+    }
+};
+
+export const login = async ({
+    email,
+    password
+}: LoginParams): Promise<LoginReturnParams | null> => {
+    if (!email || !password) {
+        console.error("Login failed: Missing email or password");
+        return null;
+    }
+
+    try {
+        const validationResult = await validateUser(email, password);
+        if (!validationResult) {
+            console.error("Login failed: Validation returned null");
+            return null;
+        }
+
+        const { user, isValid } = validationResult;
+        if (!isValid || !user) {
+            console.error("Login failed: Invalid credentials");
+            return null;
+        }
+
+        // Ensure required user data exists
+        if (!user.email || !user.wallets?.[0]?.id || !user.wallets[0].address) {
+            console.error("Login failed: Incomplete user data", {
+                hasEmail: !!user.email,
+                hasWallet: !!user.wallets?.[0],
+            });
+            return null;
+        }
+
+        const token = createToken(
+            user.email,
+            user.id,
+            user.wallets[0].id,
+            user.wallets[0].address
+        );
+
+        return {
+            token,
+            user // Return the complete user object
+        };
+    } catch (error) {
+        console.error("Login failed:", error instanceof Error ? error.message : "Unknown error");
         return null;
     }
 };
