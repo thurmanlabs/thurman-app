@@ -1,7 +1,7 @@
 import { AccountType, Blockchain } from "@circle-fin/developer-controlled-wallets";
 import { verify, sign, Secret, JwtPayload } from "jsonwebtoken";
 import { config } from "../config";
-import { createUser, validateUser } from "../prisma/models";
+import { createUser, validateUser, getUser } from "../prisma/models";
 import { createDeveloperWallet } from "./circle";
 
 export const AUTH_TOKEN_COOKIE = "thurmanlabs";
@@ -166,8 +166,26 @@ export const login = async ({
             token,
             user: userResponse
         };
-    } catch (error) {
-        console.error("Login failed:", error instanceof Error ? error.message : "Unknown error");
+    } catch (err) {
+        console.error("Login failed:", err instanceof Error ? err.message : "Unknown error");
         return null;
     }
 };
+
+export const getAuthenticatedUser = async (userEmail: string): Promise<UserResponse | null> => {
+    try {
+        const user = await getUser(userEmail);
+
+        if (!user) {
+            console.error("Get user failed: Invalid email");
+            return null;
+        }
+
+        const userResponse = mapToUserResponse({ id: user.id, email: user.email }, user.wallets[0]);
+
+        return userResponse;
+    } catch (err) {
+        console.error("Get user failed: ", err instanceof Error ? err.message  : "Unknown error");
+        return null;
+    }
+}

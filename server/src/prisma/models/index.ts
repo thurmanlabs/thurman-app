@@ -1,6 +1,7 @@
 import {
     createUser,
-    validateUser
+    validateUser,
+    getUser,
 } from "./users";
 import {
     createWallet
@@ -9,5 +10,6 @@ import {
 export {
     createUser,
     createWallet,
-    validateUser
+    validateUser,
+    getUser
 }

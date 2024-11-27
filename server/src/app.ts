@@ -6,6 +6,7 @@ import createError from "http-errors";
 import expressWinston from "express-winston";
 import winston from "winston";
 import authRouter from "./routes/auth";
+import userRouter from "./routes/user";
 
 const { port, apiPrefix } = config;
 const app: Express = express();
@@ -55,6 +56,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(expressWinston.logger(loggerOptions));
 
 app.use(`${apiPrefix}/auth`, authRouter);
+app.use(`${apiPrefix}/user`, userRouter);
 
 // Catch 404 and forward to error handler
 app.use((req: Request, res: Response, next: NextFunction) => {

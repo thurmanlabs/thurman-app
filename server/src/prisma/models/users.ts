@@ -89,12 +89,48 @@ export async function validateUser(userEmail: string, password: string): Promise
             user: isValid ? userWithoutPassword : null,
             isValid
         };
-    } catch (error) {
-        console.error("User validation error:", error);
+    } catch (err) {
+        console.error("User validation error:", err);
         throw new Error(
-            error instanceof Error
-                ? `Failed to validate user: ${error.message}`
+            err instanceof Error
+                ? `Failed to validate user: ${err.message}`
                 : "Failed to validate user"
         );
+    }
+}
+
+export async function getUser(userEmail: string): Promise<ValidatedUserData | null> {
+    try {
+        const user = await db.user.findUnique({
+            where: {
+                email: userEmail
+            },
+            select: {
+                id: true,
+                email: true,
+                password: true,
+                wallets: {
+                    select: {
+                        id: true,
+                        custodyType: true,
+                        address: true,
+                        name: true,
+                        blockchains: {
+                            select: {
+                                chainId: true,
+                            }
+                        }
+                    }
+                },
+            }
+        });
+
+        if (!user) {
+            return null;
+        }
+
+        return user;
+    } catch (err: any) {
+        throw err;
     }
 }
