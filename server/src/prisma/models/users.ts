@@ -12,6 +12,9 @@ type ValidatedUserData = {
         custodyType: string;
         address: string;
         name: string | null;
+        blockchains: {
+            chainId: string;
+        }[];
     }[];
 };
 
@@ -59,9 +62,14 @@ export async function validateUser(userEmail: string, password: string): Promise
                         id: true,
                         custodyType: true,
                         address: true,
-                        name: true
+                        name: true,
+                        blockchains: {
+                            select: {
+                                chainId: true,
+                            }
+                        }
                     }
-                }
+                },
             }
         });
 

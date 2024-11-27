@@ -5,6 +5,17 @@ import { createUser, validateUser } from "../prisma/models";
 import { createDeveloperWallet } from "./circle";
 
 export const AUTH_TOKEN_COOKIE = "thurmanlabs";
+const POLYGON_MAINNET_ID = "137";
+
+interface UserResponse {
+    id: number;
+    email: string;
+    account: string;
+    walletName: string | null;
+    custodyType: string;
+    chainId: number;
+    accountType: string;
+}
 
 export type SignupParams = {
     email: string;
@@ -14,12 +25,14 @@ export type SignupParams = {
     walletSetId: string;
 };
 
-export type SignupReturnParams = {
-    userId: number;
-    email: string;
-    walletId: string | null | undefined;
-    address: string | undefined;
+interface SignupReturnParams {
     token: Secret;
+    user: UserResponse;
+}
+
+interface LoginReturnParams {
+    token: Secret;
+    user: UserResponse;
 }
 
 type CreateTokenParams = {
@@ -34,17 +47,24 @@ type LoginParams = {
     password: string;
 };
 
-type LoginReturnParams = {
-    token: Secret;
-    user: {
-        id: number;
-        email: string | null;
-        wallets: {
-            id: string | null;
-            name: string | null;
-            address: string;
-            custodyType: string;
-        }[];
+const mapToUserResponse = (
+    user: { id: number; email: string | null },
+    wallet: {
+        address: string;
+        name?: string | null;
+        custodyType?: string;
+        accountType?: string;
+        blockchains?: { chainId: string }[];
+    }
+): UserResponse => {
+    return {
+        id: user.id,
+        email: user.email || "",
+        account: wallet.address,
+        walletName: wallet.name || null,
+        custodyType: wallet.custodyType || "EOA",
+        chainId: Number(wallet.blockchains?.[0]?.chainId || POLYGON_MAINNET_ID),
+        accountType: wallet.accountType || "EOA"
     };
 };
 
@@ -85,15 +105,13 @@ export const signup = async ({
             return null;
         }
 
-        const { walletId, address } = wallet;
-        const token = createToken(user.email, user.id, walletId, address);
+        const { id, address } = wallet;
+        const token = createToken(user.email, user.id, id, address);
+        const userResponse = mapToUserResponse(user, wallet);
 
         return {
-            userId: user.id,
-            email: user.email,
-            walletId,
-            address,
-            token
+            token,
+            user: userResponse
         };
 
     } catch (error) {
@@ -140,9 +158,13 @@ export const login = async ({
             user.wallets[0].address
         );
 
+        let wallet = user.wallets[0];
+
+        const userResponse = mapToUserResponse({id: user.id, email: user.email}, user.wallets[0])
+
         return {
             token,
-            user // Return the complete user object
+            user: userResponse
         };
     } catch (error) {
         console.error("Login failed:", error instanceof Error ? error.message : "Unknown error");

@@ -2,6 +2,7 @@ import { AccountType, Blockchain } from "@circle-fin/developer-controlled-wallet
 import { createUser, createWallet } from "../prisma/models";
 import circleClient from "../utils/circleClient";
 import { v4 as uuidv4 } from "uuid";
+import { Wallet } from "@prisma/client";
 
 type CreateWalletParams = {
     accountType: AccountType | undefined;
@@ -32,7 +33,7 @@ export const createDeveloperWallet = async ({
     name,
     refId,
     walletSetId
-}: CreateWalletParams): Promise<CreateWalletReturnParams | null> => {
+}: CreateWalletParams): Promise<Wallet | null> => {
     const idempotencyKey = uuidv4();
 
     try {
@@ -51,16 +52,13 @@ export const createDeveloperWallet = async ({
             id: walletId,
             address: wallet.data?.wallets[0].address ? wallet.data?.wallets[0].address : "",
             custodyType: wallet.data?.wallets[0].custodyType ? wallet.data?.wallets[0].custodyType : "EOA",
-            accountType: "EOA",
+            accountType: "SCA",
             name: wallet.data?.wallets[0].name,
             userId: wallet.data?.wallets[0].refId ? parseInt(wallet.data?.wallets[0].refId) : undefined,
             blockchains: formatBlockchainData(walletId, blockchains)
         });
 
-        return {
-            walletId: walletRecord?.id,
-            address: walletRecord?.address
-        };
+        return walletRecord;
     } catch (e: any) {
         console.error(e);
         return null;

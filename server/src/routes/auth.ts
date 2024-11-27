@@ -3,7 +3,6 @@ import { Secret } from "jsonwebtoken";
 import {
     signup,
     SignupParams,
-    SignupReturnParams,
     AUTH_TOKEN_COOKIE,
     login
 } from "../services/auth";
@@ -46,16 +45,12 @@ authRouter.post("/signup", async (req: express.Request, res: express.Response) =
             });
         }
 
-        const { userId, email: userEmail, walletId, address, token } = userSignup;
-        
+        const { token, user } = userSignup;;       
         setAuthCookie(res, token);
         
         return res.status(201).json({
-            userId,
-            email: userEmail,
-            walletId,
-            address,
-            token
+            token,
+            user
         });
     } catch (err) {
         console.error('Signup error:', err);
@@ -85,8 +80,8 @@ authRouter.post("/login", async (req: express.Request, res: express.Response) =>
         if (token && user) {
             setAuthCookie(res, token);
             return res.status(200).send({
-                user,
-                token
+                token,
+                user
             });
         }
     } catch (error) {
