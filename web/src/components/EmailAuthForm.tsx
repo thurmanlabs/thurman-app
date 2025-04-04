@@ -6,28 +6,47 @@ import {
 import { Button, Grid } from "@mui/material";
 import TextInputField from "./TextInputField";
 import { styles } from "../styles/styles";
+import useAccount from "../hooks/useAccount";
 
-type IFormInput = {
+export type IEmailAuthFormInput = {
     emailValue: string;
     passwordValue: string;
 };
 
-export default function EmailAuthForm() {
+interface EmailAuthFormProps {
+    authType: string;
+}
+
+export default function EmailAuthForm({ authType }: EmailAuthFormProps) {
+    const { emailSignup, emailLogin } = useAccount();
     const {
         watch,
         formState: { isValid, errors },
         control,
         handleSubmit
-    } = useForm({
+    } = useForm<IEmailAuthFormInput>({
         mode: "onChange",
         defaultValues: {
             emailValue: "",
             passwordValue: ""
         }
     });
+
+    const onSubmit: SubmitHandler<IEmailAuthFormInput> = async (data) => {
+        try {
+            if (authType === "Login") {
+                await emailLogin(data);
+            } else {
+                await emailSignup(data);
+            }
+        } catch (error) {
+            console.error("Authentication error:", error);
+        }
+    };
+
     return (
         <Grid container justifyContent="center" alignItems="center" direction="column">
-            <Grid item xs={12} sm={6} md={4} sx={{ width: "60%", maxWidth: "25em" }}>
+            <Grid item xs={12} sm={6} md={4} sx={{ width: "80%", maxWidth: "25em" }}>
                 <TextInputField
                     control={control}
                     name="emailValue"
@@ -54,8 +73,9 @@ export default function EmailAuthForm() {
                     disabled={!isValid}
                     sx={styles.button.primary}
                     fullWidth
+                    onClick={handleSubmit(onSubmit)}
                 >
-                    Sign up
+                    {authType === "Login" ? "Log In" : "Sign Up"}
                 </Button>
             </Grid>
         </Grid>

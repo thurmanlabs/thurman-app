@@ -5,7 +5,7 @@ import {
   Toolbar, 
   Box,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { styles } from "../styles/styles";
 import useAccount from "../hooks/useAccount";
 import NavigateButton from "./NavigateButton";
@@ -21,11 +21,20 @@ export default function Header() {
     <AppBar position="sticky" sx={styles.header.appBar}>
       <ContentContainer>
         <Toolbar sx={styles.header.toolbar}>
-          <Avatar 
-            src={thurman}
-            onClick={() => navigate("/")}
-            sx={styles.avatar.header} 
-          />
+          <Box sx={styles.header.navLinksContainer}>
+            <Avatar
+              src={thurman}
+              onClick={() => navigate("/")}
+              sx={styles.avatar.header}
+            />
+            <NavigateButton
+              variant="text"
+              to="/lend"
+              sx={styles.button.text}
+            >
+              Lend
+            </NavigateButton>
+          </Box>
 
         <Box sx={styles.header.authSection}>
             {userAccount ? (<AccountDropdown />) : (

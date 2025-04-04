@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-type StepComponent<T> = ((props: T) => React.ReactNode) | (() => React.ReactNode);
+export type StepComponent<T> = ((props: T) => React.ReactNode) | (() => React.ReactNode);
 
 export default function useMultiStep<T = void>(steps: StepComponent<T>[]) {
     const [currentStepIndex, setCurrentStepIndex] = useState(0);

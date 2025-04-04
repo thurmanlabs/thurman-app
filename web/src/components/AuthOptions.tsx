@@ -1,7 +1,7 @@
 import React from "react";
 import { Grid, Typography, Avatar, IconButton } from "@mui/material";
 import { AuthOptionProps } from "../types/auth";
-import useMultiStep from "../hooks/useMultiStep";
+import useMultiStep, { StepComponent } from "../hooks/useMultiStep";
 import Web3AuthOption from "./Web3AuthOption";
 import EmailAuthOption from "./EmailAuthOption";
 import { styles } from "../styles/styles" ;
@@ -14,7 +14,15 @@ interface AuthOptionsProps {
     options: AuthOptionProps[];
 }
 
-function StepOne({ options, onNext }: { options: AuthOptionProps[], onNext: () => void }) {
+// Define a common interface for all step props
+interface StepProps {
+    options: AuthOptionProps[];
+    onNext: () => void;
+    authType: string;
+}
+
+// Update the step components to use the common interface
+function StepOne({ options, onNext }: StepProps) {
     return (
         <>
             {options.map((option, index) => (
@@ -30,17 +38,17 @@ function StepOne({ options, onNext }: { options: AuthOptionProps[], onNext: () =
     );
 }
 
-function StepTwo() {
-    return <EmailAuthForm />;
+function StepTwo({ authType }: StepProps) {
+    return <EmailAuthForm authType={authType} />;
 }
 
-const authSteps = [
+const authSteps: StepComponent<StepProps>[] = [
     StepOne,
     StepTwo
 ];
 
 export default function AuthOptions({ authType, options }: AuthOptionsProps) {
-    const { currentStepIndex, step, steps, next, back, goTo } = useMultiStep(authSteps);
+    const { currentStepIndex, step, steps, next, back, goTo } = useMultiStep<StepProps>(authSteps);
     
     return (
         <Grid 
@@ -77,7 +85,7 @@ export default function AuthOptions({ authType, options }: AuthOptionsProps) {
                     {authType}
                 </Typography>
             </Grid>
-            {step({ options, onNext: next })}
+            {step({ options, onNext: next, authType })}
         </Grid>
     );
 }

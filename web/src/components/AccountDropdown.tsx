@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import useAccount from "../hooks/useAccount";
 import { 
     Avatar,
@@ -23,8 +24,9 @@ function shortenAddress(address: string, chars = 4): string {
 }
 
 export default function AccountDropdown() {
+    const navigate = useNavigate();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const { userAccount, connectionType, logout } = useAccount();
+    const { user, connectionType, web3ReactLogout } = useAccount();
     const open = Boolean(anchorEl);
 
     const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -37,14 +39,15 @@ export default function AccountDropdown() {
 
     const handleDisconnect = async () => {
         if (connectionType) {
-            await logout(connectionType);
+            await web3ReactLogout(connectionType);
             handleClose();
+            navigate("/");
         }
     };
 
     return (
         <>
-            {userAccount && (
+            {user?.account && (
                 <ClickAwayListener onClickAway={handleClose}>
                     <div>
                         <IconButton
@@ -73,7 +76,7 @@ export default function AccountDropdown() {
                                                 Connected with {connectionType}
                                             </Typography>
                                             <Typography variant="body2" sx={styles.accountDropdown.addressText}>
-                                                {shortenAddress(userAccount)}
+                                                {user.account ? shortenAddress(user.account) : "No account connected"}
                                             </Typography>
                                         </Box>
 

@@ -7,6 +7,7 @@ import SignUp from "./pages/SignUp";
 import LogIn from "./pages/LogIn";
 import { ThemeProvider } from "@mui/material";
 import { styles } from "./styles/styles";
+import LendPage from "./pages/LendPage";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/login" element={<LogIn />} />
+            <Route path="/lend" element={<LendPage />} />
           </Routes>
         </Router>
       </AccountProvider>

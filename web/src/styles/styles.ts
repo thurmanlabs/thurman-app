@@ -62,6 +62,19 @@ const header: StyleSet = {
         alignItems: "center",
         gap: 1,
     },
+    navLinksContainer: {
+        display: "flex",
+        gap: "2rem",
+        marginLeft: "2rem"
+    },
+    navLink: {
+        color: "#725aa2",
+        textDecoration: "none",
+        fontWeight: 500,
+        "&:hover": {
+            color: "#29262a"
+        }
+    }
 }
 
 const avatar: StyleSet = {
@@ -117,7 +130,7 @@ const button: StyleSet = {
     },
     authOption: {
         backgroundColor: "#FFFFFE",
-        borderColor: "#C5C5C5",
+        borderColor: "#D3D3D3",
         borderRadius: "1.25em",
         justifyContent: "flex-start",
         textAlign: "left",
@@ -127,7 +140,7 @@ const button: StyleSet = {
         padding: "0.9em 1em 0.9em 1em", 
         margin: "0em 0 0.75em 0",
         "&:hover": {
-            borderColor: "#29262a",
+            borderColor: "#D3D3D3",
             backgroundColor: "#F2F1F0"
         }
     }
@@ -186,4 +199,42 @@ export const styles = {
     theme,
     accountDropdown,
     forms,
+    metrics: {
+        card: {
+            padding: "1.5rem",
+            borderRadius: "1.25em",
+            backgroundColor: "#FFFFFE",
+            boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)",
+            height: "100%",
+            transition: "transform 0.2s ease-in-out",
+            "&:hover": {
+                transform: "translateY(-2px)"
+            }
+        },
+        value: {
+            color: "#725aa2",
+            fontWeight: 700,
+            marginTop: "0.5em"
+        },
+        label: {
+            color: "#29262a",
+            fontWeight: 500
+        }
+    },
+    pools: {
+        section: {
+            marginTop: "2em"
+        },
+        card: {
+            padding: "1.5rem",
+            borderRadius: "1.25em",
+            backgroundColor: "#FFFFFE",
+            boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)",
+            marginBottom: "1em",
+            transition: "transform 0.2s ease-in-out",
+            "&:hover": {
+                transform: "translateY(-2px)"
+            }
+        }
+    }
 }
