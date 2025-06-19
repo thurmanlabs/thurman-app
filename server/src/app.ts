@@ -1,12 +1,14 @@
 import express, { Express, Request, Response, NextFunction } from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import { config } from "./config";
 import http from "http";
-import createError from "http-errors";
 import expressWinston from "express-winston";
 import winston from "winston";
-import authRouter from "./routes/auth";
+import authRouter from "./routes/auth"; 
 import userRouter from "./routes/user";
+import { notFound } from "./middleware/notFound";
+import { errorHandler } from "./middleware/errorHandler";
 
 const { port, apiPrefix } = config;
 const app: Express = express();
@@ -30,51 +32,29 @@ const loggerOptions: expressWinston.LoggerOptions = {
     ignoreRoute: function (req, res) { return false; }
 };
 
-// Error logger configuration
-const errorLoggerOptions: expressWinston.ErrorLoggerOptions = {
-    transports: [
-        new winston.transports.Console()
-    ],
-    format: winston.format.combine(
-        winston.format.colorize(),
-        winston.format.json(),
-        winston.format.timestamp(),
-        winston.format.prettyPrint()
-    )
-};
-
-// Middleware
+// ===== MIDDLEWARE ORDER =====
+// 1. CORS and body parsing middleware FIRST
 app.use(cors({
     origin: "http://localhost:3000",
     credentials: true
 }));
 
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Request logging middleware
+// 2. Request logging middleware
 app.use(expressWinston.logger(loggerOptions));
 
+// 3. API routes (with proper apiPrefix)
 app.use(`${apiPrefix}/auth`, authRouter);
 app.use(`${apiPrefix}/user`, userRouter);
 
-// Catch 404 and forward to error handler
-app.use((req: Request, res: Response, next: NextFunction) => {
-    next(createError(404));
-});
+// 4. 404 handler for unmatched routes
+app.use(notFound);
 
-// Error logging middleware
-app.use(expressWinston.errorLogger(errorLoggerOptions));
-
-// Error handler
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-    res.status(err.status || 500);
-    res.json({
-        status: err.status || 500,
-        message: err.message,
-        error: process.env.NODE_ENV === "development" ? err : {}
-    });
-});
+// 5. Error handler middleware LAST
+app.use(errorHandler);
 
 server.listen(port, () => {
     console.log(`Server running on port ${port}`);

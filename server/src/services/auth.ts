@@ -3,6 +3,7 @@ import { verify, sign, Secret, JwtPayload } from "jsonwebtoken";
 import { config } from "../config";
 import { createUser, validateUser, getUser } from "../prisma/models";
 import { createDeveloperWallet } from "./circle";
+import { UserRole, UserStatus } from "@prisma/client";
 
 export const AUTH_TOKEN_COOKIE = "thurmanlabs";
 const POLYGON_MAINNET_ID = "137";
@@ -15,6 +16,8 @@ interface UserResponse {
     custodyType: string;
     chainId: number;
     accountType: string;
+    role: UserRole;
+    status: UserStatus;
 }
 
 export type SignupParams = {
@@ -48,7 +51,7 @@ type LoginParams = {
 };
 
 const mapToUserResponse = (
-    user: { id: number; email: string | null },
+    user: { id: number; email: string | null; role: UserRole; status: UserStatus },
     wallet: {
         address: string;
         name?: string | null;
@@ -64,7 +67,9 @@ const mapToUserResponse = (
         walletName: wallet.name || null,
         custodyType: wallet.custodyType || "EOA",
         chainId: Number(wallet.blockchains?.[0]?.chainId || POLYGON_MAINNET_ID),
-        accountType: wallet.accountType || "EOA"
+        accountType: wallet.accountType || "EOA",
+        role: user.role,
+        status: user.status
     };
 };
 
@@ -160,7 +165,7 @@ export const login = async ({
 
         let wallet = user.wallets[0];
 
-        const userResponse = mapToUserResponse({id: user.id, email: user.email}, user.wallets[0])
+        const userResponse = mapToUserResponse({id: user.id, email: user.email, role: user.role, status: user.status}, user.wallets[0])
 
         return {
             token,
@@ -181,7 +186,7 @@ export const getAuthenticatedUser = async (userEmail: string): Promise<UserRespo
             return null;
         }
 
-        const userResponse = mapToUserResponse({ id: user.id, email: user.email }, user.wallets[0]);
+        const userResponse = mapToUserResponse({ id: user.id, email: user.email, role: user.role, status: user.status }, user.wallets[0]);
 
         return userResponse;
     } catch (err) {

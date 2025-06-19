@@ -1,4 +1,4 @@
-import { User, Prisma } from "@prisma/client";
+import { User, Prisma, UserRole, UserStatus } from "@prisma/client";
 import bcrypt from "bcrypt";
 import db from "../../utils/prismaClient";
 
@@ -7,6 +7,8 @@ const SALT_ROUNDS = 10;
 type ValidatedUserData = {
     id: number;
     email: string | null;
+    role: UserRole;
+    status: UserStatus;
     wallets: {
         id: string | null;
         custodyType: string;
@@ -57,6 +59,8 @@ export async function validateUser(userEmail: string, password: string): Promise
                 id: true,
                 email: true,
                 password: true,
+                role: true,
+                status: true,
                 wallets: {
                     select: {
                         id: true,
@@ -109,6 +113,8 @@ export async function getUser(userEmail: string): Promise<ValidatedUserData | nu
                 id: true,
                 email: true,
                 password: true,
+                role: true,
+                status: true,
                 wallets: {
                     select: {
                         id: true,

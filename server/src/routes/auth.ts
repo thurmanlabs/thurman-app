@@ -1,4 +1,4 @@
-import express, { Router } from "express";
+import express, { Router, NextFunction } from "express";
 import { Secret } from "jsonwebtoken";
 import {
     signup,
@@ -7,6 +7,7 @@ import {
     login
 } from "../services/auth";
 import { config } from "../config";
+import { requireAuth, AuthRequest } from "../middleware/auth";
 
 var authRouter: Router = express.Router();
 
@@ -16,17 +17,28 @@ const tokenLengthMs = 1 * dayMs;
 function setAuthCookie(res: express.Response, token: Secret | undefined) {
     res.cookie(AUTH_TOKEN_COOKIE, token, {
         expires: new Date(Date.now() + tokenLengthMs),
-        secure: false,
-        httpOnly: true
+        secure: process.env.NODE_ENV === "production",
+        httpOnly: true,
+        sameSite: "strict"
     });
 }
 
-authRouter.post("/signup", async (req: express.Request, res: express.Response) => {
+function clearAuthCookie(res: express.Response) {
+    res.clearCookie(AUTH_TOKEN_COOKIE, {
+        secure: process.env.NODE_ENV === "production",
+        httpOnly: true,
+        sameSite: "strict"
+    });
+}
+
+authRouter.post("/signup", async (req: express.Request, res: express.Response, next: NextFunction) => {
     const { email, password, accountType, blockchains } = req.body;
 
     if (!email || !password || !accountType || !blockchains) {
         return res.status(400).json({ 
-            errorMessage: "Missing required fields" 
+            success: false,
+            error: "Missing required fields",
+            message: "Email, password, account type, and blockchains are required"
         });
     }
 
@@ -41,68 +53,84 @@ authRouter.post("/signup", async (req: express.Request, res: express.Response) =
 
         if (!userSignup) {
             return res.status(400).json({ 
-                errorMessage: "Unable to create new user" 
+                success: false,
+                error: "Signup failed",
+                message: "Unable to create new user. Please try again."
             });
         }
 
-        const { token, user } = userSignup;;       
+        const { token, user } = userSignup;       
         setAuthCookie(res, token);
         
         return res.status(201).json({
-            token,
-            user
+            success: true,
+            message: "User created successfully",
+            data: {
+                token,
+                user
+            }
         });
     } catch (err) {
-        console.error('Signup error:', err);
-        return res.status(500).json({
-            errorMessage: err instanceof Error ? err.message : "Internal server error"
-        });
+        console.error("Signup error:", err);
+        next(err);
     }
 });
 
-authRouter.post("/login", async (req: express.Request, res: express.Response) => {
+authRouter.post("/login", async (req: express.Request, res: express.Response, next: NextFunction) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
         return res.status(400).json({
-            errorMessage: "Missing required fields"
+            success: false,
+            error: "Missing required fields",
+            message: "Email and password are required"
         });
     }
 
     try {
         const loginResult = await login({ email, password });
         if (!loginResult) {
-            return res.status(400).json({
-                errorMessage: "Invalid credentials"
+            return res.status(401).json({
+                success: false,
+                error: "Authentication failed",
+                message: "Invalid email or password"
             });
         }
+        
         const { token, user } = loginResult;
         if (token && user) {
             setAuthCookie(res, token);
-            return res.status(200).send({
-                token,
-                user
+            return res.status(200).json({
+                success: true,
+                message: "Login successful",
+                data: {
+                    token,
+                    user
+                }
             });
         }
+        
+        return res.status(500).json({
+            success: false,
+            error: "Login failed",
+            message: "Unable to complete login process"
+        });
     } catch (error) {
         console.error("Login error:", error);
-        return res.status(500).json({
-            errorMessage: "Internal server error"
-        });
+        next(error);
     }
 });
 
-authRouter.post("/logout", async (req: express.Request, res: express.Response) => {
+authRouter.post("/logout", async (req: express.Request, res: express.Response, next: NextFunction) => {
     try {
-        setAuthCookie(res, "");
+        clearAuthCookie(res);
         return res.status(200).json({
+            success: true,
             message: "Successfully logged out"
         });
     } catch (error) {
         console.error("Logout error: ", error);
-        return res.status(500).json({
-            errorMessage: "Failed to logout"
-        });
+        next(error);
     }
 });
 

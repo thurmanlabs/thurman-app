@@ -2,10 +2,14 @@
   "name": "server",
   "version": "1.0.0",
   "main": "index.js",
+  "prisma": {
+    "seed": "ts-node src/prisma/seed.ts"
+  },
   "scripts": {
     "start": "node dist/app.js",
     "dev": "ts-node-dev --respawn --transpile-only src/app.ts",
     "build": "tsc",
+    "seed": "ts-node src/prisma/seed.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -19,6 +23,7 @@
     "@types/express-winston": "^3.0.4",
     "@types/http-errors": "^2.0.4",
     "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
@@ -31,6 +36,7 @@
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
+    "@types/cookie-parser": "^1.4.8",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/jsonwebtoken": "^9.0.7",
