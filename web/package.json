@@ -1,6 +1,7 @@
 {
   "name": "web",
   "version": "0.1.0",
+  "proxy": "http://localhost:8080",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.13.3",
@@ -14,11 +15,7 @@
     "@types/node": "^16.18.119",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
-    "@web3-react/coinbase-wallet": "^8.2.3",
-    "@web3-react/core": "^8.2.3",
-    "@web3-react/metamask": "^8.2.4",
-    "@web3-react/types": "^8.2.3",
-    "@web3-react/walletconnect": "^8.2.3",
+    "axios": "^1.10.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.53.2",
@@ -29,7 +26,7 @@
   },
   "scripts": {
     "start": "GENERATE_SOURCEMAP=false react-scripts start",
-    "build": "GENERATE_SOURCEMAP=falsereact-scripts build",
+    "build": "GENERATE_SOURCEMAP=false react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

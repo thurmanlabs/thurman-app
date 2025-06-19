@@ -4,6 +4,8 @@ import {
   Avatar, 
   Toolbar, 
   Box,
+  Typography,
+  Button
 } from "@mui/material";
 import { useNavigate, Link } from "react-router-dom";
 import { styles } from "../styles/styles";
@@ -11,11 +13,10 @@ import useAccount from "../hooks/useAccount";
 import NavigateButton from "./NavigateButton";
 import ContentContainer from "./ContentContainer";
 import thurman from "../assets/images/thurman.png";
-import AccountDropdown from "./AccountDropdown";
 
 export default function Header() {
     const navigate = useNavigate();
-    const { userAccount } = useAccount();
+    const { user } = useAccount();
 
   return (
     <AppBar position="sticky" sx={styles.header.appBar}>
@@ -37,7 +38,20 @@ export default function Header() {
           </Box>
 
         <Box sx={styles.header.authSection}>
-            {userAccount ? (<AccountDropdown />) : (
+            {user ? (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Typography variant="body2">
+                  {user.email}
+                </Typography>
+                <Button 
+                  variant="text" 
+                  onClick={() => {/* TODO: implement logout */}}
+                  sx={styles.button.text}
+                >
+                  Logout
+                </Button>
+              </Box>
+            ) : (
               <>
               <NavigateButton 
               variant="text" 

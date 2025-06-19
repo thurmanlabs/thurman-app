@@ -2,7 +2,6 @@ import React from "react";
 import { Grid, Typography, Avatar, IconButton } from "@mui/material";
 import { AuthOptionProps } from "../types/auth";
 import useMultiStep, { StepComponent } from "../hooks/useMultiStep";
-import Web3AuthOption from "./Web3AuthOption";
 import EmailAuthOption from "./EmailAuthOption";
 import { styles } from "../styles/styles" ;
 import thurman from "../assets/images/thurman.png";
@@ -27,11 +26,7 @@ function StepOne({ options, onNext }: StepProps) {
         <>
             {options.map((option, index) => (
                 <Grid key={index} container>
-                    {option.type === "web3" ? (
-                        <Web3AuthOption {...option} />
-                    ) : (
-                        <EmailAuthOption {...option} next={onNext} />
-                    )}
+                    <EmailAuthOption {...option} next={onNext} />
                 </Grid>
             ))}
         </>
