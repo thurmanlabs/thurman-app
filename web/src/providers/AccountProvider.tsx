@@ -8,18 +8,12 @@ axios.defaults.baseURL = "http://localhost:8080";
 axios.defaults.withCredentials = true;
 
 export default function AccountProvider({ children }: { children: React.ReactNode }) {
-    return (
-        <AccountProviderInner>
-            {children}
-        </AccountProviderInner>
-    );
-}
-
-function AccountProviderInner({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState(false);
 
-    const emailSignup = async (data: IEmailAuthFormInput) => {
+    const signup = async (data: IEmailAuthFormInput) => {
         try {
+            setLoading(true);
             console.log('Attempting signup request to:', '/api/auth/signup');
             const response = await axios.post("/api/auth/signup", {
                 email: data.emailValue,
@@ -41,11 +35,14 @@ function AccountProviderInner({ children }: { children: React.ReactNode }) {
                 }
             });
             throw error;
+        } finally {
+            setLoading(false);
         }
     };
 
-    const emailLogin = async (data: IEmailAuthFormInput) => {
+    const login = async (data: IEmailAuthFormInput) => {
         try {
+            setLoading(true);
             const response = await axios.post("/api/auth/login", {
                 email: data.emailValue,
                 password: data.passwordValue
@@ -54,24 +51,34 @@ function AccountProviderInner({ children }: { children: React.ReactNode }) {
         } catch (error) {
             console.error("Login error:", error);
             throw error;
+        } finally {
+            setLoading(false);
         }
     };
 
-    const emailLogout = async () => {
+    const logout = async () => {
         try {
+            setLoading(true);
             await axios.post("/api/auth/logout");
             setUser(null);
         } catch (error) {
             console.error("Logout error:", error);
+        } finally {
+            setLoading(false);
         }
     };
 
+    // Computed property for admin check
+    const isAdmin = user?.role === 'ADMIN';
+
     return (
         <AccountContext.Provider value={{
-            user: user,
-            emailSignup: emailSignup,
-            emailLogin: emailLogin,
-            emailLogout: emailLogout
+            user,
+            loading,
+            isAdmin,
+            login,
+            signup,
+            logout
         }}>
             {children}
         </AccountContext.Provider>

@@ -16,7 +16,7 @@ import thurman from "../assets/images/thurman.png";
 
 export default function Header() {
     const navigate = useNavigate();
-    const { user } = useAccount();
+    const { user, logout } = useAccount();
 
   return (
     <AppBar position="sticky" sx={styles.header.appBar}>
@@ -45,7 +45,7 @@ export default function Header() {
                 </Typography>
                 <Button 
                   variant="text" 
-                  onClick={() => {/* TODO: implement logout */}}
+                  onClick={logout}
                   sx={styles.button.text}
                 >
                   Logout
