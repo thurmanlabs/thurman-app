@@ -17,13 +17,19 @@ type CreateWalletReturnParams = {
     address: string | undefined;
 }
 
-const formatBlockchainData = (walletId: string | undefined, blockchains: Blockchain[]): { chainId: string, name: string, walletId: string }[] => {
+const formatBlockchainData = (walletId: string | undefined, blockchains: Blockchain[]): { chainId: string, name: string }[] => {
     return blockchains.map(blockchain => ({
         chainId: blockchain.toString() === "MATIC" ? "137" : 
                 blockchain.toString() === "MATIC-AMOY" ? "80002" : 
-                blockchain.toString() === "ETH-SEPOLIA" ? "11155111" : "",
-        name: blockchain.toString(),
-        walletId: walletId ?? ""
+                blockchain.toString() === "ETH-SEPOLIA" ? "11155111" : 
+                blockchain.toString() === "ETH" ? "1" : 
+                blockchain.toString() === "AVAX" ? "43114" : 
+                blockchain.toString() === "AVAX-FUJI" ? "43113" : 
+                blockchain.toString() === "ARB" ? "42161" : 
+                blockchain.toString() === "ARB-SEPOLIA" ? "421614" : 
+                blockchain.toString() === "BASE" ? "8453" : 
+                blockchain.toString() === "BASE-SEPOLIA" ? "84532" : "",
+        name: blockchain.toString()
     }));
 };
 

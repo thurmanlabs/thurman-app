@@ -49,7 +49,7 @@ model BlockchainAccess {
   chainId  String
   name     String  
   wallet   Wallet @relation(fields: [walletId], references: [id])
-  walletId String @unique
+  walletId String
 }
 
 model Nonce {

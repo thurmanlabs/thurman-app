@@ -17,7 +17,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@circle-fin/developer-controlled-wallets": "^5.0.1",
+    "@circle-fin/developer-controlled-wallets": "^8.3.0",
     "@circle-fin/smart-contract-platform": "^5.0.0",
     "@prisma/client": "^5.22.0",
     "@types/express-winston": "^3.0.4",

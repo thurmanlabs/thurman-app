@@ -8,7 +8,7 @@ type CreateWalletParams = {
     accountType: string;
     name?: string;
     userId?: number;
-    blockchains: BlockchainAccess[];
+    blockchains: { chainId: string; name: string }[];
 }
 
 export async function createWallet({
@@ -21,7 +21,7 @@ export async function createWallet({
     blockchains
 }: CreateWalletParams): Promise<Wallet | null> {
     try {
-        const wallet = db.wallet.create({
+        const wallet = await db.wallet.create({
             data: {
                 id: id,
                 address: address,
@@ -30,8 +30,14 @@ export async function createWallet({
                 name: name,
                 userId: userId,
                 blockchains: {
-                    create: blockchains
+                    create: blockchains.map(bc => ({
+                        chainId: bc.chainId,
+                        name: bc.name
+                    }))
                 }
+            },
+            include: {
+                blockchains: true
             }
         });
         return wallet;

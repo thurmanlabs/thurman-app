@@ -47,7 +47,7 @@ authRouter.post("/signup", async (req: express.Request, res: express.Response, n
             email,
             password,
             accountType,
-            blockchains: [blockchains],
+            blockchains: blockchains,
             walletSetId: "0190af6f-db3c-71c1-9ff3-824e4bab0448"
         });
 
