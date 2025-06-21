@@ -1,31 +1,45 @@
 import express, { Router } from "express";
 import { getAuthenticatedUser } from "../services/auth";
+import { requireAuth, AuthRequest } from "../middleware/auth";
 
 var userRouter: Router = express.Router();
 
-userRouter.get("/", async(req: express.Request, res: express.Response, next: express.NextFunction) => {
-    const { email } = req.body;
-    
+// GET /api/user/me - Get current authenticated user data
+userRouter.get("/me", requireAuth, async (req: AuthRequest, res: express.Response, next: express.NextFunction) => {
     try {
-        const user = getAuthenticatedUser(email);
-
-        if (!user) {
-            return res.status(400).json({
-                errorMessage: "Invalid user email"
+        // req.user is set by the requireAuth middleware
+        const userEmail = req.user?.email;
+        
+        if (!userEmail) {
+            return res.status(401).json({
+                success: false,
+                error: "Unauthorized",
+                message: "User email not found in token"
             });
         }
 
-        return res.status(200).send({
-            user
+        const user = await getAuthenticatedUser(userEmail);
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                error: "User not found",
+                message: "User not found in database"
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "User data retrieved successfully",
+            data: {
+                user
+            }
         });
 
     } catch (err: any) {
         console.error("Get user error:", err);
-        return res.status(500).json({
-            errorMessage: "Internal server error"
-        });
+        next(err); // Pass to error handler middleware
     }
-    console.log("Hi");
-})
+});
 
 export default userRouter;

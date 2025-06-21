@@ -16,6 +16,7 @@ type ValidatedUserData = {
         name: string | null;
         blockchains: {
             chainId: string;
+            name: string;
         }[];
     }[];
 };
@@ -70,6 +71,7 @@ export async function validateUser(userEmail: string, password: string): Promise
                         blockchains: {
                             select: {
                                 chainId: true,
+                                name: true,
                             }
                         }
                     }
@@ -112,7 +114,6 @@ export async function getUser(userEmail: string): Promise<ValidatedUserData | nu
             select: {
                 id: true,
                 email: true,
-                password: true,
                 role: true,
                 status: true,
                 wallets: {
@@ -124,6 +125,7 @@ export async function getUser(userEmail: string): Promise<ValidatedUserData | nu
                         blockchains: {
                             select: {
                                 chainId: true,
+                                name: true,
                             }
                         }
                     }

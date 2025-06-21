@@ -53,13 +53,15 @@ type LoginParams = {
 const mapToUserResponse = (
     user: { id: number; email: string | null; role: UserRole; status: UserStatus },
     wallet: {
+        id?: string | null;
         address: string;
         name?: string | null;
         custodyType?: string;
         accountType?: string;
-        blockchains?: { chainId: string }[];
+        blockchains?: { chainId: string; name?: string }[];
     }
 ): UserResponse => {
+    
     return {
         id: user.id,
         email: user.email || "",
