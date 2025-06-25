@@ -3,20 +3,23 @@ import {
   AppBar, 
   Avatar, 
   Toolbar, 
-  Box,
-  Typography,
-  Button
+  Box
 } from "@mui/material";
-import { useNavigate, Link } from "react-router-dom";
-import { styles } from "../styles/styles";
+import { useNavigate } from "react-router-dom";
 import useAccount from "../hooks/useAccount";
-import NavigateButton from "./NavigateButton";
+import { styles } from "../styles/styles";
+import AccountDropdown from "./AccountDropdown";
 import ContentContainer from "./ContentContainer";
+import NavigateButton from "./NavigateButton";
 import thurman from "../assets/images/thurman.png";
 
-export default function Header() {
-    const navigate = useNavigate();
-    const { user, logout } = useAccount();
+interface HeaderProps {
+  // Currently no props needed, but following the style guide structure
+}
+
+export default function Header({}: HeaderProps) {
+  const navigate = useNavigate();
+  const { user } = useAccount();
 
   return (
     <AppBar position="sticky" sx={styles.header.appBar}>
@@ -37,39 +40,28 @@ export default function Header() {
             </NavigateButton>
           </Box>
 
-        <Box sx={styles.header.authSection}>
+          <Box sx={styles.header.authSection}>
             {user ? (
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Typography variant="body2">
-                  {user.email}
-                </Typography>
-                <Button 
-                  variant="text" 
-                  onClick={logout}
-                  sx={styles.button.text}
-                >
-                  Logout
-                </Button>
-              </Box>
+              <AccountDropdown />
             ) : (
               <>
-              <NavigateButton 
-              variant="text" 
-              to="/login"
-              sx={styles.button.text}
-              >
-            Log in
-            </NavigateButton>
-            <NavigateButton 
-              variant="contained"
-              to="/signup"
-              sx={styles.button.primary}
-            >
-              Sign up
+                <NavigateButton 
+                  variant="text" 
+                  to="/login"
+                  sx={styles.button.text}
+                >
+                  Log in
+                </NavigateButton>
+                <NavigateButton 
+                  variant="contained"
+                  to="/signup"
+                  sx={styles.button.primary}
+                >
+                  Sign up
                 </NavigateButton>
               </>
             )}
-        </Box>
+          </Box>
         </Toolbar>
       </ContentContainer>
     </AppBar>

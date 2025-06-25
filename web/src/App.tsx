@@ -12,17 +12,17 @@ import LendPage from "./pages/LendPage";
 function App() {
   return (
       <ThemeProvider theme={styles.theme}>
-        <AccountProvider>
-          <Router>
+        <Router>
+          <AccountProvider>
             <Header />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/signup" element={<SignUp />} />
-            <Route path="/login" element={<LogIn />} />
-            <Route path="/lend" element={<LendPage />} />
-          </Routes>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/signup" element={<SignUp />} />
+              <Route path="/login" element={<LogIn />} />
+              <Route path="/lend" element={<LendPage />} />
+            </Routes>
+          </AccountProvider>
         </Router>
-      </AccountProvider>
       </ThemeProvider>
   );
 }

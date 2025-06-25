@@ -14,7 +14,7 @@ export default function Home() {
           {user ? (
             <div>
               <Typography variant="h4" gutterBottom>
-                Welcome, {user.firstName || user.email}!
+                Welcome, { user.email}!
               </Typography>
               <Box sx={{ mt: 2, display: 'flex', gap: 1, justifyContent: 'center' }}>
                 <Chip 
@@ -31,9 +31,9 @@ export default function Home() {
                   size="small"
                 />
               </Box>
-              {user.wallet && (
+              {user.account && (
                 <Typography variant="body2" sx={{ mt: 2, color: 'text.secondary' }}>
-                  Wallet: {user.wallet.address.slice(0, 6)}...{user.wallet.address.slice(-4)}
+                  Wallet: {user.account.slice(0, 6)}...{user.account.slice(-4)}
                 </Typography>
               )}
             </div>

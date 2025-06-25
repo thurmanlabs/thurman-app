@@ -188,6 +188,35 @@ const accountDropdown: StyleSet = {
     disconnectIcon: {
         mr: 1,
         fontSize: 20
+    },
+    button: {
+        display: "flex",
+        alignItems: "center",
+        gap: 1,
+        textTransform: "none",
+        color: "white",
+        "&:hover": {
+            backgroundColor: "rgba(255, 255, 255, 0.1)"
+        }
+    },
+    userAvatar: {
+        width: 32,
+        height: 32,
+        bgcolor: "primary.main",
+        fontSize: "0.875rem"
+    },
+    menu: {
+        mt: 1,
+        minWidth: 200,
+        boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
+        borderRadius: 2
+    },
+    menuItem: {
+        py: 1.5
+    },
+    logoutIcon: {
+        mr: 2,
+        fontSize: 20
     }
 }
 
