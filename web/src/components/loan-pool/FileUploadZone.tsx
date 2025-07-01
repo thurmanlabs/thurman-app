@@ -13,8 +13,7 @@ import {
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useDropzone } from "react-dropzone";
-import { FileUploadProps, LoanFilePreview } from "../../types/loan-pool";
-import { styles } from "../../styles/styles";
+import { FileUploadProps } from "../../types/loan-pool";
 
 export default function FileUploadZone({
     onFileAccepted,
@@ -146,10 +145,10 @@ export default function FileUploadZone({
                         File Preview
                     </Typography>
                     
-                    <Grid container spacing={2} sx={{ mb: 3 }}>
+                    <Grid container spacing={1} sx={{ mb: 3 }}>
                         <Grid item xs={12} sm={6} md={3}>
                             <Box sx={{ textAlign: "center" }}>
-                                <Typography variant="h4" sx={{ color: "#725aa2", fontWeight: "bold" }}>
+                                <Typography variant="body1" sx={{ color: "#725aa2", fontWeight: "bold", fontSize: "1.1rem" }}>
                                     {previewData.totalLoans}
                                 </Typography>
                                 <Typography variant="body2" color="text.secondary">
@@ -159,7 +158,7 @@ export default function FileUploadZone({
                         </Grid>
                         <Grid item xs={12} sm={6} md={3}>
                             <Box sx={{ textAlign: "center" }}>
-                                <Typography variant="h4" sx={{ color: "#725aa2", fontWeight: "bold" }}>
+                                <Typography variant="body1" sx={{ color: "#725aa2", fontWeight: "bold", fontSize: "1.1rem" }}>
                                     {formatCurrency(previewData.totalAmount)}
                                 </Typography>
                                 <Typography variant="body2" color="text.secondary">
@@ -169,7 +168,7 @@ export default function FileUploadZone({
                         </Grid>
                         <Grid item xs={12} sm={6} md={3}>
                             <Box sx={{ textAlign: "center" }}>
-                                <Typography variant="h4" sx={{ color: "#725aa2", fontWeight: "bold" }}>
+                                <Typography variant="body1" sx={{ color: "#725aa2", fontWeight: "bold", fontSize: "1.1rem" }}>
                                     {formatCurrency(previewData.avgLoanSize)}
                                 </Typography>
                                 <Typography variant="body2" color="text.secondary">
@@ -179,7 +178,7 @@ export default function FileUploadZone({
                         </Grid>
                         <Grid item xs={12} sm={6} md={3}>
                             <Box sx={{ textAlign: "center" }}>
-                                <Typography variant="h4" sx={{ color: "#725aa2", fontWeight: "bold" }}>
+                                <Typography variant="body1" sx={{ color: "#725aa2", fontWeight: "bold", fontSize: "1.1rem" }}>
                                     {formatPercentage(previewData.avgInterestRate)}
                                 </Typography>
                                 <Typography variant="body2" color="text.secondary">

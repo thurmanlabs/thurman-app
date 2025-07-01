@@ -128,51 +128,73 @@ async function parseExcelFile(file: File): Promise<LoanFilePreview> {
   });
 }
 
-/**
- * Extracts preview statistics from parsed data
- * @param data - Array of loan records
- * @param columns - Array of column headers
- * @returns LoanFilePreview object with calculated statistics
- */
+function normalizeColumnName(name: string): string {
+  return name.trim().toLowerCase();
+}
+
 function extractPreviewData(data: Record<string, any>[], columns: string[]): LoanFilePreview {
+
   if (data.length === 0) {
     throw new Error("No data found in file");
   }
 
-  // Find numeric columns that might contain loan amounts, interest rates, and terms
-  const amountColumns = columns.filter(col => 
-    col.toLowerCase().includes("amount") || 
-    col.toLowerCase().includes("loan") ||
-    col.toLowerCase().includes("principal") ||
-    col.toLowerCase().includes("balance")
-  );
+  // Normalize columns for matching
+  const normalizedColumns = columns.map(normalizeColumnName);
+  const columnMap: Record<string, string> = {};
+  columns.forEach((col, i) => {
+    columnMap[normalizeColumnName(col)] = col;
+  });
 
-  const rateColumns = columns.filter(col => 
-    col.toLowerCase().includes("rate") || 
-    col.toLowerCase().includes("interest") ||
-    col.toLowerCase().includes("apr")
-  );
+  // Prefer exact matches for amount columns
+  const preferredAmountNames = ["amount", "balance", "principal"];
+  let amountColumns = normalizedColumns.filter(col => preferredAmountNames.includes(col));
 
-  const termColumns = columns.filter(col => 
-    col.toLowerCase().includes("term") || 
-    col.toLowerCase().includes("duration") ||
-    col.toLowerCase().includes("months") ||
-    col.toLowerCase().includes("years")
+  // If no exact match, fall back to partial matches
+  if (amountColumns.length === 0) {
+    amountColumns = normalizedColumns.filter(col =>
+      preferredAmountNames.some(name => col.includes(name))
+    );
+  }
+
+  // Only as a last resort, use a column containing 'loan' (but not 'loan id')
+  if (amountColumns.length === 0) {
+    amountColumns = normalizedColumns.filter(col =>
+      col.includes("loan") && col !== "loan id"
+    );
+  }
+
+  const amountColumn = columnMap[amountColumns[0]] || findFirstNumericColumn(data, columns);
+
+  // Find columns by normalized name
+  const rateColumns = normalizedColumns.filter(col =>
+    col.includes("rate") ||
+    col.includes("interest") ||
+    col.includes("apr")
+  );
+  const termColumns = normalizedColumns.filter(col =>
+    col.includes("term") ||
+    col.includes("duration") ||
+    col.includes("months") ||
+    col.includes("years")
   );
 
   // Use first matching column for each metric, or first numeric column as fallback
-  const amountColumn = amountColumns[0] || findFirstNumericColumn(data, columns);
-  const rateColumn = rateColumns[0] || findFirstNumericColumn(data, columns);
-  const termColumn = termColumns[0] || findFirstNumericColumn(data, columns);
+  const rateColumn = columnMap[rateColumns[0]] || findFirstNumericColumn(data, columns);
+  const termColumn = columnMap[termColumns[0]] || findFirstNumericColumn(data, columns);
 
   // Calculate statistics
   const amounts = extractNumericValues(data, amountColumn);
+
+  // Debug: log the detected amount column and the extracted values
+  console.log('DEBUG amountColumn:', amountColumn);
+  console.log('DEBUG amounts:', amounts);
+
   const rates = extractNumericValues(data, rateColumn);
   const terms = extractNumericValues(data, termColumn);
 
   const totalLoans = data.length;
   const totalAmount = amounts.reduce((sum, amount) => sum + amount, 0);
-  const avgLoanSize = totalAmount / totalLoans;
+  const avgLoanSize = totalLoans > 0 ? totalAmount / totalLoans : 0;
   const avgInterestRate = rates.length > 0 ? rates.reduce((sum, rate) => sum + rate, 0) / rates.length : 0;
   const avgTerm = terms.length > 0 ? terms.reduce((sum, term) => sum + term, 0) / terms.length : 0;
 
@@ -184,6 +206,30 @@ function extractPreviewData(data: Record<string, any>[], columns: string[]): Loa
     avgTerm,
     detectedColumns: columns
   };
+}
+
+function extractNumericValues(data: Record<string, any>[], column: string): number[] {
+  if (!column) return [];
+  return data
+    .map(row => row[column])
+    .filter(value => {
+      if (typeof value === "number") return true;
+      if (typeof value === "string") {
+        // Remove all non-numeric except dot and minus
+        const cleaned = value.replace(/[^0-9.-]+/g, "");
+        const parsed = parseFloat(cleaned);
+        return !isNaN(parsed);
+      }
+      return false;
+    })
+    .map(value => {
+      if (typeof value === "number") return value;
+      if (typeof value === "string") {
+        const cleaned = value.replace(/[^0-9.-]+/g, "");
+        return parseFloat(cleaned);
+      }
+      return 0;
+    });
 }
 
 /**
@@ -200,35 +246,6 @@ function findFirstNumericColumn(data: Record<string, any>[], columns: string[]):
     }
   }
   return "";
-}
-
-/**
- * Extracts numeric values from a specific column
- * @param data - Array of loan records
- * @param column - Column name to extract from
- * @returns Array of numeric values
- */
-function extractNumericValues(data: Record<string, any>[], column: string): number[] {
-  return data
-    .map(row => row[column])
-    .filter(value => {
-      if (typeof value === "number") return true;
-      if (typeof value === "string") {
-        // Remove currency symbols, commas, and percentage signs
-        const cleaned = value.replace(/[$,\s%]/g, "");
-        const parsed = parseFloat(cleaned);
-        return !isNaN(parsed);
-      }
-      return false;
-    })
-    .map(value => {
-      if (typeof value === "number") return value;
-      if (typeof value === "string") {
-        const cleaned = value.replace(/[$,\s%]/g, "");
-        return parseFloat(cleaned);
-      }
-      return 0;
-    });
 }
 
 /**

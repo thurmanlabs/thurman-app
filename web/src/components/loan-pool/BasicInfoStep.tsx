@@ -117,7 +117,6 @@ export default function BasicInfoStep({ formMethods, onNext }: StepProps) {
                     sx={{ 
                         boxShadow: "none",
                         border: "1px solid #D3D3D3",
-                        borderRadius: "1.25em",
                         "&:before": { display: "none" }
                     }}
                 >
@@ -125,7 +124,6 @@ export default function BasicInfoStep({ formMethods, onNext }: StepProps) {
                         expandIcon={<ExpandMoreIcon />}
                         sx={{ 
                             backgroundColor: "#F2F1F0",
-                            borderRadius: optionalExpanded ? "1.25em 1.25em 0 0" : "1.25em"
                         }}
                     >
                         <Typography variant="h6" sx={{ color: "#29262a", fontWeight: 600 }}>
@@ -175,7 +173,6 @@ export default function BasicInfoStep({ formMethods, onNext }: StepProps) {
                     sx={{ 
                         boxShadow: "none",
                         border: "1px solid #D3D3D3",
-                        borderRadius: "1.25em",
                         "&:before": { display: "none" }
                     }}
                 >
@@ -183,7 +180,6 @@ export default function BasicInfoStep({ formMethods, onNext }: StepProps) {
                         expandIcon={<ExpandMoreIcon />}
                         sx={{ 
                             backgroundColor: "#F2F1F0",
-                            borderRadius: characteristicsExpanded ? "1.25em 1.25em 0 0" : "1.25em"
                         }}
                     >
                         <Typography variant="h6" sx={{ color: "#29262a", fontWeight: 600 }}>

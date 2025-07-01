@@ -43,7 +43,7 @@ const authSteps: StepComponent<StepProps>[] = [
 ];
 
 export default function AuthOptions({ authType, options }: AuthOptionsProps) {
-    const { currentStepIndex, step, steps, next, back, goTo } = useMultiStep<StepProps>(authSteps);
+    const { currentStepIndex, step, next, back } = useMultiStep<StepProps>(authSteps);
     
     return (
         <Grid 

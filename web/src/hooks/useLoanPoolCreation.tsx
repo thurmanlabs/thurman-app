@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { useForm, UseFormReturn } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import useMultiStep from "./useMultiStep";
 import { LoanPoolData, LoanFilePreview } from "../types/loan-pool";
 import { parseFilePreview } from "../utils/file-processing";

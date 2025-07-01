@@ -32,7 +32,6 @@ export default function EmailAuthForm({ authType }: EmailAuthFormProps) {
     } | null>(null);
     
     const {
-        watch,
         formState: { isValid, errors },
         control,
         handleSubmit,

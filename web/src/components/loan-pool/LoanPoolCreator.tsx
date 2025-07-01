@@ -12,7 +12,6 @@ import BasicInfoStep from "./BasicInfoStep";
 import FileUploadStep from "./FileUploadStep";
 import ReviewStep from "./ReviewStep";
 import useLoanPoolCreation from "../../hooks/useLoanPoolCreation";
-import { styles } from "../../styles/styles";
 
 const STEP_LABELS = ["Basic Information", "Upload Data", "Review & Submit"];
 

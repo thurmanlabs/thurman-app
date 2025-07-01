@@ -8,7 +8,6 @@ import {
     useTheme,
     useMediaQuery
 } from "@mui/material";
-import { styles } from "../../styles/styles";
 
 interface StepIndicatorProps {
     /** Current step index (0-indexed) */

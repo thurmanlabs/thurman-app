@@ -4,15 +4,10 @@ import {
     IconButton,
     InputAdornment,
     TextField,
-    Typography
 } from "@mui/material";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import {
-    Control,
-    Controller,
-    RegisterOptions
-} from "react-hook-form";
+import { Controller } from "react-hook-form";
 import { styles } from "../../styles/styles";
 import { EnhancedTextInputFieldProps } from "../../types/loan-pool";
 
