@@ -20,30 +20,30 @@ export default function BasicInfoStep({ formMethods, onNext }: StepProps) {
     // Validation rules for required fields
     const validation = {
         name: {
-            required: "Pool name is required",
-            minLength: { value: 3, message: "Minimum 3 characters" },
-            maxLength: { value: 100, message: "Maximum 100 characters" }
+            required: "Pool name is required. Please enter a unique name for your pool.",
+            minLength: { value: 3, message: "Pool name must be at least 3 characters (e.g., 'Spring 2024 Small Business Pool')." },
+            maxLength: { value: 100, message: "Pool name must be at most 100 characters." }
         },
         description: {
-            required: "Description is required",
-            minLength: { value: 20, message: "Minimum 20 characters" },
-            maxLength: { value: 1000, message: "Maximum 1000 characters" }
+            required: "Description is required. Please provide a detailed summary of your pool.",
+            minLength: { value: 20, message: "Description must be at least 20 characters (e.g., 'This pool supports small businesses in California with flexible terms.')." },
+            maxLength: { value: 1000, message: "Description must be at most 1000 characters." }
         },
         targetAmount: {
-            required: "Target amount is required",
-            min: { value: 50000, message: "Minimum $50,000" },
-            max: { value: 50000000, message: "Maximum $50,000,000" }
+            required: "Target amount is required. Enter the total investment target (e.g., $100,000).",
+            min: { value: 50000, message: "Target amount must be at least $50,000." },
+            max: { value: 50000000, message: "Target amount must be at most $50,000,000." }
         }
     };
 
     // Validation rules for optional fields
     const optionalValidation = {
         minimumInvestment: {
-            min: { value: 1000, message: "Minimum $1,000" }
+            min: { value: 1000, message: "Minimum investment must be at least $1,000 (e.g., 1000)." }
         },
         expectedReturn: {
-            min: { value: 0, message: "Minimum 0%" },
-            max: { value: 30, message: "Maximum 30%" }
+            min: { value: 0, message: "Expected return must be at least 0%." },
+            max: { value: 30, message: "Expected return must be at most 30%." }
         },
         maturityDate: {
             validate: (value: string) => {
@@ -51,7 +51,7 @@ export default function BasicInfoStep({ formMethods, onNext }: StepProps) {
                 const selectedDate = new Date(value);
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
-                return selectedDate > today || "Maturity date must be in the future";
+                return selectedDate > today || "Maturity date must be in the future (e.g., 2025-12-31).";
             }
         }
     };
@@ -85,7 +85,7 @@ export default function BasicInfoStep({ formMethods, onNext }: StepProps) {
                 rules={validation.name}
                 label="Pool Name"
                 type="text"
-                helperText="Enter a descriptive name for your loan pool (3-100 characters)"
+                helperText="Enter a descriptive name for your loan pool (e.g., 'Spring 2024 Small Business Pool')."
             />
 
             <EnhancedTextInputField
@@ -96,7 +96,7 @@ export default function BasicInfoStep({ formMethods, onNext }: StepProps) {
                 type="text"
                 multiline={true}
                 rows={4}
-                helperText="Provide a detailed description of the loan pool (20-1000 characters)"
+                helperText="Provide a detailed description of the loan pool (e.g., 'This pool supports small businesses in California with flexible terms.')."
             />
 
             <EnhancedTextInputField
@@ -106,7 +106,7 @@ export default function BasicInfoStep({ formMethods, onNext }: StepProps) {
                 label="Target Amount"
                 type="number"
                 startAdornment="$"
-                helperText="Total investment target ($50,000 - $50,000,000)"
+                helperText="Total investment target (e.g., 100000). Must be between $50,000 and $50,000,000."
             />
 
             {/* Optional Fields Section */}
@@ -139,7 +139,7 @@ export default function BasicInfoStep({ formMethods, onNext }: StepProps) {
                                 label="Minimum Investment"
                                 type="number"
                                 startAdornment="$"
-                                helperText="Minimum investment amount per investor (optional)"
+                                helperText="Minimum investment per investor (optional, e.g., 5000). Must be at least $1,000."
                             />
 
                             <EnhancedTextInputField
@@ -149,7 +149,7 @@ export default function BasicInfoStep({ formMethods, onNext }: StepProps) {
                                 label="Expected Return"
                                 type="number"
                                 endAdornment="%"
-                                helperText="Expected annual return percentage (0-30%)"
+                                helperText="Expected annual return (optional, e.g., 7.5). Must be between 0% and 30%."
                             />
 
                             <EnhancedTextInputField
@@ -158,7 +158,7 @@ export default function BasicInfoStep({ formMethods, onNext }: StepProps) {
                                 rules={optionalValidation.maturityDate}
                                 label="Maturity Date"
                                 type="date"
-                                helperText="Expected pool maturity date (optional)"
+                                helperText="Expected pool maturity date (optional, e.g., 2025-12-31). Must be a future date."
                             />
                         </Grid>
                     </AccordionDetails>

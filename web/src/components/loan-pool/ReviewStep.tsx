@@ -10,7 +10,9 @@ import {
     Divider,
     FormControlLabel,
     Grid,
-    Typography
+    Snackbar,
+    Typography,
+    CircularProgress
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import { StepProps } from "../../types/loan-pool";
@@ -34,6 +36,9 @@ export default function ReviewStep({
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
     const [submitSuccess, setSubmitSuccess] = useState(false);
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMsg, setSnackbarMsg] = useState("");
+    const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
 
     const fileState = uploadState?.fileState;
 
@@ -77,6 +82,9 @@ export default function ReviewStep({
     const handleSubmit = async () => {
         if (!termsAccepted) {
             setSubmitError("Please accept the terms and conditions");
+            setSnackbarMsg("Please accept the terms and conditions");
+            setSnackbarSeverity('error');
+            setSnackbarOpen(true);
             return;
         }
 
@@ -87,14 +95,28 @@ export default function ReviewStep({
             const result = await onSubmit();
             if (result.success) {
                 setSubmitSuccess(true);
+                setSnackbarMsg("Loan pool created successfully!");
+                setSnackbarSeverity('success');
+                setSnackbarOpen(true);
             } else {
                 setSubmitError(result.error || "Submission failed");
+                setSnackbarMsg(result.error || "Submission failed");
+                setSnackbarSeverity('error');
+                setSnackbarOpen(true);
             }
         } catch (error) {
             setSubmitError("An unexpected error occurred");
+            setSnackbarMsg("An unexpected error occurred");
+            setSnackbarSeverity('error');
+            setSnackbarOpen(true);
         } finally {
             setIsSubmitting(false);
         }
+    };
+
+    const handleSnackbarClose = (_event?: React.SyntheticEvent | Event, reason?: string) => {
+        if (reason === 'clickaway') return;
+        setSnackbarOpen(false);
     };
 
     if (submitSuccess) {
@@ -117,6 +139,17 @@ export default function ReviewStep({
                         </CardContent>
                     </Card>
                 </Grid>
+                <Snackbar
+                    open={snackbarOpen}
+                    autoHideDuration={6000}
+                    onClose={handleSnackbarClose}
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+                    aria-label="Success notification"
+                >
+                    <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ borderRadius: "1.25em" }}>
+                        {snackbarMsg}
+                    </Alert>
+                </Snackbar>
             </Grid>
         );
     }
@@ -401,6 +434,7 @@ export default function ReviewStep({
                     <Alert 
                         severity="error" 
                         sx={{ borderRadius: "1.25em" }}
+                        aria-live="assertive"
                     >
                         {submitError}
                     </Alert>
@@ -415,6 +449,7 @@ export default function ReviewStep({
                             checked={termsAccepted}
                             onChange={(e) => setTermsAccepted(e.target.checked)}
                             sx={{ color: "#725aa2" }}
+                            inputProps={{ 'aria-label': 'Accept terms and conditions' }}
                         />
                     }
                     label={
@@ -459,11 +494,25 @@ export default function ReviewStep({
                         onClick={handleSubmit}
                         disabled={!termsAccepted || isSubmitting}
                         sx={styles.button.primary}
+                        aria-busy={isSubmitting}
+                        aria-label={isSubmitting ? "Creating loan pool, please wait" : "Create loan pool"}
+                        endIcon={isSubmitting ? <CircularProgress size={20} color="inherit" aria-label="Loading" /> : null}
                     >
                         {isSubmitting ? "Creating Loan Pool..." : "Create Loan Pool"}
                     </Button>
                 </Box>
             </Grid>
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={6000}
+                onClose={handleSnackbarClose}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+                aria-label={snackbarSeverity === 'success' ? "Success notification" : "Error notification"}
+            >
+                <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ borderRadius: "1.25em" }}>
+                    {snackbarMsg}
+                </Alert>
+            </Snackbar>
         </Grid>
     );
 } 
