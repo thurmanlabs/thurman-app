@@ -100,12 +100,17 @@ export interface StepProps {
   /** Callback to return to previous step */
   onBack: () => void;
   
-  /** Upload state for file upload step */
+  /** Upload state and handlers for file upload step */
   uploadState?: {
-    isProcessing: boolean;
-    uploadedFile: File | null;
-    previewData: LoanFilePreview | null;
-    error: string | null;
+    fileState: {
+      file: File | null;
+      isProcessing: boolean;
+      previewData: LoanFilePreview | null;
+      error: string | null;
+    };
+    handleFileAccepted: (file: File) => void;
+    handleFileRejected: (errors: string[]) => void;
+    handleRemoveFile: () => void;
   };
 }
 
