@@ -38,6 +38,15 @@ export default function Header({}: HeaderProps) {
             >
               Lend
             </NavigateButton>
+            {user?.role === "ADMIN" && (
+              <NavigateButton
+                variant="text"
+                to="/admin/create-pool"
+                sx={styles.button.text}
+              >
+                Create Pool
+              </NavigateButton>
+            )}
           </Box>
 
           <Box sx={styles.header.authSection}>

@@ -8,6 +8,8 @@ import LogIn from "./pages/LogIn";
 import { ThemeProvider } from "@mui/material";
 import { styles } from "./styles/styles";
 import LendPage from "./pages/LendPage";
+import LoanPoolCreator from "./components/loan-pool/LoanPoolCreator";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
@@ -20,6 +22,14 @@ function App() {
               <Route path="/signup" element={<SignUp />} />
               <Route path="/login" element={<LogIn />} />
               <Route path="/lend" element={<LendPage />} />
+              <Route 
+                path="/admin/create-pool" 
+                element={
+                  <ProtectedRoute requireAdmin={true}>
+                    <LoanPoolCreator />
+                  </ProtectedRoute>
+                } 
+              />
             </Routes>
           </AccountProvider>
         </Router>
