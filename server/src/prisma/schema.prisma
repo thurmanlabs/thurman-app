@@ -46,6 +46,7 @@ model Wallet {
 }
 
 model BlockchainAccess {
+  id       Int      @id @default(autoincrement())
   chainId  String
   name     String  
   wallet   Wallet @relation(fields: [walletId], references: [id])
