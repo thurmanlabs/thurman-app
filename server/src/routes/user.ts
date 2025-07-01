@@ -31,9 +31,7 @@ userRouter.get("/me", requireAuth, async (req: AuthRequest, res: express.Respons
         return res.status(200).json({
             success: true,
             message: "User data retrieved successfully",
-            data: {
-                user
-            }
+            user
         });
 
     } catch (err: any) {

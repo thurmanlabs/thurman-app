@@ -65,10 +65,7 @@ authRouter.post("/signup", async (req: express.Request, res: express.Response, n
         return res.status(201).json({
             success: true,
             message: "User created successfully",
-            data: {
-                token,
-                user
-            }
+            user
         });
     } catch (err) {
         console.error("Signup error:", err);
@@ -103,10 +100,7 @@ authRouter.post("/login", async (req: express.Request, res: express.Response, ne
             return res.status(200).json({
                 success: true,
                 message: "Login successful",
-                data: {
-                    token,
-                    user
-                }
+                user
             });
         }
         
