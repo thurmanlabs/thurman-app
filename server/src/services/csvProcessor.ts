@@ -28,14 +28,7 @@ export interface CSVParseResult {
   rowCount: number;
 }
 
-const REQUIRED_COLUMNS = [
-  'borrower_address',
-  'originator_address',
-  'retention_rate',
-  'principal',
-  'term_months',
-  'interest_rate',
-];
+
 
 // 3. parseLoanCSV
 export async function parseLoanCSV(buffer: Buffer, filename: string): Promise<LoanData[]> {
@@ -46,7 +39,16 @@ export async function parseLoanCSV(buffer: Buffer, filename: string): Promise<Lo
 
   // Check for required columns
   const headers = XLSX.utils.sheet_to_json(worksheet, { header: 1 })[0] as string[];
-  for (const col of REQUIRED_COLUMNS) {
+  const requiredColumns = [
+    'borrower_address',
+    'originator_address',
+    'retention_rate',
+    'principal',
+    'term_months',
+    'interest_rate',
+  ];
+  
+  for (const col of requiredColumns) {
     if (!headers.includes(col)) {
       throw new Error(`Missing required column: ${col}`);
     }
