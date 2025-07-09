@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
     Alert,
     Box,
@@ -16,6 +17,7 @@ import useLoanPoolCreation from "../../hooks/useLoanPoolCreation";
 const STEP_LABELS = ["Basic Information", "Upload Data", "Review & Submit"];
 
 export default function LoanPoolCreator() {
+    const navigate = useNavigate();
     const [submitError, setSubmitError] = useState<string | null>(null);
     
     const {
@@ -40,6 +42,12 @@ export default function LoanPoolCreator() {
             if (result.success) {
                 // Reset form after successful submission
                 resetForm();
+                // Redirect to My Loan Pools page
+                navigate('/manage/my-loan-pools', { 
+                    state: { 
+                        message: "Pool created successfully! You can track its status below." 
+                    } 
+                });
                 return { success: true };
             } else {
                 setSubmitError(result.error || "Submission failed");

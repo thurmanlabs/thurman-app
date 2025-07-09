@@ -1,6 +1,8 @@
 import Papa from "papaparse";
 import * as XLSX from "xlsx";
 import { LoanFilePreview } from "../types/loan-pool";
+import axios from "axios";
+
 
 /**
  * Supported file types for loan data upload
@@ -128,9 +130,7 @@ async function parseExcelFile(file: File): Promise<LoanFilePreview> {
   });
 }
 
-function normalizeColumnName(name: string): string {
-  return name.trim().toLowerCase();
-}
+
 
 function extractPreviewData(data: Record<string, any>[], columns: string[]): LoanFilePreview {
 
@@ -138,59 +138,25 @@ function extractPreviewData(data: Record<string, any>[], columns: string[]): Loa
     throw new Error("No data found in file");
   }
 
-  // Normalize columns for matching
-  const normalizedColumns = columns.map(normalizeColumnName);
-  const columnMap: Record<string, string> = {};
-  columns.forEach((col, i) => {
-    columnMap[normalizeColumnName(col)] = col;
-  });
+  // Check for required columns (exact match with backend)
+  const requiredColumns = [
+    'borrower_address',
+    'originator_address', 
+    'retention_rate',
+    'principal',
+    'term_months',
+    'interest_rate'
+  ];
 
-  // Prefer exact matches for amount columns
-  const preferredAmountNames = ["amount", "balance", "principal"];
-  let amountColumns = normalizedColumns.filter(col => preferredAmountNames.includes(col));
-
-  // If no exact match, fall back to partial matches
-  if (amountColumns.length === 0) {
-    amountColumns = normalizedColumns.filter(col =>
-      preferredAmountNames.some(name => col.includes(name))
-    );
+  const missingColumns = requiredColumns.filter(col => !columns.includes(col));
+  if (missingColumns.length > 0) {
+    throw new Error(`Missing required columns: ${missingColumns.join(', ')}`);
   }
 
-  // Only as a last resort, use a column containing 'loan' (but not 'loan id')
-  if (amountColumns.length === 0) {
-    amountColumns = normalizedColumns.filter(col =>
-      col.includes("loan") && col !== "loan id"
-    );
-  }
-
-  const amountColumn = columnMap[amountColumns[0]] || findFirstNumericColumn(data, columns);
-
-  // Find columns by normalized name
-  const rateColumns = normalizedColumns.filter(col =>
-    col.includes("rate") ||
-    col.includes("interest") ||
-    col.includes("apr")
-  );
-  const termColumns = normalizedColumns.filter(col =>
-    col.includes("term") ||
-    col.includes("duration") ||
-    col.includes("months") ||
-    col.includes("years")
-  );
-
-  // Use first matching column for each metric, or first numeric column as fallback
-  const rateColumn = columnMap[rateColumns[0]] || findFirstNumericColumn(data, columns);
-  const termColumn = columnMap[termColumns[0]] || findFirstNumericColumn(data, columns);
-
-  // Calculate statistics
-  const amounts = extractNumericValues(data, amountColumn);
-
-  // Debug: log the detected amount column and the extracted values
-  console.log('DEBUG amountColumn:', amountColumn);
-  console.log('DEBUG amounts:', amounts);
-
-  const rates = extractNumericValues(data, rateColumn);
-  const terms = extractNumericValues(data, termColumn);
+  // Calculate statistics using exact column names
+  const amounts = extractNumericValues(data, 'principal');
+  const rates = extractNumericValues(data, 'interest_rate');
+  const terms = extractNumericValues(data, 'term_months');
 
   const totalLoans = data.length;
   const totalAmount = amounts.reduce((sum, amount) => sum + amount, 0);
@@ -266,17 +232,46 @@ export async function parseFilePreview(file: File): Promise<LoanFilePreview> {
       throw new Error("File size exceeds 10MB limit. Please upload a smaller file.");
     }
 
-    // Parse based on file type
-    const fileName = file.name.toLowerCase();
+    // Create FormData and append the file
+    const formData = new FormData();
+    formData.append('file', file);
+
+    // Make API call to backend
+    const response = await axios.post('/api/loan-pools/preview', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      },
+      withCredentials: true
+    });
+
+    // Extract preview data from response
+    const responseData = response.data;
     
-    if (fileName.endsWith(".csv")) {
-      return await parseCSVFile(file);
-    } else if (fileName.endsWith(".xlsx") || fileName.endsWith(".xls")) {
-      return await parseExcelFile(file);
-    } else {
-      throw new Error("Unsupported file format");
+    // Convert response to LoanFilePreview interface format
+    const preview: LoanFilePreview = {
+      totalLoans: responseData.totalLoans || responseData.total_loans || 0,
+      totalAmount: responseData.totalAmount || responseData.total_amount || 0,
+      avgLoanSize: responseData.avgLoanSize || responseData.avg_loan_size || 0,
+      avgInterestRate: responseData.avgInterestRate || responseData.avg_interest_rate || 0,
+      avgTerm: responseData.avgTerm || responseData.avg_term || 0,
+      detectedColumns: responseData.detectedColumns || responseData.detected_columns || []
+    };
+
+    return preview;
+
+  } catch (error: any) {
+    console.error("File preview error:", error);
+    
+    // Handle axios errors
+    if (axios.isAxiosError(error)) {
+      const errorMessage = error.response?.data?.message || 
+                          error.response?.data?.error || 
+                          error.message || 
+                          "Failed to process file preview";
+      throw new Error(errorMessage);
     }
-  } catch (error) {
+    
+    // Handle other errors
     if (error instanceof Error) {
       throw error;
     }

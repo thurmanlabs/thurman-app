@@ -9,12 +9,14 @@ import {
   Divider,
   Chip
 } from "@mui/material";
-import { KeyboardArrowDown, Logout } from "@mui/icons-material";
+import { KeyboardArrowDown, Logout, Dashboard, Add } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
 import useAccount from "../hooks/useAccount";
 import { styles } from "../styles/styles";
 
 export default function AccountDropdown() {
   const { user, logout } = useAccount();
+  const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -29,6 +31,11 @@ export default function AccountDropdown() {
   const handleLogout = async () => {
     handleClose();
     await logout();
+  };
+
+  const handleNavigate = (path: string) => {
+    handleClose();
+    navigate(path);
   };
 
   if (!user) return null;
@@ -115,6 +122,18 @@ export default function AccountDropdown() {
             />
           </Box>
         </Box>
+        
+        <Divider />
+        
+        <MenuItem onClick={() => handleNavigate('/manage/my-loan-pools')} sx={{ py: 1.5 }}>
+          <Dashboard sx={{ mr: 2, fontSize: 20 }} />
+          <Typography variant="body2">My Loan Pools</Typography>
+        </MenuItem>
+        
+        <MenuItem onClick={() => handleNavigate('/manage/create-loan-pool')} sx={{ py: 1.5 }}>
+          <Add sx={{ mr: 2, fontSize: 20 }} />
+          <Typography variant="body2">Create Loan Pool</Typography>
+        </MenuItem>
         
         <Divider />
         

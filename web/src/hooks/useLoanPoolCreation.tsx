@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import useMultiStep from "./useMultiStep";
 import { LoanPoolData, LoanFilePreview } from "../types/loan-pool";
 import { parseFilePreview } from "../utils/file-processing";
+import axios from "axios";
 
 // Step definitions for the multi-step form
 const LOAN_POOL_STEPS = ["metadata", "file", "review"] as const;
@@ -181,17 +182,51 @@ export default function useLoanPoolCreation() {
         }
 
         try {
-            const formData = formMethods.getValues();
-            const completeData = {
-                ...formData,
-                filePreview: fileState.previewData
-            };
-
-            // For now, just log the data (replace with actual API call)
-            console.log("Loan Pool Data:", completeData);
+            // Create FormData object
+            const formDataObj = new FormData();
             
-            return { success: true, data: completeData };
-        } catch (error) {
+            // Add all form fields
+            const formValues = formMethods.getValues();
+            Object.keys(formValues).forEach(key => {
+                const value = formValues[key as keyof LoanPoolData];
+                if (value !== undefined && value !== null && key !== 'loanDataFile') {
+                    formDataObj.append(key, value.toString());
+                }
+            });
+            
+            // Add the uploaded file
+            formDataObj.append('loanDataFile', fileState.file);
+            
+            // Make API call
+            const response = await axios.post('/api/loan-pools', formDataObj, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                },
+                withCredentials: true
+            });
+            
+            return { 
+                success: true, 
+                data: response.data,
+                message: "Loan pool created successfully"
+            };
+            
+        } catch (error: any) {
+            console.error("Loan pool submission error:", error);
+            
+            // Handle axios errors
+            if (axios.isAxiosError(error)) {
+                const errorMessage = error.response?.data?.message || 
+                                   error.response?.data?.error || 
+                                   error.message || 
+                                   "Failed to create loan pool";
+                return { 
+                    success: false, 
+                    error: errorMessage
+                };
+            }
+            
+            // Handle other errors
             return { 
                 success: false, 
                 error: error instanceof Error ? error.message : "Submission failed" 

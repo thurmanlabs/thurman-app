@@ -228,6 +228,40 @@ export const styles = {
     theme,
     accountDropdown,
     forms,
+    table: {
+        container: {
+            borderRadius: "1.25em",
+            backgroundColor: "#FFFFFE",
+            boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)",
+            overflow: "hidden"
+        },
+        header: {
+            backgroundColor: "#f8f9fa",
+            "& .MuiTableCell-head": {
+                fontWeight: 600,
+                color: "#29262a",
+                borderBottom: "2px solid #e9ecef"
+            }
+        },
+        row: {
+            "&:hover": {
+                backgroundColor: "#f8f9fa"
+            },
+            "& .MuiTableCell-body": {
+                borderBottom: "1px solid #e9ecef",
+                padding: "1rem"
+            }
+        },
+        cell: {
+            padding: "1rem",
+            borderBottom: "1px solid #e9ecef"
+        },
+        statusChip: {
+            borderRadius: "0.5em",
+            fontWeight: 500,
+            fontSize: "0.75rem"
+        }
+    },
     metrics: {
         card: {
             padding: "1.5rem",

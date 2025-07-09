@@ -9,6 +9,7 @@ import { ThemeProvider } from "@mui/material";
 import { styles } from "./styles/styles";
 import LendPage from "./pages/LendPage";
 import LoanPoolCreator from "./components/loan-pool/LoanPoolCreator";
+import MyLoanPools from "./components/loan-pool/MyLoanPools";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -26,6 +27,22 @@ function App() {
                 path="/admin/create-pool" 
                 element={
                   <ProtectedRoute requireAdmin={true}>
+                    <LoanPoolCreator />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/manage/my-loan-pools" 
+                element={
+                  <ProtectedRoute>
+                    <MyLoanPools />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/manage/create-loan-pool" 
+                element={
+                  <ProtectedRoute>
                     <LoanPoolCreator />
                   </ProtectedRoute>
                 } 
