@@ -7,6 +7,7 @@ import expressWinston from "express-winston";
 import winston from "winston";
 import authRouter from "./routes/auth"; 
 import userRouter from "./routes/user";
+import loanPoolsRouter from "./routes/loanPools";
 import { notFound } from "./middleware/notFound";
 import { errorHandler } from "./middleware/errorHandler";
 
@@ -49,6 +50,7 @@ app.use(expressWinston.logger(loggerOptions));
 // 3. API routes (with proper apiPrefix)
 app.use(`${apiPrefix}/auth`, authRouter);
 app.use(`${apiPrefix}/user`, userRouter);
+app.use(`${apiPrefix}/loan-pools`, loanPoolsRouter);
 
 // 4. 404 handler for unmatched routes
 app.use(notFound);

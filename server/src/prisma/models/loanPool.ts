@@ -185,6 +185,26 @@ export async function findPendingPools(): Promise<LoanPoolWithRelations[]> {
     }
 }
 
+export async function findActivePools(): Promise<LoanPoolWithRelations[]> {
+    try {
+        return db.loanPool.findMany({
+            where: { 
+                status: { 
+                    in: ['DEPLOYED', 'POOL_CREATED', 'DEPLOYING_LOANS'] 
+                } 
+            },
+            include: { 
+                creator: true,
+                approver: true 
+            },
+            orderBy: { created_at: 'desc' },
+        }) as Promise<LoanPoolWithRelations[]>;
+    } catch (err) {
+        console.error("Error finding active pools:", err);
+        throw new Error(err instanceof Error ? `Failed to find active pools: ${err.message}` : "Failed to find active pools");
+    }
+}
+
 export async function approveLoanPool(poolId: number, adminId: number, walletId: string): Promise<LoanPoolWithRelations | null> {
     try {
         return db.loanPool.update({
@@ -305,6 +325,7 @@ export const LoanPool = {
     createLoanPool,
     findUserPools,
     findPendingPools,
+    findActivePools,
     approveLoanPool,
     rejectLoanPool,
     updateDeploymentStatus,

@@ -6,10 +6,30 @@ import {
 import {
     createWallet
 } from "./wallets";
+import {
+    createLoanPool,
+    findUserPools,
+    findPendingPools,
+    findActivePools,
+    approveLoanPool,
+    rejectLoanPool,
+    updateDeploymentStatus,
+    findByTransactionId,
+    getLoanPoolDetails
+} from "./loanPool";
 
 export {
     createUser,
     createWallet,
     validateUser,
-    getUser
+    getUser,
+    createLoanPool,
+    findUserPools,
+    findPendingPools,
+    findActivePools,
+    approveLoanPool,
+    rejectLoanPool,
+    updateDeploymentStatus,
+    findByTransactionId,
+    getLoanPoolDetails
 }

@@ -1,4 +1,10 @@
-import { LoanPool } from "../prisma/models/loanPool";
+import { 
+    createLoanPool,
+    getLoanPoolDetails,
+    approveLoanPool,
+    findByTransactionId,
+    updateDeploymentStatus
+} from "../prisma/models";
 import { parseLoanCSV, validateLoanData } from "./csvProcessor";
 import { deployPoolAndLoans, deployLoans, getPoolIdFromTransaction } from "./circle";
 
@@ -177,7 +183,7 @@ export const createPoolFromCSV = async (
         console.log(`Calculated pool metrics: ${metrics.total_loans} loans, $${metrics.total_principal} total principal`);
 
         // Step 5: Create loan pool in database
-        const pool = await LoanPool.createLoanPool({
+        const pool = await createLoanPool({
             formData: {
                 ...formData,
                 original_filename: file.originalname
@@ -220,7 +226,7 @@ export const approveAndDeploy = async (
         console.log(`Starting approval and deployment for pool ${poolId}`);
 
         // Step 1: Get pool details
-        const pool = await LoanPool.getLoanPoolDetails(poolId, false);
+        const pool = await getLoanPoolDetails(poolId, false);
         if (!pool) {
             throw new BusinessRuleError(`Pool ${poolId} not found`);
         }
@@ -230,7 +236,7 @@ export const approveAndDeploy = async (
         }
 
         // Step 2: Approve the pool
-        const approvedPool = await LoanPool.approveLoanPool(poolId, adminId, walletId);
+        const approvedPool = await approveLoanPool(poolId, adminId, walletId);
         if (!approvedPool) {
             throw new DeploymentError("Failed to approve loan pool");
         }
@@ -293,7 +299,7 @@ export const handleDeploymentWebhook = async (notification: WebhookNotification)
         console.log(`Processing deployment webhook for transaction ${notification.transactionId}`);
 
         // Step 1: Find pool by transaction ID
-        const pool = await LoanPool.findByTransactionId(notification.transactionId);
+        const pool = await findByTransactionId(notification.transactionId);
         if (!pool) {
             console.warn(`No pool found for transaction ${notification.transactionId}`);
             return;
@@ -331,7 +337,7 @@ const handleCompletedTransaction = async (pool: any, notification: WebhookNotifi
             console.log(`Pool created with ID ${poolId}, deploying loans...`);
             
             // Update pool with pool ID
-            await LoanPool.updateDeploymentStatus({
+            await updateDeploymentStatus({
                 poolId: pool.id,
                 status: 'POOL_CREATED',
                 txData: {
@@ -356,7 +362,7 @@ const handleCompletedTransaction = async (pool: any, notification: WebhookNotifi
             });
 
             if (deployResult.success) {
-                await LoanPool.updateDeploymentStatus({
+                await updateDeploymentStatus({
                     poolId: pool.id,
                     status: 'DEPLOYING_LOANS',
                     txData: {
@@ -371,7 +377,7 @@ const handleCompletedTransaction = async (pool: any, notification: WebhookNotifi
         }
     } else if (pool.status === 'DEPLOYING_LOANS') {
         // Loans deployment completed
-        await LoanPool.updateDeploymentStatus({
+        await updateDeploymentStatus({
             poolId: pool.id,
             status: 'DEPLOYED',
             txData: {
@@ -383,7 +389,7 @@ const handleCompletedTransaction = async (pool: any, notification: WebhookNotifi
 };
 
 const handleFailedTransaction = async (pool: any, notification: WebhookNotification): Promise<void> => {
-    await LoanPool.updateDeploymentStatus({
+    await updateDeploymentStatus({
         poolId: pool.id,
         status: 'FAILED',
         txData: {}
@@ -393,7 +399,7 @@ const handleFailedTransaction = async (pool: any, notification: WebhookNotificat
 
 export const getPoolSummary = async (poolId: number): Promise<any> => {
     try {
-        const pool = await LoanPool.getLoanPoolDetails(poolId, true);
+        const pool = await getLoanPoolDetails(poolId, true);
         if (!pool) {
             throw new BusinessRuleError(`Pool ${poolId} not found`);
         }
@@ -409,7 +415,7 @@ export const getPoolSummary = async (poolId: number): Promise<any> => {
 };
 
 // Export the service
-export const LoanPoolService = {
+export const LoanPool = {
     createPoolFromCSV,
     approveAndDeploy,
     handleDeploymentWebhook,
