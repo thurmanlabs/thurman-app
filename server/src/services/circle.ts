@@ -9,9 +9,28 @@ const smartContractClient = initiateSmartContractPlatformClient({
 });
 import { v4 as uuidv4 } from "uuid";
 import { Wallet } from "@prisma/client";
-import { parseUnits } from "ethers";
+import { parseUnits, formatUnits } from "ethers";
 import { initiateSmartContractPlatformClient } from "@circle-fin/smart-contract-platform";
 import { config } from "../config";
+
+// Smart Contract ABI Definitions
+const POOL_MANAGER_ABI = {
+    addPool: "addPool(address,address,address,uint256,uint256,uint256,uint256)",
+    batchInitLoans: "batchInitLoans(uint16,(address,address,uint256,uint256,uint16,uint256)[])"
+};
+
+// Loan Data Interface
+interface LoanData {
+    borrower_address: string;
+    originator_address: string;
+    retention_rate: number;
+    principal: number;
+    term_months: number;
+    interest_rate: number;
+    business_name?: string;
+    loan_purpose?: string;
+    risk_grade?: string;
+}
 
 type CreateWalletParams = {
     accountType: AccountType | undefined;
@@ -110,6 +129,55 @@ type LoanParameter = {
     interestRate: string;
 }
 
+// Helper Functions for Smart Contract Integration
+const formatPoolParameters = (params: {
+    vaultAddress: string;
+    aavePoolAddress: string;
+    originatorRegistryAddress: string;
+    collateralCushion: number;
+    ltvRatioCap: number;
+    liquidityPremiumRate: number;
+    marginFee: number;
+}) => {
+    return [
+        params.vaultAddress,
+        params.aavePoolAddress,
+        params.originatorRegistryAddress,
+        parseUnits(params.collateralCushion.toString(), 18),
+        parseUnits(params.ltvRatioCap.toString(), 18),
+        parseUnits(params.liquidityPremiumRate.toString(), 18),
+        parseUnits(params.marginFee.toString(), 18)
+    ];
+};
+
+const formatLoanParameters = (loans: LoanData[]): any[] => {
+    return loans.map(loan => [
+        loan.borrower_address,
+        loan.originator_address,
+        parseUnits(loan.retention_rate.toString(), 18), // retention rate as decimal (0.05 = 5%)
+        parseUnits(loan.principal.toString(), 6), // principal in USDC (6 decimals)
+        loan.term_months, // term in months (uint16)
+        parseUnits(loan.interest_rate.toString(), 18) // interest rate as decimal (0.085 = 8.5%)
+    ]);
+};
+
+const parsePoolCreatedEvent = async (txHash: string): Promise<number | null> => {
+    try {
+        // TODO: Implement actual event parsing from transaction logs
+        // This would typically involve:
+        // 1. Fetching transaction receipt from blockchain
+        // 2. Parsing logs for PoolCreated event
+        // 3. Extracting poolId from event data
+        console.log(`Parsing PoolCreated event from transaction: ${txHash}`);
+        
+        // Placeholder implementation - replace with actual event parsing
+        return null;
+    } catch (error: any) {
+        console.error("Error parsing PoolCreated event:", error);
+        return null;
+    }
+};
+
 // Loan Pool Deployment Functions
 export const deployPoolAndLoans = async ({
     adminWalletId,
@@ -122,26 +190,28 @@ export const deployPoolAndLoans = async ({
 
     try {
 
-        // Default config values
-        const collateralCushion = parseUnits("0.1", 18);
-        const ltvRatioCap = parseUnits("0.8", 18);
-        const liquidityPremiumRate = parseUnits("0.02", 18);
-        const marginFee = parseUnits("0.005", 18);
+        // Default config values (as decimals for easier management)
+        const poolConfig = {
+            collateralCushion: 0.1, // 10%
+            ltvRatioCap: 0.8, // 80%
+            liquidityPremiumRate: 0.02, // 2%
+            marginFee: 0.005 // 0.5%
+        };
+
+        // Format parameters for smart contract
+        const formattedParams = formatPoolParameters({
+            vaultAddress,
+            aavePoolAddress,
+            originatorRegistryAddress,
+            ...poolConfig
+        });
 
         // Call addPool() via Circle contract execution
         const transaction = await circleClient.createContractExecutionTransaction({
             walletId: adminWalletId,
             contractAddress: poolManagerAddress,
-            abiFunctionSignature: "addPool(address,address,address,uint256,uint256,uint256,uint256)",
-            abiParameters: [
-                vaultAddress,
-                aavePoolAddress,
-                originatorRegistryAddress,
-                collateralCushion.toString(),
-                ltvRatioCap.toString(),
-                liquidityPremiumRate.toString(),
-                marginFee.toString()
-            ],
+            abiFunctionSignature: POOL_MANAGER_ABI.addPool,
+            abiParameters: formattedParams,
             fee: {
                 type: "level",
                 config: {
@@ -188,25 +258,13 @@ export const deployLoans = async ({
             throw new Error("Invalid loan data format");
         }
 
-        // Format as loan parameters array for batchInitLoans
-        const loanParameters: LoanParameter[] = loanData.map((loan: any) => ({
-            borrower: loan.borrower_address,
-            originator: loan.originator_address,
-            retentionRate: loan.retention_rate.toString(),
-            principal: loan.principal.toString(),
-            termMonths: loan.term_months,
-            interestRate: loan.interest_rate.toString()
-        }));
+        // Gas estimation warning for large batches
+        if (loanData.length > 500) {
+            console.warn(`Large loan batch detected: ${loanData.length} loans. Gas costs may be high.`);
+        }
 
-        // Convert to the format expected by batchInitLoans
-        const batchArgs = loanParameters.map(loan => [
-            loan.borrower,
-            loan.originator,
-            parseUnits(loan.retentionRate, 18),
-            parseUnits(loan.principal, 6), // Assuming principal is in USD with 6 decimals
-            loan.termMonths,
-            parseUnits(loan.interestRate, 18)
-        ]);
+        // Format loan parameters for smart contract
+        const formattedLoanParams = formatLoanParameters(loanData);
 
 
 
@@ -214,8 +272,8 @@ export const deployLoans = async ({
         const transaction = await circleClient.createContractExecutionTransaction({
             walletId: adminWalletId,
             contractAddress: poolManagerAddress,
-            abiFunctionSignature: "batchInitLoans(uint256,(address,address,uint256,uint256,uint256,uint256)[])",
-            abiParameters: [poolId, batchArgs],
+            abiFunctionSignature: POOL_MANAGER_ABI.batchInitLoans,
+            abiParameters: [poolId, formattedLoanParams],
             fee: {
                 type: "level",
                 config: {
@@ -246,17 +304,7 @@ export const deployLoans = async ({
 
 export const getPoolIdFromTransaction = async (txHash: string): Promise<number | null> => {
     try {
-        // TODO: Implement actual event parsing from transaction logs
-        // For now, return a placeholder
-        console.log(`Extracting pool ID from transaction: ${txHash}`);
-        
-        // Placeholder implementation - replace with actual event parsing
-        // This would typically involve:
-        // 1. Fetching transaction receipt
-        // 2. Parsing logs for PoolCreated event
-        // 3. Extracting poolId from event data
-        
-        return null; // Placeholder - implement actual logic
+        return await parsePoolCreatedEvent(txHash);
     } catch (error: any) {
         console.error("Error extracting pool ID from transaction:", error);
         return null;
