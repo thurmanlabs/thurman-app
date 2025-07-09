@@ -5,6 +5,7 @@ import {
     createPoolFromCSV, 
     approveAndDeploy 
 } from "../services/loanPool";
+import { generateFilePreview } from "../services/csvProcessor";
 import { 
     findUserPools, 
     findPendingPools, 
@@ -269,6 +270,89 @@ loanPoolsRouter.get("/admin/pending-approvals",
         } catch (err: any) {
             console.error("Get pending approvals error:", err);
             next(err);
+        }
+    }
+);
+
+// POST /api/loan-pools/preview - File preview endpoint
+loanPoolsRouter.post("/preview", 
+    uploadLoanDataFile,
+    handleMulterError,
+    async (req: express.Request, res: express.Response, next: NextFunction) => {
+        try {
+            const file = req.file;
+            
+            // Validate uploaded file using service
+            const fileValidation = validateUploadedFile(file);
+            if (!fileValidation.isValid) {
+                return res.status(400).json({
+                    success: false,
+                    error: "File validation failed",
+                    message: fileValidation.error
+                });
+            }
+
+            // At this point, file is guaranteed to be defined due to validation
+            if (!file) {
+                return res.status(400).json({
+                    success: false,
+                    error: "File validation failed",
+                    message: "No file provided"
+                });
+            }
+
+            // Generate file preview using CSV processor
+            const previewResult = await generateFilePreview(file.buffer, file.originalname);
+
+            // Calculate preview statistics
+            const totalLoans = previewResult.rowCount;
+            const previewRows = previewResult.previewRows;
+            
+            // Calculate totals from preview data (first 5 rows)
+            let totalAmount = 0;
+            let totalInterestRate = 0;
+            let totalTerm = 0;
+            let validRows = 0;
+
+            previewRows.forEach((row: any) => {
+                if (row.principal && !isNaN(Number(row.principal))) {
+                    totalAmount += Number(row.principal);
+                    validRows++;
+                }
+                if (row.interest_rate && !isNaN(Number(row.interest_rate))) {
+                    totalInterestRate += Number(row.interest_rate);
+                }
+                if (row.term_months && !isNaN(Number(row.term_months))) {
+                    totalTerm += Number(row.term_months);
+                }
+            });
+
+            const avgLoanSize = validRows > 0 ? totalAmount / validRows : 0;
+            const avgInterestRate = validRows > 0 ? totalInterestRate / validRows : 0;
+            const avgTerm = validRows > 0 ? totalTerm / validRows : 0;
+
+            return res.status(200).json({
+                success: true,
+                message: "File preview generated successfully",
+                data: {
+                    totalLoans,
+                    totalAmount,
+                    avgLoanSize,
+                    avgInterestRate,
+                    avgTerm,
+                    detectedColumns: previewResult.headers
+                }
+            });
+
+        } catch (err: any) {
+            console.error("File preview error:", err);
+            
+            // Return specific error message
+            return res.status(400).json({
+                success: false,
+                error: "File preview failed",
+                message: err.message || "Failed to process file preview"
+            });
         }
     }
 );
