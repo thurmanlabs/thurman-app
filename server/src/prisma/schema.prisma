@@ -24,6 +24,17 @@ enum UserStatus {
   SUSPENDED
 }
 
+enum LoanPoolStatus {
+  PENDING
+  APPROVED
+  DEPLOYING_POOL
+  POOL_CREATED
+  DEPLOYING_LOANS
+  DEPLOYED
+  REJECTED
+  FAILED
+}
+
 model User {
   id       Int        @id @default(autoincrement())
   email    String?    @unique
@@ -32,6 +43,8 @@ model User {
   status   UserStatus @default(PENDING)
   wallets  Wallet[]
   nonces   Nonce[]
+  createdPools LoanPool[] @relation("CreatedPools")
+  approvedPools LoanPool[] @relation("ApprovedPools")
 }
 
 model Wallet {
@@ -61,4 +74,56 @@ model Nonce {
   expiresAt  DateTime
   usedAt     DateTime? // Nullable: Null means not used, Date means it was used
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model LoanPool {
+  id                 Int      @id @default(autoincrement())
+  
+  // Form metadata
+  name                String?
+  description         String?
+  target_amount       Decimal? @db.Decimal(18,2)
+  minimum_investment  Decimal? @db.Decimal(18,2)
+  expected_return     Decimal? @db.Decimal(5,4)
+  maturity_date       DateTime?
+  purpose             String?
+  geographic_focus    String?
+  borrower_profile    String?
+  collateral_type     String?
+  loan_term_range     String?
+  interest_rate_range String?
+  
+  // Parsed loan data
+  loan_data           String
+  total_loans         Int
+  total_principal     Decimal @db.Decimal(18,2)
+  avg_interest_rate   Decimal @db.Decimal(5,4)
+  avg_term_months     Int
+  original_filename   String
+  
+  // Workflow tracking
+  status              LoanPoolStatus @default(PENDING)
+  created_by          Int
+  approved_by         Int?
+  rejection_reason    String?
+  approved_at         DateTime?
+  
+  // Circle transaction tracking
+  pool_creation_tx_id    String?
+  loans_creation_tx_id   String?
+  pool_creation_tx_hash  String?
+  loans_creation_tx_hash String?
+  deployed_by_wallet_id  String?
+  
+  // Blockchain data
+  pool_id            Int? @unique
+  vault_address      String?
+  
+  // Standard fields
+  created_at         DateTime @default(now())
+  updated_at         DateTime @updatedAt
+  
+  // Relations
+  creator            User @relation("CreatedPools", fields: [created_by], references: [id])
+  approver           User? @relation("ApprovedPools", fields: [approved_by], references: [id])
 }
