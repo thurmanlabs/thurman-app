@@ -13,11 +13,7 @@ import ContentContainer from "./ContentContainer";
 import NavigateButton from "./NavigateButton";
 import thurman from "../assets/images/thurman.png";
 
-interface HeaderProps {
-  // Currently no props needed, but following the style guide structure
-}
-
-export default function Header({}: HeaderProps) {
+export default function Header() {
   const navigate = useNavigate();
   const { user } = useAccount();
 

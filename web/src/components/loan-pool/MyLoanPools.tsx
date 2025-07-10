@@ -1,5 +1,5 @@
 // React
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 // External libraries
@@ -43,10 +43,6 @@ interface LoanPool {
   minimum_investment?: number;
   expected_return?: number;
   maturity_date?: string;
-}
-
-interface MyLoanPoolsProps {
-  // Currently no props needed
 }
 
 // Constants
@@ -399,7 +395,7 @@ const PoolCard = ({
 };
 
 // Main component
-export default function MyLoanPools({}: MyLoanPoolsProps) {
+export default function MyLoanPools() {
   const navigate = useNavigate();
   const location = useLocation();
   const theme = useTheme();

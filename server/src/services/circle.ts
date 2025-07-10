@@ -1,17 +1,10 @@
 import { AccountType, Blockchain } from "@circle-fin/developer-controlled-wallets";
 import { createUser, createWallet } from "../prisma/models";
 import circleClient from "../utils/circleClient";
-
-// Initialize smart contract platform client
-const smartContractClient = initiateSmartContractPlatformClient({
-    apiKey: config.circleApiKey,
-    entitySecret: config.circleEntitySecret,
-});
+import circleContractClient from "../utils/circleContractClient";
 import { v4 as uuidv4 } from "uuid";
 import { Wallet } from "@prisma/client";
 import { parseUnits, formatUnits } from "ethers";
-import { initiateSmartContractPlatformClient } from "@circle-fin/smart-contract-platform";
-import { config } from "../config";
 
 // Smart Contract ABI Definitions
 const POOL_MANAGER_ABI = {
@@ -189,7 +182,6 @@ export const deployPoolAndLoans = async ({
     const idempotencyKey = uuidv4();
 
     try {
-
         // Default config values (as decimals for easier management)
         const poolConfig = {
             collateralCushion: 0.1, // 10%
@@ -198,20 +190,21 @@ export const deployPoolAndLoans = async ({
             marginFee: 0.005 // 0.5%
         };
 
-        // Format parameters for smart contract
-        const formattedParams = formatPoolParameters({
+        // Format parameters for smart contract call
+        const poolParameters = formatPoolParameters({
             vaultAddress,
             aavePoolAddress,
             originatorRegistryAddress,
             ...poolConfig
         });
 
-        // Call addPool() via Circle contract execution
-        const transaction = await circleClient.createContractExecutionTransaction({
-            walletId: adminWalletId,
+        // Execute smart contract call via Circle
+        const contractExecution = await circleClient.createContractExecutionTransaction({
+            idempotencyKey,
             contractAddress: poolManagerAddress,
             abiFunctionSignature: POOL_MANAGER_ABI.addPool,
-            abiParameters: formattedParams,
+            abiParameters: poolParameters,
+            walletId: adminWalletId,
             fee: {
                 type: "level",
                 config: {
@@ -220,25 +213,21 @@ export const deployPoolAndLoans = async ({
             }
         });
 
-        const transactionId = transaction.data?.id;
-        
-        if (!transactionId) {
-            throw new Error("Failed to get transaction ID from Circle");
-        }
+        console.log("Pool creation transaction initiated:", contractExecution.data?.id);
 
         return {
             success: true,
-            transactionId
+            transactionId: contractExecution.data?.id
         };
 
     } catch (error: any) {
-        console.error("Error deploying pool and loans:", error);
+        console.error("Error deploying pool:", error);
         return {
             success: false,
-            error: error.message || "Failed to deploy pool and loans"
+            error: error.message || "Failed to deploy pool"
         };
     }
-}
+};
 
 export const deployLoans = async ({
     loanData,
@@ -254,26 +243,16 @@ export const deployLoans = async ({
     const idempotencyKey = uuidv4();
 
     try {
-        if (!Array.isArray(loanData)) {
-            throw new Error("Invalid loan data format");
-        }
+        // Format loan parameters for batch initialization
+        const loanParameters = formatLoanParameters(loanData);
 
-        // Gas estimation warning for large batches
-        if (loanData.length > 500) {
-            console.warn(`Large loan batch detected: ${loanData.length} loans. Gas costs may be high.`);
-        }
-
-        // Format loan parameters for smart contract
-        const formattedLoanParams = formatLoanParameters(loanData);
-
-
-
-        // Call batchInitLoans via Circle contract execution
-        const transaction = await circleClient.createContractExecutionTransaction({
-            walletId: adminWalletId,
+        // Execute batch loan initialization via Circle
+        const contractExecution = await circleClient.createContractExecutionTransaction({
+            idempotencyKey,
             contractAddress: poolManagerAddress,
             abiFunctionSignature: POOL_MANAGER_ABI.batchInitLoans,
-            abiParameters: [poolId, formattedLoanParams],
+            abiParameters: [poolId, loanParameters],
+            walletId: adminWalletId,
             fee: {
                 type: "level",
                 config: {
@@ -282,15 +261,11 @@ export const deployLoans = async ({
             }
         });
 
-        const transactionId = transaction.data?.id;
-        
-        if (!transactionId) {
-            throw new Error("Failed to get transaction ID from Circle");
-        }
+        console.log("Loan batch initialization transaction initiated:", contractExecution.data?.id);
 
         return {
             success: true,
-            transactionId
+            transactionId: contractExecution.data?.id
         };
 
     } catch (error: any) {
@@ -300,13 +275,14 @@ export const deployLoans = async ({
             error: error.message || "Failed to deploy loans"
         };
     }
-}
+};
 
 export const getPoolIdFromTransaction = async (txHash: string): Promise<number | null> => {
     try {
+        // Parse the transaction logs to extract pool ID
         return await parsePoolCreatedEvent(txHash);
     } catch (error: any) {
-        console.error("Error extracting pool ID from transaction:", error);
+        console.error("Error getting pool ID from transaction:", error);
         return null;
     }
-}
+};
