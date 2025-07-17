@@ -234,7 +234,7 @@ export async function parseFilePreview(file: File): Promise<LoanFilePreview> {
 
     // Create FormData and append the file
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('loanDataFile', file);
 
     // Make API call to backend
     const response = await axios.post('/api/loan-pools/preview', formData, {
@@ -246,15 +246,16 @@ export async function parseFilePreview(file: File): Promise<LoanFilePreview> {
 
     // Extract preview data from response
     const responseData = response.data;
+    const previewData = responseData.data; // The actual data is nested in response.data.data
     
     // Convert response to LoanFilePreview interface format
     const preview: LoanFilePreview = {
-      totalLoans: responseData.totalLoans || responseData.total_loans || 0,
-      totalAmount: responseData.totalAmount || responseData.total_amount || 0,
-      avgLoanSize: responseData.avgLoanSize || responseData.avg_loan_size || 0,
-      avgInterestRate: responseData.avgInterestRate || responseData.avg_interest_rate || 0,
-      avgTerm: responseData.avgTerm || responseData.avg_term || 0,
-      detectedColumns: responseData.detectedColumns || responseData.detected_columns || []
+      totalLoans: previewData.totalLoans || previewData.total_loans || 0,
+      totalAmount: previewData.totalAmount || previewData.total_amount || 0,
+      avgLoanSize: previewData.avgLoanSize || previewData.avg_loan_size || 0,
+      avgInterestRate: previewData.avgInterestRate || previewData.avg_interest_rate || 0,
+      avgTerm: previewData.avgTerm || previewData.avg_term || 0,
+      detectedColumns: previewData.detectedColumns || previewData.detected_columns || []
     };
 
     return preview;
