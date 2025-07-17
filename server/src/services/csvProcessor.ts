@@ -52,8 +52,13 @@ export async function parseLoanCSV(buffer: Buffer, filename: string): Promise<Lo
       const row: any = {};
       headers.forEach((header, index) => {
         const value = values[index] || '';
-        // Convert numeric fields to numbers, keep addresses as strings
+        // Always treat address fields as strings
         if ([
+          'borrower_address',
+          'originator_address'
+        ].includes(header)) {
+          row[header] = value;
+        } else if ([
           'principal',
           'term_months',
           'interest_rate',
@@ -170,8 +175,18 @@ export async function generateFilePreview(buffer: Buffer, filename: string): Pro
       headers.forEach((header, index) => {
         const value = values[index] || '';
         
-        // Convert numeric fields to numbers, keep addresses as strings
-        if (['principal', 'term_months', 'interest_rate', 'retention_rate'].includes(header)) {
+        // Always treat address fields as strings
+        if ([
+          'borrower_address',
+          'originator_address'
+        ].includes(header)) {
+          row[header] = value;
+        } else if ([
+          'principal',
+          'term_months',
+          'interest_rate',
+          'retention_rate'
+        ].includes(header)) {
           row[header] = Number(value) || 0;
         } else {
           row[header] = value;
