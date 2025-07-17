@@ -143,11 +143,11 @@ export const validatePoolData = (formData: FormData, loanData: LoanData[]): void
     }
 
     // Check for duplicate borrower addresses
-    const borrowerAddresses = loanData.map(loan => loan.borrower_address.toLowerCase());
-    const uniqueAddresses = new Set(borrowerAddresses);
-    if (uniqueAddresses.size !== borrowerAddresses.length) {
-        throw new ValidationError("Duplicate borrower addresses found in loan data");
-    }
+    // const borrowerAddresses = loanData.map(loan => loan.borrower_address.toLowerCase());
+    // const uniqueAddresses = new Set(borrowerAddresses);
+    // if (uniqueAddresses.size !== borrowerAddresses.length) {
+    //     throw new ValidationError("Duplicate borrower addresses found in loan data");
+    // }
 
     // Validate total principal against target amount if specified
     const totalPrincipal = loanData.reduce((sum, loan) => sum + loan.principal, 0);

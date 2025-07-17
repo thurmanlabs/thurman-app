@@ -304,6 +304,25 @@ loanPoolsRouter.post("/preview",
             // Generate file preview using CSV processor
             const previewResult = await generateFilePreview(file.buffer, file.originalname);
 
+            // Validate required columns
+            const requiredColumns = [
+                'borrower_address',
+                'originator_address',
+                'retention_rate',
+                'principal',
+                'term_months',
+                'interest_rate'
+            ];
+            
+            const missingColumns = requiredColumns.filter(col => !previewResult.headers.includes(col));
+            if (missingColumns.length > 0) {
+                return res.status(400).json({
+                    success: false,
+                    error: "Missing required columns",
+                    message: `Missing required columns: ${missingColumns.join(', ')}`
+                });
+            }
+
             // Calculate preview statistics
             const totalLoans = previewResult.rowCount;
             const previewRows = previewResult.previewRows;
@@ -314,7 +333,7 @@ loanPoolsRouter.post("/preview",
             let totalTerm = 0;
             let validRows = 0;
 
-            previewRows.forEach((row: any) => {
+            previewRows.forEach((row: any, index: number) => {
                 if (row.principal && !isNaN(Number(row.principal))) {
                     totalAmount += Number(row.principal);
                     validRows++;
