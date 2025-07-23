@@ -35,13 +35,22 @@ export default function Header() {
               Lend
             </NavigateButton>
             {user?.role === "ADMIN" && (
-              <NavigateButton
-                variant="text"
-                to="/admin/create-pool"
-                sx={styles.button.text}
-              >
-                Create Pool
-              </NavigateButton>
+              <>
+                <NavigateButton
+                  variant="text"
+                  to="/admin"
+                  sx={styles.button.text}
+                >
+                  Admin Dashboard
+                </NavigateButton>
+                <NavigateButton
+                  variant="text"
+                  to="/admin/create-pool"
+                  sx={styles.button.text}
+                >
+                  Create Pool
+                </NavigateButton>
+              </>
             )}
           </Box>
 

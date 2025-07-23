@@ -11,6 +11,7 @@ import LendPage from "./pages/LendPage";
 import LoanPoolCreator from "./components/loan-pool/LoanPoolCreator";
 import MyLoanPools from "./components/loan-pool/MyLoanPools";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminDashboard from "./pages/AdminDashboard";
 
 function App() {
   return (
@@ -23,6 +24,14 @@ function App() {
               <Route path="/signup" element={<SignUp />} />
               <Route path="/login" element={<LogIn />} />
               <Route path="/lend" element={<LendPage />} />
+              <Route 
+                path="/admin" 
+                element={
+                  <ProtectedRoute requireAdmin={true}>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                } 
+              />
               <Route 
                 path="/admin/create-pool" 
                 element={
