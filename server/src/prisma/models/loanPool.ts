@@ -1,5 +1,14 @@
-import { Prisma } from "@prisma/client";
+import { Prisma, LoanPool, User } from "@prisma/client";
 import db from "../../utils/prismaClient";
+
+type LoanPoolWithCreator = LoanPool & {
+    creator: User;
+};
+
+type LoanPoolWithCreatorAndApprover = LoanPool & {
+    creator: User;
+    approver: User | null;
+};
 
 type CreateLoanPoolParams = {
     formData: {
@@ -37,6 +46,8 @@ type UpdateDeploymentStatusParams = {
     txData: {
         pool_creation_tx_id?: string;
         pool_creation_tx_hash?: string;
+        pool_config_tx_id?: string;
+        pool_config_tx_hash?: string;
         loans_creation_tx_id?: string;
         loans_creation_tx_hash?: string;
         pool_id?: number;
@@ -70,8 +81,10 @@ type LoanPoolWithRelations = {
     rejection_reason: string | null;
     approved_at: Date | null;
     pool_creation_tx_id: string | null;
+    pool_config_tx_id: string | null;
     loans_creation_tx_id: string | null;
     pool_creation_tx_hash: string | null;
+    pool_config_tx_hash: string | null;
     loans_creation_tx_hash: string | null;
     deployed_by_wallet_id: string | null;
     pool_id: number | null;
@@ -152,7 +165,7 @@ export async function createLoanPool({
                 creator: true,
             },
         });
-        return created as LoanPoolWithRelations;
+        return created as unknown as LoanPoolWithRelations;
     } catch (err) {
         console.error("Error creating loan pool:", err);
         throw new Error(err instanceof Error ? `Failed to create loan pool: ${err.message}` : "Failed to create loan pool");
@@ -165,7 +178,7 @@ export async function findUserPools(userId: number): Promise<LoanPoolWithRelatio
             where: { created_by: userId },
             include: { creator: true },
             orderBy: { created_at: 'desc' },
-        }) as Promise<LoanPoolWithRelations[]>;
+        }) as unknown as Promise<LoanPoolWithRelations[]>;
     } catch (err) {
         console.error("Error finding user pools:", err);
         throw new Error(err instanceof Error ? `Failed to find user pools: ${err.message}` : "Failed to find user pools");
@@ -175,10 +188,23 @@ export async function findUserPools(userId: number): Promise<LoanPoolWithRelatio
 export async function findPendingPools(): Promise<LoanPoolWithRelations[]> {
     try {
         return db.loanPool.findMany({
-            where: { status: 'PENDING' },
+            where: { 
+                status: { 
+                    in: [
+                        'PENDING',           // Need approval
+                        'APPROVED',          // Approved but not deployed
+                        'DEPLOYING_POOL',    // In deployment process
+                        'POOL_CREATED',      // Pool created, needs next step
+                        'CONFIGURING_POOL',  // Configuring pool
+                        'POOL_CONFIGURED',   // Pool configured, needs loans
+                        'DEPLOYING_LOANS',   // Deploying loans
+                        'FAILED'             // Failed deployments need attention
+                    ] as any
+                } 
+            },
             include: { creator: true },
-            orderBy: { created_at: 'asc' },
-        }) as Promise<LoanPoolWithRelations[]>;
+            orderBy: { created_at: 'desc' },
+        }) as unknown as Promise<LoanPoolWithRelations[]>;
     } catch (err) {
         console.error("Error finding pending pools:", err);
         throw new Error(err instanceof Error ? `Failed to find pending pools: ${err.message}` : "Failed to find pending pools");
@@ -198,7 +224,7 @@ export async function findActivePools(): Promise<LoanPoolWithRelations[]> {
                 approver: true 
             },
             orderBy: { created_at: 'desc' },
-        }) as Promise<LoanPoolWithRelations[]>;
+        }) as unknown as Promise<LoanPoolWithRelations[]>;
     } catch (err) {
         console.error("Error finding active pools:", err);
         throw new Error(err instanceof Error ? `Failed to find active pools: ${err.message}` : "Failed to find active pools");
@@ -277,6 +303,7 @@ export async function findByTransactionId(txId: string): Promise<LoanPoolWithRel
             where: {
                 OR: [
                     { pool_creation_tx_id: txId },
+                    { pool_config_tx_id: txId },
                     { loans_creation_tx_id: txId },
                 ],
             },

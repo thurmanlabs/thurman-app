@@ -1,9 +1,13 @@
 import express, { Router, NextFunction } from "express";
 import { requireAuth, requireRole, AuthRequest } from "../middleware/auth";
 import { UserRole } from "@prisma/client";
+import db from "../utils/prismaClient";
 import { 
     createPoolFromCSV, 
-    approveAndDeploy 
+    approveAndDeploy,
+    retryPoolCreation,
+    retryPoolConfiguration,
+    retryLoanDeployment
 } from "../services/loanPool";
 import { generateFilePreview } from "../services/csvProcessor";
 import { 
@@ -160,12 +164,27 @@ loanPoolsRouter.patch("/:id/approve",
                 });
             }
 
-            const { walletId } = req.body;
+            // Get the user's wallet from the database
+            const userWithWallet = await db.user.findUnique({
+                where: { id: adminId },
+                include: { wallets: true }
+            });
+
+            if (!userWithWallet || userWithWallet.wallets.length === 0) {
+                return res.status(400).json({
+                    success: false,
+                    error: "No wallet found",
+                    message: "Admin must have a Circle wallet configured to approve pools"
+                });
+            }
+
+            // Use the first wallet (assuming one wallet per user for now)
+            const walletId = userWithWallet.wallets[0].id;
             if (!walletId) {
                 return res.status(400).json({
                     success: false,
-                    error: "Missing wallet ID",
-                    message: "Wallet ID is required for approval"
+                    error: "Invalid wallet",
+                    message: "Admin wallet is not properly configured"
                 });
             }
 
@@ -372,6 +391,106 @@ loanPoolsRouter.post("/preview",
                 error: "File preview failed",
                 message: err.message || "Failed to process file preview"
             });
+        }
+    }
+);
+
+// POST /api/loan-pools/:id/retry-step - Retry specific deployment step
+loanPoolsRouter.post("/:id/retry-step", 
+    requireAuth, 
+    requireRole([UserRole.ADMIN]),
+    async (req: AuthRequest, res: express.Response, next: NextFunction) => {
+        try {
+            const adminId = req.user?.id;
+            const poolId = parseInt(req.params.id);
+            const { step } = req.body;
+
+            if (!adminId) {
+                return res.status(401).json({
+                    success: false,
+                    error: "Unauthorized",
+                    message: "User not authenticated"
+                });
+            }
+
+            if (!poolId || isNaN(poolId)) {
+                return res.status(400).json({
+                    success: false,
+                    error: "Invalid pool ID",
+                    message: "Pool ID must be a valid number"
+                });
+            }
+
+            if (!step) {
+                return res.status(400).json({
+                    success: false,
+                    error: "Missing step parameter",
+                    message: "Step parameter is required"
+                });
+            }
+
+            // Get user's wallet
+            const userWithWallet = await db.user.findUnique({
+                where: { id: adminId },
+                include: { wallets: true }
+            });
+
+            if (!userWithWallet || userWithWallet.wallets.length === 0) {
+                return res.status(400).json({
+                    success: false,
+                    error: "No wallet found",
+                    message: "Admin must have a Circle wallet configured to retry deployment"
+                });
+            }
+
+            const walletId = userWithWallet.wallets[0].id;
+            if (!walletId) {
+                return res.status(400).json({
+                    success: false,
+                    error: "Invalid wallet",
+                    message: "Admin wallet is not properly configured"
+                });
+            }
+
+            let result;
+            switch (step) {
+                case 'pool_creation':
+                    result = await retryPoolCreation(poolId, adminId, walletId);
+                    break;
+                case 'pool_config':
+                    result = await retryPoolConfiguration(poolId, adminId, walletId);
+                    break;
+                case 'loan_deployment':
+                    result = await retryLoanDeployment(poolId, adminId, walletId);
+                    break;
+                default:
+                    return res.status(400).json({
+                        success: false,
+                        error: "Invalid step",
+                        message: "Step must be one of: pool_creation, pool_config, loan_deployment"
+                    });
+            }
+
+            if (result.success) {
+                return res.status(200).json({
+                    success: true,
+                    message: `Successfully retried ${step}`,
+                    data: {
+                        transactionId: result.transactionId,
+                        status: result.status
+                    }
+                });
+            } else {
+                return res.status(400).json({
+                    success: false,
+                    error: "Retry failed",
+                    message: result.error
+                });
+            }
+
+        } catch (err: any) {
+            console.error("Retry step error:", err);
+            next(err);
         }
     }
 );

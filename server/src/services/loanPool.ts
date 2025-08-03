@@ -6,7 +6,7 @@ import {
     updateDeploymentStatus
 } from "../prisma/models";
 import { parseLoanCSV, validateLoanData } from "./csvProcessor";
-import { deployPoolAndLoans, deployLoans, getPoolIdFromTransaction } from "./circle";
+import { deployPoolAndLoans, deployLoans, getPoolIdFromTransaction, configurePoolSettings } from "./circle";
 
 // Custom Error Classes
 export class ValidationError extends Error {
@@ -245,11 +245,10 @@ export const approveAndDeploy = async (
 
         // Step 3: Get environment variables for deployment
         const vaultAddress = process.env.VAULT_ADDRESS;
-        const aavePoolAddress = process.env.AAVE_POOL_ADDRESS;
         const originatorRegistryAddress = process.env.ORIGINATOR_REGISTRY_ADDRESS;
         const poolManagerAddress = process.env.POOL_MANAGER_ADDRESS;
 
-        if (!vaultAddress || !aavePoolAddress || !originatorRegistryAddress || !poolManagerAddress) {
+        if (!vaultAddress || !originatorRegistryAddress || !poolManagerAddress) {
             throw new DeploymentError("Missing required environment variables for deployment");
         }
 
@@ -257,7 +256,6 @@ export const approveAndDeploy = async (
         const deploymentResult = await deployPoolAndLoans({
             adminWalletId: walletId,
             vaultAddress,
-            aavePoolAddress,
             originatorRegistryAddress,
             poolManagerAddress
         });
@@ -269,7 +267,16 @@ export const approveAndDeploy = async (
             );
         }
 
-        console.log(`Pool deployment initiated with transaction ${deploymentResult.transactionId}`);
+        console.log(`Pool creation initiated with transaction ${deploymentResult.transactionId}`);
+
+        // Store the transaction ID in the database
+        await updateDeploymentStatus({
+            poolId: poolId,
+            status: 'DEPLOYING_POOL',
+            txData: { 
+                pool_creation_tx_id: deploymentResult.transactionId 
+            }
+        });
 
         return {
             success: true,
@@ -354,11 +361,18 @@ const handleCompletedTransaction = async (pool: any, notification: WebhookNotifi
                 throw new DeploymentError("Missing POOL_MANAGER_ADDRESS environment variable");
             }
 
+            // Get originator address from the first loan (all loans should have the same originator)
+            const originatorAddress = loanData[0]?.originator_address;
+            if (!originatorAddress) {
+                throw new DeploymentError("Missing originator address in loan data");
+            }
+
             const deployResult = await deployLoans({
                 loanData,
                 poolId,
                 adminWalletId: pool.deployed_by_wallet_id || '',
-                poolManagerAddress
+                poolManagerAddress,
+                originatorAddress
             });
 
             if (deployResult.success) {
@@ -411,6 +425,199 @@ export const getPoolSummary = async (poolId: number): Promise<any> => {
     } catch (error: any) {
         console.error("Error getting pool summary:", error);
         throw error;
+    }
+};
+
+// Retry functions for failed deployment steps
+export const retryPoolCreation = async (poolId: number, adminId: number, walletId: string): Promise<DeploymentResult> => {
+    try {
+        console.log(`Retrying pool creation for pool ${poolId}`);
+
+        // Get environment variables
+        const vaultAddress = process.env.VAULT_ADDRESS;
+        const originatorRegistryAddress = process.env.ORIGINATOR_REGISTRY_ADDRESS;
+        const poolManagerAddress = process.env.POOL_MANAGER_ADDRESS;
+
+        if (!vaultAddress || !originatorRegistryAddress || !poolManagerAddress) {
+            throw new DeploymentError("Missing required environment variables for deployment");
+        }
+
+        // Retry pool creation
+        const deploymentResult = await deployPoolAndLoans({
+            adminWalletId: walletId,
+            vaultAddress,
+            originatorRegistryAddress,
+            poolManagerAddress
+        });
+
+        if (!deploymentResult.success) {
+            throw new DeploymentError(
+                deploymentResult.error || "Failed to retry pool creation",
+                deploymentResult.transactionId
+            );
+        }
+
+        // Store the transaction ID
+        await updateDeploymentStatus({
+            poolId: poolId,
+            status: 'DEPLOYING_POOL',
+            txData: { 
+                pool_creation_tx_id: deploymentResult.transactionId 
+            }
+        });
+
+        return {
+            success: true,
+            transactionId: deploymentResult.transactionId,
+            status: 'DEPLOYING_POOL'
+        };
+
+    } catch (error: any) {
+        console.error("Error retrying pool creation:", error);
+        
+        if (error instanceof BusinessRuleError || error instanceof DeploymentError) {
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+
+        return {
+            success: false,
+            error: "Failed to retry pool creation. Please try again."
+        };
+    }
+};
+
+export const retryPoolConfiguration = async (poolId: number, adminId: number, walletId: string): Promise<DeploymentResult> => {
+    try {
+        console.log(`Retrying pool configuration for pool ${poolId}`);
+
+        // Get pool details
+        const pool = await getLoanPoolDetails(poolId, false);
+        if (!pool) {
+            throw new BusinessRuleError(`Pool ${poolId} not found`);
+        }
+
+        const poolManagerAddress = process.env.POOL_MANAGER_ADDRESS;
+        if (!poolManagerAddress) {
+            throw new DeploymentError("Missing POOL_MANAGER_ADDRESS environment variable");
+        }
+
+        // Retry pool configuration
+        const configResult = await configurePoolSettings({
+            poolId: pool.pool_id || poolId,
+            adminWalletId: walletId,
+            poolManagerAddress
+        });
+
+        if (!configResult.success) {
+            throw new DeploymentError(
+                configResult.error || "Failed to retry pool configuration",
+                configResult.transactionId
+            );
+        }
+
+        // Store the transaction ID
+        await updateDeploymentStatus({
+            poolId: poolId,
+            status: 'CONFIGURING_POOL',
+            txData: { 
+                pool_config_tx_id: configResult.transactionId 
+            }
+        });
+
+        return {
+            success: true,
+            transactionId: configResult.transactionId,
+            status: 'CONFIGURING_POOL'
+        };
+
+    } catch (error: any) {
+        console.error("Error retrying pool configuration:", error);
+        
+        if (error instanceof BusinessRuleError || error instanceof DeploymentError) {
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+
+        return {
+            success: false,
+            error: "Failed to retry pool configuration. Please try again."
+        };
+    }
+};
+
+export const retryLoanDeployment = async (poolId: number, adminId: number, walletId: string): Promise<DeploymentResult> => {
+    try {
+        console.log(`Retrying loan deployment for pool ${poolId}`);
+
+        // Get pool details
+        const pool = await getLoanPoolDetails(poolId, false);
+        if (!pool) {
+            throw new BusinessRuleError(`Pool ${poolId} not found`);
+        }
+
+        const poolManagerAddress = process.env.POOL_MANAGER_ADDRESS;
+        if (!poolManagerAddress) {
+            throw new DeploymentError("Missing POOL_MANAGER_ADDRESS environment variable");
+        }
+
+        // Parse loan data
+        const loanData = JSON.parse(pool.loan_data);
+        const originatorAddress = loanData[0]?.originator_address;
+        
+        if (!originatorAddress) {
+            throw new Error("Missing originator address in loan data");
+        }
+
+        // Retry loan deployment
+        const loanDeployment = await deployLoans({
+            loanData,
+            poolId: pool.pool_id || poolId,
+            adminWalletId: walletId,
+            poolManagerAddress,
+            originatorAddress
+        });
+
+        if (!loanDeployment.success) {
+            throw new DeploymentError(
+                loanDeployment.error || "Failed to retry loan deployment",
+                loanDeployment.transactionId
+            );
+        }
+
+        // Store the transaction ID
+        await updateDeploymentStatus({
+            poolId: poolId,
+            status: 'DEPLOYING_LOANS',
+            txData: { 
+                loans_creation_tx_id: loanDeployment.transactionId 
+            }
+        });
+
+        return {
+            success: true,
+            transactionId: loanDeployment.transactionId,
+            status: 'DEPLOYING_LOANS'
+        };
+
+    } catch (error: any) {
+        console.error("Error retrying loan deployment:", error);
+        
+        if (error instanceof BusinessRuleError || error instanceof DeploymentError) {
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+
+        return {
+            success: false,
+            error: "Failed to retry loan deployment. Please try again."
+        };
     }
 };
 

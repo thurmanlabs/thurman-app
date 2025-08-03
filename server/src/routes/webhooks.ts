@@ -1,5 +1,6 @@
 import express, { Router, Request, Response, NextFunction } from "express";
-import { handleDeploymentWebhook } from "../services/loanPool";
+import { deployLoans, configurePoolSettings, getPoolIdFromTransaction, cleanupFailedPoolIds } from "../services/circle";
+import { findByTransactionId, updateDeploymentStatus } from "../prisma/models";
 
 const webhooksRouter: Router = express.Router();
 
@@ -75,69 +76,216 @@ webhooksRouter.get("/circle", (req: Request, res: Response) => {
     });
 });
 
-// POST /api/webhooks/circle - Circle webhook receiver
+// POST /api/webhooks/circle - Enhanced two-phase deployment webhook handler
 webhooksRouter.post("/circle", async (req: Request, res: Response, next: NextFunction) => {
     try {
         const notification = req.body;
         
-        // Validate notification has required fields
-        if (!notification || !notification.transactionId || !notification.state) {
-            console.error("Invalid webhook notification:", notification);
-            return res.status(400).json({
-                success: false,
-                error: "Invalid webhook notification",
-                message: "Missing required fields: transactionId, state"
+        // Handle Circle test webhooks
+        if (notification.notificationType === 'webhooks.test') {
+            console.log("Processing Circle test webhook");
+            return res.status(200).json({
+                success: true,
+                message: "Test webhook received successfully",
+                timestamp: notification.timestamp,
+                notificationId: notification.notificationId
             });
         }
 
-        console.log(`Processing Circle webhook for transaction ${notification.transactionId} with state ${notification.state}`);
+        // Handle actual transaction webhooks
+        const transactionData = notification.notification;
+        
+        if (!transactionData || !transactionData.id || !transactionData.state) {
+            return res.status(400).json({
+                success: false,
+                error: "Invalid webhook notification - missing transaction data"
+            });
+        }
 
-        // Convert Circle webhook format to our internal format
-        const webhookNotification = {
-            transactionId: notification.transactionId,
-            status: notification.state, // Map 'state' to 'status'
-            txHash: notification.txHash,
-            error: notification.error
-        };
+        console.log(`Processing transaction webhook: ${transactionData.id} - ${transactionData.state}`);
 
-        // Use LoanPoolService for business logic
-        await handleDeploymentWebhook(webhookNotification);
+        // Phase 1: Check for pool creation transaction
+        const poolCreationPool = await findByTransactionId(transactionData.id);
+        console.log(`Pool creation pool found:`, poolCreationPool ? `Pool ID ${poolCreationPool.id}` : 'No pool found');
 
-        // Prepare event data for SSE broadcast
-        const eventData = {
-            type: 'deployment_update',
-            transactionId: notification.transactionId,
-            status: notification.state, // Use 'status' for consistency
-            timestamp: Date.now(),
-            txHash: notification.txHash,
-            error: notification.error
-        };
+        if (poolCreationPool && poolCreationPool.pool_creation_tx_id === transactionData.id && transactionData.state === 'CONFIRMED') {
+            console.log(`Pool creation confirmed for pool ${poolCreationPool.id}`);
+            
+            // Parse the actual blockchain pool ID from the transaction
+            const blockchainPoolId = await getPoolIdFromTransaction(transactionData.txHash);
+            
+            if (blockchainPoolId === null) {
+                console.error(`Failed to parse pool ID from transaction ${transactionData.txHash}`);
+                // Fallback to using database ID as pool ID
+                const fallbackPoolId = poolCreationPool.id;
+                console.log(`Using fallback pool ID: ${fallbackPoolId}`);
+                
+                await updateDeploymentStatus({
+                    poolId: poolCreationPool.id,
+                    status: 'POOL_CREATED',
+                    txData: { 
+                        pool_creation_tx_hash: transactionData.txHash,
+                        pool_id: fallbackPoolId
+                    }
+                });
+            } else {
+                console.log(`Parsed blockchain pool ID: ${blockchainPoolId}`);
+                
+                // Update pool status to POOL_CREATED with correct blockchain pool ID
+                await updateDeploymentStatus({
+                    poolId: poolCreationPool.id,
+                    status: 'POOL_CREATED',
+                    txData: { 
+                        pool_creation_tx_hash: transactionData.txHash,
+                        pool_id: blockchainPoolId
+                    }
+                });
+            }
 
-        // Broadcast update to all connected SSE clients
-        broadcastToClients(eventData);
+            // Phase 2: Configure pool settings (enable borrowing)
+            const poolManagerAddress = process.env.POOL_MANAGER_ADDRESS;
+            if (!poolManagerAddress) {
+                throw new Error("Missing POOL_MANAGER_ADDRESS environment variable");
+            }
 
-        console.log(`Webhook processed successfully for transaction ${notification.transactionId}`);
+            // Use the blockchain pool ID (either parsed or fallback)
+            const poolIdToUse = blockchainPoolId !== null ? blockchainPoolId : poolCreationPool.id;
 
-        // Return success response
-        return res.status(200).json({
-            success: true,
-            message: "Webhook processed successfully"
-        });
+            const configResult = await configurePoolSettings({
+                poolId: poolIdToUse,
+                adminWalletId: poolCreationPool.deployed_by_wallet_id || '',
+                poolManagerAddress
+            });
+
+            if (configResult.success) {
+                await updateDeploymentStatus({
+                    poolId: poolCreationPool.id,
+                    status: 'CONFIGURING_POOL',
+                    txData: { pool_config_tx_id: configResult.transactionId }
+                });
+
+                // Broadcast update
+                broadcastToClients({
+                    type: 'deployment_update',
+                    poolId: poolCreationPool.id,
+                    status: 'CONFIGURING_POOL',
+                    txHash: transactionData.txHash
+                });
+            } else {
+                throw new Error(`Failed to configure pool settings: ${configResult.error}`);
+            }
+        }
+
+        // Phase 2: Check for pool configuration transaction
+        const configPool = await findByTransactionId(transactionData.id);
+        console.log(`Pool configuration pool found:`, configPool ? `Pool ID ${configPool.id}` : 'No pool found');
+
+        if (configPool && configPool.pool_config_tx_id === transactionData.id && transactionData.state === 'CONFIRMED') {
+            console.log(`Pool configuration confirmed for pool ${configPool.id}`);
+            
+            await updateDeploymentStatus({
+                poolId: configPool.id,
+                status: 'POOL_CONFIGURED',
+                txData: { 
+                    pool_config_tx_hash: transactionData.txHash
+                }
+            });
+
+            // Phase 3: Deploy loans
+            const loanData = JSON.parse(configPool.loan_data);
+            const originatorAddress = loanData[0]?.originator_address;
+            
+            if (!originatorAddress) {
+                throw new Error("Missing originator address in loan data");
+            }
+
+            const poolManagerAddress = process.env.POOL_MANAGER_ADDRESS;
+            if (!poolManagerAddress) {
+                throw new Error("Missing POOL_MANAGER_ADDRESS environment variable");
+            }
+
+            const loanDeployment = await deployLoans({
+                loanData,
+                poolId: configPool.pool_id || configPool.id,
+                adminWalletId: configPool.deployed_by_wallet_id || '',
+                poolManagerAddress,
+                originatorAddress
+            });
+
+            if (loanDeployment.success) {
+                await updateDeploymentStatus({
+                    poolId: configPool.id,
+                    status: 'DEPLOYING_LOANS',
+                    txData: { loans_creation_tx_id: loanDeployment.transactionId }
+                });
+
+                // Broadcast update
+                broadcastToClients({
+                    type: 'deployment_update',
+                    poolId: configPool.id,
+                    status: 'DEPLOYING_LOANS',
+                    txHash: transactionData.txHash
+                });
+            } else {
+                throw new Error(`Failed to deploy loans: ${loanDeployment.error}`);
+            }
+        }
+
+        // Phase 3: Check for loan deployment transaction
+        const loanDeploymentPool = await findByTransactionId(transactionData.id);
+        console.log(`Loan deployment pool found:`, loanDeploymentPool ? `Pool ID ${loanDeploymentPool.id}` : 'No pool found');
+
+        if (loanDeploymentPool && loanDeploymentPool.loans_creation_tx_id === transactionData.id && transactionData.state === 'CONFIRMED') {
+            console.log(`Loan deployment confirmed for pool ${loanDeploymentPool.id}`);
+            
+            await updateDeploymentStatus({
+                poolId: loanDeploymentPool.id,
+                status: 'DEPLOYED',
+                txData: { 
+                    loans_creation_tx_hash: transactionData.txHash
+                }
+            });
+
+            // Broadcast completion
+            broadcastToClients({
+                type: 'deployment_complete',
+                poolId: loanDeploymentPool.id,
+                status: 'DEPLOYED',
+                txHash: transactionData.txHash
+            });
+        }
+
+        // Handle failures for all phases
+        if (transactionData.state === 'FAILED') {
+            const failedPool = poolCreationPool || configPool || loanDeploymentPool;
+            if (failedPool) {
+                await updateDeploymentStatus({
+                    poolId: failedPool.id,
+                    status: 'FAILED',
+                    txData: {}
+                });
+
+                // Clean up failed pool IDs to prevent future pool ID gaps
+                await cleanupFailedPoolIds();
+
+                broadcastToClients({
+                    type: 'deployment_failed',
+                    poolId: failedPool.id,
+                    status: 'FAILED',
+                    error: transactionData.error
+                });
+            }
+        }
+
+        // If no pool was found for this transaction, log it but don't fail
+        if (!poolCreationPool && !loanDeploymentPool) {
+            console.log(`No pool found for transaction ${transactionData.id} - this might be a test transaction or unrelated transaction`);
+        }
+
+        return res.status(200).json({ success: true });
 
     } catch (error: any) {
-        console.error("Error processing Circle webhook:", error);
-        
-        // Prepare error event for SSE broadcast
-        const errorEventData = {
-            type: 'deployment_error',
-            transactionId: req.body?.transactionId,
-            error: error.message,
-            timestamp: Date.now()
-        };
-        
-        broadcastToClients(errorEventData);
-
-        // Pass error to error handler middleware
+        console.error("Webhook error:", error);
         next(error);
     }
 });

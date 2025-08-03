@@ -29,6 +29,8 @@ enum LoanPoolStatus {
   APPROVED
   DEPLOYING_POOL
   POOL_CREATED
+  CONFIGURING_POOL
+  POOL_CONFIGURED
   DEPLOYING_LOANS
   DEPLOYED
   REJECTED
@@ -110,8 +112,10 @@ model LoanPool {
   
   // Circle transaction tracking
   pool_creation_tx_id    String?
+  pool_config_tx_id      String?
   loans_creation_tx_id   String?
   pool_creation_tx_hash  String?
+  pool_config_tx_hash    String?
   loans_creation_tx_hash String?
   deployed_by_wallet_id  String?
   
