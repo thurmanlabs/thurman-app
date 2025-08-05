@@ -7,6 +7,362 @@ import { Wallet } from "@prisma/client";
 import { parseUnits, formatUnits } from "ethers";
 import db from "../utils/prismaClient";
 
+// ============================================================================
+// CIRCLE SDK CONTRACT TRANSACTION FOUNDATION
+// ============================================================================
+
+// Thurman Protocol ABI Function Signatures
+export const THURMAN_ABI = {
+    // USDC Token Contract
+    USDC_APPROVE: "approve(address,uint256)",
+    
+    // Pool Manager Contract - Deposit Functions
+    POOL_MANAGER_REQUEST_DEPOSIT: "requestDeposit(uint16,uint256,address)",
+    POOL_MANAGER_FULFILL_DEPOSIT: "fulfillDeposit(uint16,uint256,address)",
+    POOL_MANAGER_DEPOSIT: "deposit(uint16,uint256,address)",
+    
+    // Pool Manager Contract - Pool Management (existing)
+    POOL_MANAGER_ADD_POOL: "addPool(address,address,uint256)",
+    POOL_MANAGER_SET_POOL_SETTINGS: "setPoolOperationalSettings(uint16,bool,bool,bool,bool,uint256,uint256,uint256)",
+    POOL_MANAGER_BATCH_INIT_LOAN: "batchInitLoan(uint16,(address,uint256,uint256,uint16,uint256)[],address)"
+};
+
+// TypeScript Interfaces
+export interface TransactionRequest {
+    contractAddress: string;
+    functionSignature: string;
+    parameters: any[];
+    walletId: string;
+    feeLevel?: "LOW" | "MEDIUM" | "HIGH";
+}
+
+export interface TransactionResponse {
+    transactionId: string;
+    status: "PENDING" | "SUCCESS" | "FAILED";
+    error?: string;
+}
+
+export interface DepositRequest {
+    poolId: number;
+    amount: string; // USDC amount in human readable format (e.g., "100.50")
+    userAddress: string;
+    walletId: string;
+}
+
+export interface DepositFulfillment {
+    poolId: number;
+    amount: string;
+    userAddress: string;
+    adminWalletId: string;
+}
+
+// ============================================================================
+// PARAMETER FORMATTING UTILITIES
+// ============================================================================
+
+/**
+ * Convert USDC amount to 6-decimal wei format
+ * @param amount - Human readable USDC amount (e.g., "100.50")
+ * @returns Formatted amount as string for contract calls
+ */
+export const parseUSDCAmount = (amount: string): string => {
+    try {
+        const parsedAmount = parseFloat(amount);
+        if (isNaN(parsedAmount) || parsedAmount <= 0) {
+            throw new Error(`Invalid USDC amount: ${amount}`);
+        }
+        return parseUnits(amount, 6).toString();
+    } catch (error) {
+        throw new Error(`Failed to parse USDC amount ${amount}: ${error}`);
+    }
+};
+
+/**
+ * Format pool ID as uint16 string
+ * @param poolId - Pool ID number
+ * @returns Formatted pool ID as string
+ */
+export const formatPoolId = (poolId: number): string => {
+    if (!Number.isInteger(poolId) || poolId < 0 || poolId > 65535) {
+        throw new Error(`Invalid pool ID: ${poolId}. Must be uint16 (0-65535)`);
+    }
+    return poolId.toString();
+};
+
+/**
+ * Validate and format Ethereum address
+ * @param address - Ethereum address
+ * @returns Formatted address (checksummed if possible)
+ */
+export const formatAddress = (address: string): string => {
+    if (!address || typeof address !== 'string') {
+        throw new Error(`Invalid address: ${address}`);
+    }
+    
+    // Basic Ethereum address validation
+    const addressRegex = /^0x[a-fA-F0-9]{40}$/;
+    if (!addressRegex.test(address)) {
+        throw new Error(`Invalid Ethereum address format: ${address}`);
+    }
+    
+    return address.toLowerCase();
+};
+
+/**
+ * Validate all transaction parameters before execution
+ * @param request - Transaction request object
+ * @returns Validated and formatted parameters
+ */
+export const validateTransactionParams = (request: TransactionRequest): any[] => {
+    const { contractAddress, functionSignature, parameters, walletId } = request;
+    
+    // Validate contract address
+    if (!contractAddress || !formatAddress(contractAddress)) {
+        throw new Error(`Invalid contract address: ${contractAddress}`);
+    }
+    
+    // Validate function signature
+    if (!functionSignature || typeof functionSignature !== 'string') {
+        throw new Error(`Invalid function signature: ${functionSignature}`);
+    }
+    
+    // Validate wallet ID
+    if (!walletId || typeof walletId !== 'string') {
+        throw new Error(`Invalid wallet ID: ${walletId}`);
+    }
+    
+    // Validate parameters array
+    if (!Array.isArray(parameters)) {
+        throw new Error(`Parameters must be an array`);
+    }
+    
+    return parameters;
+};
+
+// ============================================================================
+// CORE TRANSACTION EXECUTION FUNCTION
+// ============================================================================
+
+/**
+ * Execute contract transaction using Circle SDK
+ * @param request - Transaction request with all parameters
+ * @returns Transaction response with ID and status
+ */
+export const executeContractTransaction = async (
+    request: TransactionRequest
+): Promise<TransactionResponse> => {
+    const { contractAddress, functionSignature, parameters, walletId, feeLevel = "MEDIUM" } = request;
+    
+    // Generate idempotency key
+    const idempotencyKey = uuidv4();
+    
+    try {
+        // Validate and format parameters
+        const validatedParams = validateTransactionParams(request);
+        
+        console.log(`🔄 Executing contract transaction:`, {
+            contractAddress,
+            functionSignature,
+            parameters: validatedParams,
+            walletId,
+            idempotencyKey
+        });
+        
+        // Execute transaction via Circle SDK
+        const contractExecution = await circleClient.createContractExecutionTransaction({
+            idempotencyKey,
+            contractAddress,
+            abiFunctionSignature: functionSignature,
+            abiParameters: validatedParams,
+            walletId,
+            fee: {
+                type: "level",
+                config: {
+                    feeLevel
+                }
+            }
+        });
+        
+        const transactionId = contractExecution.data?.id;
+        
+        if (!transactionId) {
+            throw new Error("No transaction ID returned from Circle SDK");
+        }
+        
+        console.log(`✅ Contract transaction executed successfully:`, {
+            transactionId,
+            contractAddress,
+            functionSignature
+        });
+        
+        return {
+            transactionId,
+            status: "PENDING"
+        };
+        
+    } catch (error: any) {
+        console.error(`❌ Contract transaction failed:`, {
+            error: error.message,
+            contractAddress,
+            functionSignature,
+            parameters,
+            walletId,
+            idempotencyKey
+        });
+        
+        return {
+            transactionId: idempotencyKey, // Use idempotency key as fallback ID
+            status: "FAILED",
+            error: error.message || "Unknown transaction error"
+        };
+    }
+};
+
+// ============================================================================
+// DEPOSIT-SPECIFIC TRANSACTION FUNCTIONS
+// ============================================================================
+
+/**
+ * Request a deposit to a lending pool
+ * @param request - Deposit request parameters
+ * @returns Transaction response
+ */
+export const requestDeposit = async (request: DepositRequest): Promise<TransactionResponse> => {
+    const { poolId, amount, userAddress, walletId } = request;
+    
+    try {
+        // Format parameters for requestDeposit(uint16,uint256,address)
+        const parameters = [
+            formatPoolId(poolId),
+            parseUSDCAmount(amount),
+            formatAddress(userAddress)
+        ];
+        
+        const transactionRequest: TransactionRequest = {
+            contractAddress: process.env.POOL_MANAGER_ADDRESS || "",
+            functionSignature: THURMAN_ABI.POOL_MANAGER_REQUEST_DEPOSIT,
+            parameters,
+            walletId
+        };
+        
+        return await executeContractTransaction(transactionRequest);
+        
+    } catch (error: any) {
+        console.error("Failed to request deposit:", error);
+        return {
+            transactionId: uuidv4(),
+            status: "FAILED",
+            error: error.message
+        };
+    }
+};
+
+/**
+ * Fulfill a pending deposit (admin function)
+ * @param request - Deposit fulfillment parameters
+ * @returns Transaction response
+ */
+export const fulfillDeposit = async (request: DepositFulfillment): Promise<TransactionResponse> => {
+    const { poolId, amount, userAddress, adminWalletId } = request;
+    
+    try {
+        // Format parameters for fulfillDeposit(uint16,uint256,address)
+        const parameters = [
+            formatPoolId(poolId),
+            parseUSDCAmount(amount),
+            formatAddress(userAddress)
+        ];
+        
+        const transactionRequest: TransactionRequest = {
+            contractAddress: process.env.POOL_MANAGER_ADDRESS || "",
+            functionSignature: THURMAN_ABI.POOL_MANAGER_FULFILL_DEPOSIT,
+            parameters,
+            walletId: adminWalletId
+        };
+        
+        return await executeContractTransaction(transactionRequest);
+        
+    } catch (error: any) {
+        console.error("Failed to fulfill deposit:", error);
+        return {
+            transactionId: uuidv4(),
+            status: "FAILED",
+            error: error.message
+        };
+    }
+};
+
+/**
+ * Direct deposit to a lending pool (bypasses request/fulfill flow)
+ * @param request - Direct deposit parameters
+ * @returns Transaction response
+ */
+export const directDeposit = async (request: DepositRequest): Promise<TransactionResponse> => {
+    const { poolId, amount, userAddress, walletId } = request;
+    
+    try {
+        // Format parameters for deposit(uint16,uint256,address)
+        const parameters = [
+            formatPoolId(poolId),
+            parseUSDCAmount(amount),
+            formatAddress(userAddress)
+        ];
+        
+        const transactionRequest: TransactionRequest = {
+            contractAddress: process.env.POOL_MANAGER_ADDRESS || "",
+            functionSignature: THURMAN_ABI.POOL_MANAGER_DEPOSIT,
+            parameters,
+            walletId
+        };
+        
+        return await executeContractTransaction(transactionRequest);
+        
+    } catch (error: any) {
+        console.error("Failed to execute direct deposit:", error);
+        return {
+            transactionId: uuidv4(),
+            status: "FAILED",
+            error: error.message
+        };
+    }
+};
+
+/**
+ * Approve USDC spending for pool manager
+ * @param amount - USDC amount to approve
+ * @param walletId - User's wallet ID
+ * @returns Transaction response
+ */
+export const approveUSDC = async (amount: string, walletId: string): Promise<TransactionResponse> => {
+    try {
+        const parameters = [
+            process.env.POOL_MANAGER_ADDRESS || "", // spender address
+            parseUSDCAmount(amount) // amount to approve
+        ];
+        
+        const transactionRequest: TransactionRequest = {
+            contractAddress: process.env.USDC_ADDRESS || "",
+            functionSignature: THURMAN_ABI.USDC_APPROVE,
+            parameters,
+            walletId
+        };
+        
+        return await executeContractTransaction(transactionRequest);
+        
+    } catch (error: any) {
+        console.error("Failed to approve USDC:", error);
+        return {
+            transactionId: uuidv4(),
+            status: "FAILED",
+            error: error.message
+        };
+    }
+};
+
+// ============================================================================
+// EXISTING CODE (KEPT FOR BACKWARD COMPATIBILITY)
+// ============================================================================
+
 // Smart Contract ABI Definitions
 const POOL_MANAGER_ABI = {
     addPool: "addPool(address,address,uint256)",
