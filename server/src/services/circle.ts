@@ -222,15 +222,89 @@ export const executeContractTransaction = async (
 // DEPOSIT-SPECIFIC TRANSACTION FUNCTIONS
 // ============================================================================
 
+// ============================================================================
+// ENHANCED DEPOSIT TRANSACTION FUNCTIONS
+// ============================================================================
+
 /**
- * Request a deposit to a lending pool
- * @param request - Deposit request parameters
- * @returns Transaction response
+ * Create USDC approval transaction
+ * @param amount - USDC amount to approve (human readable format)
+ * @param userWalletId - User's Circle wallet ID
+ * @returns Transaction response with ID
  */
-export const requestDeposit = async (request: DepositRequest): Promise<TransactionResponse> => {
-    const { poolId, amount, userAddress, walletId } = request;
-    
+export const createUSDCApproval = async (
+    amount: string, 
+    userWalletId: string
+): Promise<TransactionResponse> => {
     try {
+        console.log(`🔄 Creating USDC approval for ${amount} USDC, wallet: ${userWalletId}`);
+        
+        // Validate wallet exists and user has permissions
+        await validateWalletPermissions(userWalletId, "approve");
+        
+        // Get pool manager address from environment
+        const poolManagerAddress = process.env.POOL_MANAGER_ADDRESS;
+        if (!poolManagerAddress) {
+            throw new Error("Pool manager address not configured");
+        }
+        
+        // Format parameters for approve(address,uint256)
+        const parameters = [
+            formatAddress(poolManagerAddress), // spender address
+            parseUSDCAmount(amount) // amount to approve
+        ];
+        
+        const transactionRequest: TransactionRequest = {
+            contractAddress: process.env.USDC_ADDRESS || "",
+            functionSignature: THURMAN_ABI.USDC_APPROVE,
+            parameters,
+            walletId: userWalletId
+        };
+        
+        const result = await executeContractTransaction(transactionRequest);
+        
+        if (result.status === "PENDING") {
+            console.log(`✅ USDC approval transaction created: ${result.transactionId}`);
+        } else {
+            console.error(`❌ USDC approval failed: ${result.error}`);
+        }
+        
+        return result;
+        
+    } catch (error: any) {
+        console.error("Failed to create USDC approval:", error);
+        return {
+            transactionId: uuidv4(),
+            status: "FAILED",
+            error: error.message
+        };
+    }
+};
+
+/**
+ * Create deposit request transaction
+ * @param poolId - Pool ID to deposit into
+ * @param amount - USDC amount to deposit (human readable format)
+ * @param userAddress - User's Ethereum address
+ * @param userWalletId - User's Circle wallet ID
+ * @returns Transaction response with ID
+ */
+export const createDepositRequest = async (
+    poolId: number,
+    amount: string,
+    userAddress: string,
+    userWalletId: string
+): Promise<TransactionResponse> => {
+    try {
+        console.log(`🔄 Creating deposit request for pool ${poolId}, amount: ${amount} USDC`);
+        
+        // Validate wallet exists and user has permissions
+        await validateWalletPermissions(userWalletId, "deposit");
+        
+        // TODO: Validate pool exists and deposits are enabled
+        // This would typically query the pool manager contract
+        // await validatePoolDepositsEnabled(poolId);
+        
         // Format parameters for requestDeposit(uint16,uint256,address)
         const parameters = [
             formatPoolId(poolId),
@@ -242,13 +316,21 @@ export const requestDeposit = async (request: DepositRequest): Promise<Transacti
             contractAddress: process.env.POOL_MANAGER_ADDRESS || "",
             functionSignature: THURMAN_ABI.POOL_MANAGER_REQUEST_DEPOSIT,
             parameters,
-            walletId
+            walletId: userWalletId
         };
         
-        return await executeContractTransaction(transactionRequest);
+        const result = await executeContractTransaction(transactionRequest);
+        
+        if (result.status === "PENDING") {
+            console.log(`✅ Deposit request transaction created: ${result.transactionId}`);
+        } else {
+            console.error(`❌ Deposit request failed: ${result.error}`);
+        }
+        
+        return result;
         
     } catch (error: any) {
-        console.error("Failed to request deposit:", error);
+        console.error("Failed to create deposit request:", error);
         return {
             transactionId: uuidv4(),
             status: "FAILED",
@@ -258,14 +340,25 @@ export const requestDeposit = async (request: DepositRequest): Promise<Transacti
 };
 
 /**
- * Fulfill a pending deposit (admin function)
- * @param request - Deposit fulfillment parameters
- * @returns Transaction response
+ * Create deposit fulfillment transaction (admin only)
+ * @param poolId - Pool ID to fulfill deposit for
+ * @param amount - USDC amount to fulfill (human readable format)
+ * @param userAddress - User's Ethereum address
+ * @param adminWalletId - Admin's Circle wallet ID
+ * @returns Transaction response with ID
  */
-export const fulfillDeposit = async (request: DepositFulfillment): Promise<TransactionResponse> => {
-    const { poolId, amount, userAddress, adminWalletId } = request;
-    
+export const createDepositFulfillment = async (
+    poolId: number,
+    amount: string,
+    userAddress: string,
+    adminWalletId: string
+): Promise<TransactionResponse> => {
     try {
+        console.log(`🔄 Creating deposit fulfillment for pool ${poolId}, user: ${userAddress}, amount: ${amount} USDC`);
+        
+        // Validate admin wallet exists and has admin permissions
+        await validateWalletPermissions(adminWalletId, "admin");
+        
         // Format parameters for fulfillDeposit(uint16,uint256,address)
         const parameters = [
             formatPoolId(poolId),
@@ -280,10 +373,18 @@ export const fulfillDeposit = async (request: DepositFulfillment): Promise<Trans
             walletId: adminWalletId
         };
         
-        return await executeContractTransaction(transactionRequest);
+        const result = await executeContractTransaction(transactionRequest);
+        
+        if (result.status === "PENDING") {
+            console.log(`✅ Deposit fulfillment transaction created: ${result.transactionId}`);
+        } else {
+            console.error(`❌ Deposit fulfillment failed: ${result.error}`);
+        }
+        
+        return result;
         
     } catch (error: any) {
-        console.error("Failed to fulfill deposit:", error);
+        console.error("Failed to create deposit fulfillment:", error);
         return {
             transactionId: uuidv4(),
             status: "FAILED",
@@ -293,15 +394,30 @@ export const fulfillDeposit = async (request: DepositFulfillment): Promise<Trans
 };
 
 /**
- * Direct deposit to a lending pool (bypasses request/fulfill flow)
- * @param request - Direct deposit parameters
- * @returns Transaction response
+ * Create share claiming transaction
+ * @param poolId - Pool ID to claim shares from
+ * @param amount - USDC amount to claim (human readable format)
+ * @param userAddress - User's Ethereum address
+ * @param userWalletId - User's Circle wallet ID
+ * @returns Transaction response with ID
  */
-export const directDeposit = async (request: DepositRequest): Promise<TransactionResponse> => {
-    const { poolId, amount, userAddress, walletId } = request;
-    
+export const createShareClaim = async (
+    poolId: number,
+    amount: string,
+    userAddress: string,
+    userWalletId: string
+): Promise<TransactionResponse> => {
     try {
-        // Format parameters for deposit(uint16,uint256,address)
+        console.log(`🔄 Creating share claim for pool ${poolId}, user: ${userAddress}, amount: ${amount} USDC`);
+        
+        // Validate wallet exists and user has permissions
+        await validateWalletPermissions(userWalletId, "claim");
+        
+        // TODO: Validate user has claimable amount
+        // This would typically query the pool manager contract
+        // await validateClaimableAmount(poolId, userAddress, amount);
+        
+        // Format parameters for deposit(uint16,uint256,address) - same as direct deposit
         const parameters = [
             formatPoolId(poolId),
             parseUSDCAmount(amount),
@@ -312,13 +428,21 @@ export const directDeposit = async (request: DepositRequest): Promise<Transactio
             contractAddress: process.env.POOL_MANAGER_ADDRESS || "",
             functionSignature: THURMAN_ABI.POOL_MANAGER_DEPOSIT,
             parameters,
-            walletId
+            walletId: userWalletId
         };
         
-        return await executeContractTransaction(transactionRequest);
+        const result = await executeContractTransaction(transactionRequest);
+        
+        if (result.status === "PENDING") {
+            console.log(`✅ Share claim transaction created: ${result.transactionId}`);
+        } else {
+            console.error(`❌ Share claim failed: ${result.error}`);
+        }
+        
+        return result;
         
     } catch (error: any) {
-        console.error("Failed to execute direct deposit:", error);
+        console.error("Failed to create share claim:", error);
         return {
             transactionId: uuidv4(),
             status: "FAILED",
@@ -327,33 +451,233 @@ export const directDeposit = async (request: DepositRequest): Promise<Transactio
     }
 };
 
+// ============================================================================
+// WALLET MANAGEMENT HELPERS
+// ============================================================================
+
 /**
- * Approve USDC spending for pool manager
- * @param amount - USDC amount to approve
- * @param walletId - User's wallet ID
- * @returns Transaction response
+ * Get user's Circle wallet ID from database
+ * @param userId - User ID from database
+ * @returns Circle wallet ID
  */
-export const approveUSDC = async (amount: string, walletId: string): Promise<TransactionResponse> => {
+export const getUserWalletId = async (userId: number): Promise<string> => {
     try {
-        const parameters = [
-            process.env.POOL_MANAGER_ADDRESS || "", // spender address
-            parseUSDCAmount(amount) // amount to approve
-        ];
+        const wallet = await db.wallet.findFirst({
+            where: {
+                userId: userId,
+                accountType: "SCA" // Smart Contract Account
+            }
+        });
         
-        const transactionRequest: TransactionRequest = {
-            contractAddress: process.env.USDC_ADDRESS || "",
-            functionSignature: THURMAN_ABI.USDC_APPROVE,
-            parameters,
-            walletId
-        };
+        if (!wallet || !wallet.id) {
+            throw new Error(`No Circle wallet found for user ${userId}`);
+        }
         
-        return await executeContractTransaction(transactionRequest);
+        return wallet.id;
+    } catch (error: any) {
+        console.error(`Failed to get user wallet ID for user ${userId}:`, error);
+        throw new Error(`Wallet not found for user ${userId}`);
+    }
+};
+
+/**
+ * Get admin wallet ID for fulfillments
+ * @returns Admin Circle wallet ID
+ */
+export const getAdminWalletId = async (): Promise<string> => {
+    try {
+        // Look for admin wallet in database
+        const adminWallet = await db.wallet.findFirst({
+            where: {
+                name: { contains: "admin" },
+                accountType: "SCA"
+            }
+        });
+        
+        if (adminWallet?.id) {
+            return adminWallet.id;
+        }
+        
+        // Fallback to environment variable
+        const envAdminWalletId = process.env.ADMIN_WALLET_ID;
+        if (envAdminWalletId) {
+            return envAdminWalletId;
+        }
+        
+        throw new Error("No admin wallet configured");
+    } catch (error: any) {
+        console.error("Failed to get admin wallet ID:", error);
+        throw new Error("Admin wallet not found");
+    }
+};
+
+/**
+ * Validate wallet permissions for specific action
+ * @param walletId - Circle wallet ID
+ * @param action - Action to validate ("approve", "deposit", "claim", "admin")
+ * @returns Promise that resolves if wallet has permissions
+ */
+export const validateWalletPermissions = async (
+    walletId: string, 
+    action: "approve" | "deposit" | "claim" | "admin"
+): Promise<void> => {
+    try {
+        // Check if wallet exists in database
+        const wallet = await db.wallet.findUnique({
+            where: { id: walletId }
+        });
+        
+        if (!wallet) {
+            throw new Error(`Wallet ${walletId} not found in database`);
+        }
+        
+        // For admin actions, check if wallet has admin privileges
+        if (action === "admin") {
+            const isAdmin = wallet.name?.toLowerCase().includes("admin") || 
+                           wallet.userId === parseInt(process.env.ADMIN_USER_ID || "0");
+            
+            if (!isAdmin) {
+                throw new Error(`Wallet ${walletId} does not have admin permissions`);
+            }
+        }
+        
+        // Additional validation could be added here:
+        // - Check wallet status
+        // - Check user permissions
+        // - Check wallet balance for certain actions
+        
+        console.log(`✅ Wallet ${walletId} validated for ${action} action`);
         
     } catch (error: any) {
-        console.error("Failed to approve USDC:", error);
+        console.error(`❌ Wallet permission validation failed for ${action}:`, error);
+        throw error;
+    }
+};
+
+// ============================================================================
+// COMPLETE TWO-STEP DEPOSIT FLOW
+// ============================================================================
+
+/**
+ * Complete two-step deposit flow: USDC approval + deposit request
+ * @param poolId - Pool ID to deposit into
+ * @param amount - USDC amount to deposit (human readable format)
+ * @param userAddress - User's Ethereum address
+ * @param userWalletId - User's Circle wallet ID
+ * @returns Object with both transaction IDs and status
+ */
+export const executeFullDepositRequest = async (
+    poolId: number,
+    amount: string,
+    userAddress: string,
+    userWalletId: string
+): Promise<{
+    approvalTransaction: TransactionResponse;
+    depositTransaction: TransactionResponse;
+    success: boolean;
+    error?: string;
+}> => {
+    try {
+        console.log(`🔄 Starting full deposit request flow for pool ${poolId}, amount: ${amount} USDC`);
+        
+        // Step 1: Create USDC approval transaction
+        console.log("Step 1: Creating USDC approval transaction...");
+        const approvalResult = await createUSDCApproval(amount, userWalletId);
+        
+        if (approvalResult.status === "FAILED") {
+            console.error("❌ USDC approval failed, aborting deposit request");
+            return {
+                approvalTransaction: approvalResult,
+                depositTransaction: {
+                    transactionId: "",
+                    status: "FAILED",
+                    error: "Approval failed"
+                },
+                success: false,
+                error: `USDC approval failed: ${approvalResult.error}`
+            };
+        }
+        
+        // Step 2: Create deposit request transaction
+        console.log("Step 2: Creating deposit request transaction...");
+        const depositResult = await createDepositRequest(poolId, amount, userAddress, userWalletId);
+        
+        if (depositResult.status === "FAILED") {
+            console.error("❌ Deposit request failed after successful approval");
+            return {
+                approvalTransaction: approvalResult,
+                depositTransaction: depositResult,
+                success: false,
+                error: `Deposit request failed: ${depositResult.error}`
+            };
+        }
+        
+        console.log("✅ Full deposit request flow completed successfully");
         return {
-            transactionId: uuidv4(),
-            status: "FAILED",
+            approvalTransaction: approvalResult,
+            depositTransaction: depositResult,
+            success: true
+        };
+        
+    } catch (error: any) {
+        console.error("❌ Full deposit request flow failed:", error);
+        return {
+            approvalTransaction: {
+                transactionId: "",
+                status: "FAILED",
+                error: "Flow failed"
+            },
+            depositTransaction: {
+                transactionId: "",
+                status: "FAILED",
+                error: "Flow failed"
+            },
+            success: false,
+            error: error.message
+        };
+    }
+};
+
+/**
+ * Alternative: Execute full deposit request with user ID instead of wallet ID
+ * @param poolId - Pool ID to deposit into
+ * @param amount - USDC amount to deposit (human readable format)
+ * @param userAddress - User's Ethereum address
+ * @param userId - User ID from database
+ * @returns Object with both transaction IDs and status
+ */
+export const executeFullDepositRequestByUserId = async (
+    poolId: number,
+    amount: string,
+    userAddress: string,
+    userId: number
+): Promise<{
+    approvalTransaction: TransactionResponse;
+    depositTransaction: TransactionResponse;
+    success: boolean;
+    error?: string;
+}> => {
+    try {
+        // Get user's wallet ID
+        const userWalletId = await getUserWalletId(userId);
+        
+        // Execute the full deposit request flow
+        return await executeFullDepositRequest(poolId, amount, userAddress, userWalletId);
+        
+    } catch (error: any) {
+        console.error("❌ Full deposit request by user ID failed:", error);
+        return {
+            approvalTransaction: {
+                transactionId: "",
+                status: "FAILED",
+                error: "User wallet not found"
+            },
+            depositTransaction: {
+                transactionId: "",
+                status: "FAILED",
+                error: "User wallet not found"
+            },
+            success: false,
             error: error.message
         };
     }
