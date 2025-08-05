@@ -9,6 +9,7 @@ import authRouter from "./routes/auth";
 import userRouter from "./routes/user";
 import loanPoolsRouter from "./routes/loanPools";
 import webhooksRouter from "./routes/webhooks";
+import depositsRouter from "./routes/deposits";
 import { notFound } from "./middleware/notFound";
 import { errorHandler } from "./middleware/errorHandler";
 
@@ -53,6 +54,7 @@ app.use(`${apiPrefix}/auth`, authRouter);
 app.use(`${apiPrefix}/user`, userRouter);
 app.use(`${apiPrefix}/loan-pools`, loanPoolsRouter);
 app.use(`${apiPrefix}/webhooks`, webhooksRouter);
+app.use(`${apiPrefix}/deposits`, depositsRouter);
 
 // 4. 404 handler for unmatched routes
 app.use(notFound);
