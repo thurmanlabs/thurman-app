@@ -29,10 +29,10 @@ export default function Header() {
             />
             <NavigateButton
               variant="text"
-              to="/lend"
+              to="/pools"
               sx={styles.button.text}
             >
-              Lend
+              Pools
             </NavigateButton>
             {user?.role === "ADMIN" && (
               <>
