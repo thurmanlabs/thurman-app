@@ -10,6 +10,7 @@ import userRouter from "./routes/user";
 import loanPoolsRouter from "./routes/loanPools";
 import webhooksRouter from "./routes/webhooks";
 import depositsRouter from "./routes/deposits";
+import contractEventsRouter from "./routes/contractEvents";
 import { notFound } from "./middleware/notFound";
 import { errorHandler } from "./middleware/errorHandler";
 
@@ -55,6 +56,7 @@ app.use(`${apiPrefix}/user`, userRouter);
 app.use(`${apiPrefix}/loan-pools`, loanPoolsRouter);
 app.use(`${apiPrefix}/webhooks`, webhooksRouter);
 app.use(`${apiPrefix}/deposits`, depositsRouter);
+app.use(`${apiPrefix}/contract-events`, contractEventsRouter);
 
 // 4. 404 handler for unmatched routes
 app.use(notFound);

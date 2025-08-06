@@ -24,6 +24,13 @@ import {
     handleMulterError, 
     validateUploadedFile 
 } from "../middleware/upload";
+import { 
+    getDeployedPools, 
+    getPoolById, 
+    getCacheStatus,
+    PoolData,
+    PoolDataResponse 
+} from "../services/poolData";
 
 var loanPoolsRouter: Router = express.Router();
 
@@ -97,20 +104,66 @@ loanPoolsRouter.post("/",
     }
 );
 
-// GET /api/loan-pools - List active pools (public endpoint)
+// GET /api/loan-pools - Get deployed pools (refactored to use Circle SDK)
 loanPoolsRouter.get("/", async (req: express.Request, res: express.Response, next: NextFunction) => {
     try {
-        const activePools = await findActivePools();
+        console.log("GET /api/loan-pools - Fetching deployed pools via Circle SDK");
+
+        // Get pool data from Circle SDK (with caching)
+        const poolData: PoolDataResponse = await getDeployedPools();
         
-        return res.status(200).json({
-            success: true,
-            message: "Active pools retrieved successfully",
-            data: activePools
+        // Get cache status for metadata
+        const cacheStatus = getCacheStatus();
+
+        // Set caching headers (5 minutes)
+        res.set({
+            "Cache-Control": "public, max-age=300, stale-while-revalidate=60",
+            "Last-Modified": poolData.lastUpdated.toUTCString(),
+            "ETag": `"pools-${poolData.pools.length}-${poolData.lastUpdated.getTime()}"`
         });
 
-    } catch (err: any) {
-        console.error("Get active pools error:", err);
-        next(err);
+        // Return successful response with Circle SDK data
+        return res.status(200).json({
+            success: true,
+            message: "Deployed pools retrieved successfully",
+            data: {
+                pools: poolData.pools,
+                metadata: {
+                    totalPools: poolData.totalPools,
+                    successfullyLoaded: poolData.successfullyLoaded,
+                    failedToLoad: poolData.failedToLoad,
+                    lastUpdated: poolData.lastUpdated,
+                    cached: poolData.cached,
+                    cacheAge: cacheStatus.age,
+                    timestamp: new Date().toISOString()
+                }
+            }
+        });
+
+    } catch (error: any) {
+        console.error("Error fetching deployed pools:", error);
+
+        // Fallback to database pools if Circle SDK fails
+        try {
+            console.log("Circle SDK failed, falling back to database pools");
+            const activePools = await findActivePools();
+            
+            return res.status(200).json({
+                success: true,
+                message: "Active pools retrieved successfully (fallback)",
+                data: {
+                    pools: activePools,
+                    metadata: {
+                        source: "database",
+                        fallback: true,
+                        timestamp: new Date().toISOString()
+                    }
+                }
+            });
+        } catch (fallbackError: any) {
+            console.error("Database fallback also failed:", fallbackError);
+            next(fallbackError);
+        }
     }
 });
 
@@ -494,5 +547,148 @@ loanPoolsRouter.post("/:id/retry-step",
         }
     }
 );
+
+// ============================================================================
+// POOL DATA API ENDPOINTS (Circle SDK Integration)
+// ============================================================================
+
+/**
+ * GET /api/loan-pools/pools - Alias for main pools endpoint
+ * Redirects to main route for backward compatibility
+ */
+loanPoolsRouter.get("/pools", async (req: express.Request, res: express.Response) => {
+    // Redirect to main endpoint to avoid duplication
+    return res.redirect(301, "/api/loan-pools");
+});
+
+/**
+ * GET /api/loan-pools/pools/:id - Get specific pool by ID  
+ * Returns single pool data with validation
+ */
+loanPoolsRouter.get("/pools/:id", async (req: express.Request, res: express.Response) => {
+    try {
+        const poolIdParam = req.params.id;
+        
+        console.log(`GET /pools/${poolIdParam} - Fetching pool data`);
+
+        // Validate pool ID parameter
+        if (!poolIdParam) {
+            return res.status(400).json({
+                success: false,
+                error: "Missing Pool ID",
+                message: "Pool ID parameter is required"
+            });
+        }
+
+        // Parse and validate pool ID
+        const poolId = parseInt(poolIdParam, 10);
+        
+        if (isNaN(poolId)) {
+            return res.status(400).json({
+                success: false,
+                error: "Invalid Pool ID Format",
+                message: "Pool ID must be a valid integer"
+            });
+        }
+
+        if (poolId < 0) {
+            return res.status(400).json({
+                success: false,
+                error: "Invalid Pool ID",
+                message: "Pool ID must be non-negative"
+            });
+        }
+
+        // Get pool data from Circle SDK
+        const poolData: PoolData | null = await getPoolById(poolId);
+
+        if (!poolData) {
+            return res.status(404).json({
+                success: false,
+                error: "Pool Not Found",
+                message: `Pool with ID ${poolId} does not exist or failed to load`
+            });
+        }
+
+        // Get cache status for metadata
+        const cacheStatus = getCacheStatus();
+
+        // Set caching headers (5 minutes)
+        res.set({
+            "Cache-Control": "public, max-age=300, stale-while-revalidate=60",
+            "Last-Modified": poolData.lastUpdated.toUTCString(),
+            "ETag": `"pool-${poolId}-${poolData.lastUpdated.getTime()}"`
+        });
+
+        // Return successful response
+        return res.status(200).json({
+            success: true,
+            data: {
+                pool: poolData,
+                metadata: {
+                    poolId,
+                    lastUpdated: poolData.lastUpdated,
+                    cached: cacheStatus.cached,
+                    cacheAge: cacheStatus.age,
+                    timestamp: new Date().toISOString()
+                }
+            }
+        });
+
+    } catch (error: any) {
+        console.error(`Error fetching pool ${req.params.id}:`, error);
+
+        // Handle specific Circle SDK errors
+        if (error.message?.includes("POOL_MANAGER_CONTRACT_ADDRESS")) {
+            return res.status(500).json({
+                success: false,
+                error: "Configuration Error",
+                message: "Pool manager contract not configured"
+            });
+        }
+
+        // Generic error handling
+        return res.status(500).json({
+            success: false,
+            error: "Internal Server Error",
+            message: "Failed to fetch pool data",
+            details: process.env.NODE_ENV === "development" ? error.message : undefined
+        });
+    }
+});
+
+/**
+ * GET /api/loan-pools/pools/cache/status - Get cache status information
+ * Returns cache metadata for debugging/monitoring
+ */
+loanPoolsRouter.get("/pools/cache/status", (req: express.Request, res: express.Response) => {
+    try {
+        const cacheStatus = getCacheStatus();
+        
+        return res.status(200).json({
+            success: true,
+            data: {
+                cache: {
+                    cached: cacheStatus.cached,
+                    ageMs: cacheStatus.age,
+                    ageHuman: `${Math.round(cacheStatus.age / 1000)}s`,
+                    poolCount: cacheStatus.poolCount,
+                    lastUpdated: cacheStatus.lastUpdated,
+                    maxAge: "300s (5 minutes)"
+                },
+                timestamp: new Date().toISOString()
+            }
+        });
+
+    } catch (error: any) {
+        console.error("Error getting cache status:", error);
+        
+        return res.status(500).json({
+            success: false,
+            error: "Internal Server Error",
+            message: "Failed to get cache status"
+        });
+    }
+});
 
 export default loanPoolsRouter; 
