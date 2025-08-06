@@ -15,6 +15,10 @@ import {
     validateUSDCAmount,
     formatAddress
 } from "../services/utils";
+import { 
+    getUserDepositStatus,
+    getAllPendingDeposits
+} from "../services/depositStateManager";
 import db from "../utils/prismaClient";
 
 // Import the AuthRequest interface from middleware
@@ -492,6 +496,319 @@ depositsRouter.post("/admin/fulfill", requireAuth, requireRole(["ADMIN"]), async
         return res.status(500).json({
             success: false,
             error: "Internal server error"
+        });
+    }
+});
+
+// ============================================================================
+// POLLING ENDPOINTS
+// ============================================================================
+
+/**
+ * GET /api/deposits/status/:poolId/:userAddress
+ * Get current deposit status for a user in a specific pool
+ * No authentication required (public blockchain data)
+ */
+depositsRouter.get("/status/:poolId/:userAddress", async (req: Request, res: Response) => {
+    try {
+        const { poolId, userAddress } = req.params;
+
+        // Validate pool ID
+        const poolIdNum = parseInt(poolId, 10);
+        if (isNaN(poolIdNum) || poolIdNum < 0) {
+            return res.status(400).json({
+                success: false,
+                error: "Invalid pool ID format"
+            });
+        }
+
+        // Validate user address format
+        try {
+            formatAddress(userAddress);
+        } catch (error: any) {
+            return res.status(400).json({
+                success: false,
+                error: "Invalid user address format"
+            });
+        }
+
+        // Get deposit status from in-memory state
+        const depositStatus = getUserDepositStatus(poolIdNum, userAddress);
+
+        // Generate ETag for caching
+        const etag = `"${poolIdNum}-${userAddress.toLowerCase()}-${depositStatus.lastUpdated.getTime()}"`;
+        
+        // Check if client has cached version
+        if (req.headers['if-none-match'] === etag) {
+            return res.status(304).end();
+        }
+
+        // Set cache headers for polling optimization
+        res.set({
+            'Cache-Control': 'private, max-age=30, stale-while-revalidate=60',
+            'ETag': etag,
+            'Last-Modified': depositStatus.lastUpdated.toUTCString()
+        });
+
+        // Return deposit status
+        return res.status(200).json({
+            success: true,
+            data: {
+                poolId: poolIdNum,
+                userAddress: userAddress.toLowerCase(),
+                pending: depositStatus.pending,
+                claimable: depositStatus.claimable,
+                claimed: depositStatus.claimed,
+                lastUpdated: depositStatus.lastUpdated.toISOString(),
+                hasActivity: depositStatus.pending > 0 || depositStatus.claimable > 0 || depositStatus.claimed > 0
+            }
+        });
+
+    } catch (error: any) {
+        console.error("Deposit status polling error:", error);
+        return res.status(500).json({
+            success: false,
+            error: "Failed to retrieve deposit status"
+        });
+    }
+});
+
+/**
+ * GET /api/admin/deposits/pending
+ * Get all pending deposits for admin interface
+ * Requires admin authentication
+ */
+depositsRouter.get("/admin/pending", requireAuth, requireRole(["ADMIN"]), async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        // Get pagination parameters
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = Math.min(parseInt(req.query.limit as string) || 50, 100); // Max 100 items per page
+        const offset = (page - 1) * limit;
+
+        // Get all pending deposits from in-memory state
+        const allPendingDeposits = getAllPendingDeposits();
+
+        // Apply pagination
+        const paginatedDeposits = allPendingDeposits.slice(offset, offset + limit);
+
+        // Generate ETag for caching
+        const etag = `"pending-${allPendingDeposits.length}-${allPendingDeposits[0]?.timestamp?.getTime() || 0}"`;
+        
+        // Check if client has cached version
+        if (req.headers['if-none-match'] === etag) {
+            return res.status(304).end();
+        }
+
+        // Set cache headers for polling optimization
+        res.set({
+            'Cache-Control': 'private, max-age=30, stale-while-revalidate=60',
+            'ETag': etag,
+            'Last-Modified': new Date().toUTCString()
+        });
+
+        // Return paginated pending deposits
+        return res.status(200).json({
+            success: true,
+            data: {
+                deposits: paginatedDeposits.map(deposit => ({
+                    id: `${deposit.poolId}-${deposit.userAddress}`,
+                    poolId: deposit.poolId,
+                    userAddress: deposit.userAddress,
+                    amount: deposit.amount,
+                    requestedAt: deposit.timestamp.toISOString(),
+                    // Note: txHash is not available in current state manager
+                    // Would need to be enhanced to track individual transactions
+                })),
+                pagination: {
+                    page,
+                    limit,
+                    total: allPendingDeposits.length,
+                    totalPages: Math.ceil(allPendingDeposits.length / limit),
+                    hasNext: offset + limit < allPendingDeposits.length,
+                    hasPrev: page > 1
+                }
+            }
+        });
+
+    } catch (error: any) {
+        console.error("Admin pending deposits polling error:", error);
+        return res.status(500).json({
+            success: false,
+            error: "Failed to retrieve pending deposits"
+        });
+    }
+});
+
+/**
+ * GET /api/deposits/user/:userAddress
+ * Get all deposit activity for a specific user across all pools
+ * No authentication required (public blockchain data)
+ */
+depositsRouter.get("/user/:userAddress", async (req: Request, res: Response) => {
+    try {
+        const { userAddress } = req.params;
+
+        // Validate user address format
+        try {
+            formatAddress(userAddress);
+        } catch (error: any) {
+            return res.status(400).json({
+                success: false,
+                error: "Invalid user address format"
+            });
+        }
+
+        // Get all pools from database
+        const pools = await db.loanPool.findMany({
+            where: {
+                status: { in: ["POOL_CREATED", "POOL_CONFIGURED", "DEPLOYING_LOANS", "DEPLOYED"] }
+            },
+            select: {
+                id: true,
+                pool_id: true,
+                name: true,
+                status: true
+            }
+        });
+
+        // Get deposit status for each pool
+        const userDeposits = pools
+            .filter(pool => pool.pool_id !== null) // Filter out pools without pool_id
+            .map(pool => {
+                const depositStatus = getUserDepositStatus(pool.pool_id!, userAddress);
+                return {
+                    poolId: pool.pool_id!,
+                    poolName: pool.name,
+                    poolStatus: pool.status,
+                    pending: depositStatus.pending,
+                    claimable: depositStatus.claimable,
+                    claimed: depositStatus.claimed,
+                    lastUpdated: depositStatus.lastUpdated.toISOString(),
+                    hasActivity: depositStatus.pending > 0 || depositStatus.claimable > 0 || depositStatus.claimed > 0
+                };
+            }).filter(deposit => deposit.hasActivity); // Only return pools with activity
+
+        // Generate ETag for caching
+        const etag = `"user-${userAddress.toLowerCase()}-${userDeposits.length}-${userDeposits[0]?.lastUpdated || 0}"`;
+        
+        // Check if client has cached version
+        if (req.headers['if-none-match'] === etag) {
+            return res.status(304).end();
+        }
+
+        // Set cache headers for polling optimization
+        res.set({
+            'Cache-Control': 'private, max-age=30, stale-while-revalidate=60',
+            'ETag': etag,
+            'Last-Modified': new Date().toUTCString()
+        });
+
+        // Calculate totals
+        const totals = userDeposits.reduce((acc, deposit) => ({
+            pending: acc.pending + deposit.pending,
+            claimable: acc.claimable + deposit.claimable,
+            claimed: acc.claimed + deposit.claimed
+        }), { pending: 0, claimable: 0, claimed: 0 });
+
+        // Return user's deposit activity
+        return res.status(200).json({
+            success: true,
+            data: {
+                userAddress: userAddress.toLowerCase(),
+                deposits: userDeposits,
+                totals,
+                poolCount: userDeposits.length,
+                lastUpdated: new Date().toISOString()
+            }
+        });
+
+    } catch (error: any) {
+        console.error("User deposits polling error:", error);
+        return res.status(500).json({
+            success: false,
+            error: "Failed to retrieve user deposits"
+        });
+    }
+});
+
+/**
+ * GET /api/deposits/pool/:poolId
+ * Get deposit statistics for a specific pool
+ * No authentication required (public blockchain data)
+ */
+depositsRouter.get("/pool/:poolId", async (req: Request, res: Response) => {
+    try {
+        const { poolId } = req.params;
+
+        // Validate pool ID
+        const poolIdNum = parseInt(poolId, 10);
+        if (isNaN(poolIdNum) || poolIdNum < 0) {
+            return res.status(400).json({
+                success: false,
+                error: "Invalid pool ID format"
+            });
+        }
+
+        // Check if pool exists
+        const pool = await db.loanPool.findFirst({
+            where: { pool_id: poolIdNum },
+            select: {
+                id: true,
+                pool_id: true,
+                name: true,
+                status: true
+            }
+        });
+
+        if (!pool) {
+            return res.status(404).json({
+                success: false,
+                error: "Pool not found"
+            });
+        }
+
+        // Get all deposits for this pool from in-memory state
+        const allPendingDeposits = getAllPendingDeposits();
+        const poolDeposits = allPendingDeposits.filter(deposit => deposit.poolId === poolIdNum);
+
+        // Calculate pool statistics
+        const totalPending = poolDeposits.reduce((sum, deposit) => sum + parseFloat(deposit.amount), 0);
+        const uniqueDepositors = new Set(poolDeposits.map(deposit => deposit.userAddress)).size;
+
+        // Generate ETag for caching
+        const etag = `"pool-${poolIdNum}-${poolDeposits.length}-${poolDeposits[0]?.timestamp?.getTime() || 0}"`;
+        
+        // Check if client has cached version
+        if (req.headers['if-none-match'] === etag) {
+            return res.status(304).end();
+        }
+
+        // Set cache headers for polling optimization
+        res.set({
+            'Cache-Control': 'private, max-age=30, stale-while-revalidate=60',
+            'ETag': etag,
+            'Last-Modified': new Date().toUTCString()
+        });
+
+        // Return pool deposit statistics
+        return res.status(200).json({
+            success: true,
+            data: {
+                poolId: poolIdNum,
+                poolName: pool.name,
+                poolStatus: pool.status,
+                totalPending: totalPending.toString(),
+                uniqueDepositors,
+                pendingDeposits: poolDeposits.length,
+                lastUpdated: new Date().toISOString()
+            }
+        });
+
+    } catch (error: any) {
+        console.error("Pool deposits polling error:", error);
+        return res.status(500).json({
+            success: false,
+            error: "Failed to retrieve pool deposit statistics"
         });
     }
 });
