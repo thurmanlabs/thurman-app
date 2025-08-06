@@ -1,29 +1,29 @@
-import { Router, Request, Response } from 'express';
-import { requireAuth } from '../middleware/auth';
-import { requireRole } from '../middleware/auth';
+import express, { Router, Request, Response } from "express";
+import { requireAuth } from "../middleware/auth";
+import { requireRole } from "../middleware/auth";
 import { 
     executeFullDepositRequest,
     createShareClaim,
     createDepositFulfillment
-} from '../services/circleDeposit';
+} from "../services/circleDeposit";
 import { 
     getUserWalletId,
     getAdminWalletId
-} from '../services/walletService';
+} from "../services/walletService";
 import { 
     parseUSDCAmount,
     validateUSDCAmount,
     formatAddress
-} from '../services/utils';
-import db from '../utils/prismaClient';
+} from "../services/utils";
+import db from "../utils/prismaClient";
 
 // Import the AuthRequest interface from middleware
-import { AuthRequest } from '../middleware/auth';
+import { AuthRequest } from "../middleware/auth";
 
 // Use AuthRequest type for authenticated routes
 type AuthenticatedRequest = AuthRequest;
 
-const router = Router();
+var depositsRouter: Router = express.Router();
 
 // ============================================================================
 // REQUEST VALIDATION HELPERS
@@ -96,7 +96,7 @@ const validatePoolStatus = async (poolId: number): Promise<{ valid: boolean; err
         const pool = await db.loanPool.findFirst({
             where: {
                 pool_id: poolId,
-                status: { in: ['POOL_CREATED', 'POOL_CONFIGURED', 'DEPLOYING_LOANS', 'DEPLOYED'] }
+                status: { in: ["POOL_CREATED", "POOL_CONFIGURED", "DEPLOYING_LOANS", "DEPLOYED"] }
             }
         });
 
@@ -146,7 +146,7 @@ const validateClaimableAmount = async (userId: number, poolId: number, amount: s
  * POST /api/deposits/request
  * Request a deposit to a lending pool (two-step: USDC approval + deposit request)
  */
-router.post('/request', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
+depositsRouter.post("/request", requireAuth, async (req: AuthenticatedRequest, res: Response) => {
     try {
         const { poolId, amount } = req.body;
         const userId = req.user?.id;
@@ -270,7 +270,7 @@ router.post('/request', requireAuth, async (req: AuthenticatedRequest, res: Resp
  * POST /api/deposits/claim
  * Claim shares from a fulfilled deposit
  */
-router.post('/claim', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
+depositsRouter.post("/claim", requireAuth, async (req: AuthenticatedRequest, res: Response) => {
     try {
         const { poolId, amount } = req.body;
         const userId = req.user?.id;
@@ -383,7 +383,7 @@ router.post('/claim', requireAuth, async (req: AuthenticatedRequest, res: Respon
  * POST /api/admin/deposits/fulfill
  * Admin endpoint to fulfill pending deposits
  */
-router.post('/admin/fulfill', requireAuth, requireRole(['ADMIN']), async (req: AuthenticatedRequest, res: Response) => {
+depositsRouter.post("/admin/fulfill", requireAuth, requireRole(["ADMIN"]), async (req: AuthenticatedRequest, res: Response) => {
     try {
         const { poolId, userAddress, amount } = req.body;
         const adminUserId = req.user?.id;
@@ -496,4 +496,4 @@ router.post('/admin/fulfill', requireAuth, requireRole(['ADMIN']), async (req: A
     }
 });
 
-export default router; 
+export default depositsRouter; 
