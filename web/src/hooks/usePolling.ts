@@ -103,10 +103,15 @@ export function usePolling<T>(
   const fetchData = useCallback(async (signal?: AbortSignal) => {
     if (!shouldPoll()) return;
 
-    try {
+    // Only set loading to true if we don't have data yet (initial load)
+    const isInitialLoad = !data && !loading;
+    if (isInitialLoad) {
       setLoading(true);
-      setError(null);
+    }
+    
+    setError(null);
 
+    try {
       const response = await axios.get(endpoint, { signal });
       const newData = response.data;
 
@@ -163,9 +168,12 @@ export function usePolling<T>(
         onNotification('Connection lost. Retrying...', 'warning');
       }
     } finally {
-      setLoading(false);
+      // Only set loading to false if it was set to true in this request
+      if (isInitialLoad) {
+        setLoading(false);
+      }
     }
-  }, [endpoint, shouldPoll, onDataChange, onError, onNotification]);
+  }, [endpoint, shouldPoll, onDataChange, onError, onNotification, data, loading]);
 
   // Calculate backoff interval
   const getBackoffInterval = useCallback(() => {

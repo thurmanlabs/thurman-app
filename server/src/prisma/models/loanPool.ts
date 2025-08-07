@@ -1,11 +1,11 @@
-import { Prisma, LoanPool, User } from "@prisma/client";
+import { Prisma, LoanPool as PrismaLoanPool, User } from "@prisma/client";
 import db from "../../utils/prismaClient";
 
-type LoanPoolWithCreator = LoanPool & {
+type LoanPoolWithCreator = PrismaLoanPool & {
     creator: User;
 };
 
-type LoanPoolWithCreatorAndApprover = LoanPool & {
+type LoanPoolWithCreatorAndApprover = PrismaLoanPool & {
     creator: User;
     approver: User | null;
 };

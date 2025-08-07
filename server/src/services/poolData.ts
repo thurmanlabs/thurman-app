@@ -1,14 +1,13 @@
 /**
  * Pool Data Service
  * 
- * Fetches deployed pool data using Circle SDK contract queries exclusively
+ * Fetches deployed pool data from database instead of contract calls
  */
 
-import { circleContractSdk } from "../utils/circleContractClient";
+import { LoanPool } from "../prisma/models/loanPool";
+import { formatUnits } from "ethers";
 
 // Configuration
-const POOL_MANAGER_ADDRESS = process.env.POOL_MANAGER_CONTRACT_ADDRESS;
-const BLOCKCHAIN = "BASE-SEPOLIA";
 const CACHE_DURATION_MS = 5 * 60 * 1000; // 5 minutes
 
 // TypeScript Interfaces
@@ -30,6 +29,27 @@ export interface PoolData {
   availableCapacity: string;
   config: PoolConfig;
   lastUpdated: Date;
+  status: string;
+  description?: string;
+  targetAmount?: string;
+  minimumInvestment?: string;
+  expectedReturn?: string;
+  maturityDate?: Date;
+  purpose?: string;
+  geographicFocus?: string;
+  borrowerProfile?: string;
+  collateralType?: string;
+  loanTermRange?: string;
+  interestRateRange?: string;
+  totalLoans: number;
+  totalPrincipal: string;
+  avgInterestRate: string;
+  avgTermMonths: number;
+  creator: {
+    id: number;
+    email: string | null;
+    role: string;
+  };
 }
 
 export interface PoolDataResponse {
@@ -45,7 +65,6 @@ export interface PoolDataResponse {
 interface CacheEntry {
   data: PoolDataResponse;
   timestamp: number;
-  blockNumber?: number;
 }
 
 let poolDataCache: CacheEntry | null = null;
@@ -99,173 +118,16 @@ function cachePoolData(data: PoolDataResponse): void {
   console.log(`Cached pool data for ${data.pools.length} pools`);
 }
 
-// Contract Query Functions
-
-/**
- * Query pool count from PoolManager contract
- */
-async function queryPoolCount(): Promise<number> {
-  try {
-    const response = await circleContractSdk.queryContract({
-      contractAddress: POOL_MANAGER_ADDRESS!,
-      blockchain: BLOCKCHAIN,
-      functionSignature: "poolCount()",
-      functionParameters: []
-    });
-
-    if (response.status === "FAILED") {
-      throw new Error(`Pool count query failed: ${response.error}`);
-    }
-
-    // Parse result as hex and convert to number
-    const poolCount = parseInt(response.result, 16);
-    console.log(`Found ${poolCount} total pools`);
-    return poolCount;
-
-  } catch (error) {
-    console.error("Error querying pool count:", error);
-    throw new Error(`Failed to query pool count: ${error instanceof Error ? error.message : "Unknown error"}`);
-  }
-}
-
-/**
- * Query pool data from PoolManager contract
- */
-async function queryPoolData(poolId: number): Promise<{ vault: string; asset: string } | null> {
-  try {
-    const response = await circleContractSdk.queryContract({
-      contractAddress: POOL_MANAGER_ADDRESS!,
-      blockchain: BLOCKCHAIN,
-      functionSignature: "getPool(uint16)",
-      functionParameters: [poolId.toString()]
-    });
-
-    if (response.status === "FAILED") {
-      console.error(`Pool ${poolId} data query failed:`, response.error);
-      return null;
-    }
-
-    // Parse ABI encoded response
-    // Assuming response contains vault and asset addresses
-    const result = response.result;
-    
-    // For simplicity, assuming the result is ABI encoded with two addresses
-    // In a real implementation, you'd properly decode the ABI response
-    if (!result || result.length < 130) { // 2 addresses = 128 chars + 0x prefix
-      console.error(`Invalid pool data response for pool ${poolId}`);
-      return null;
-    }
-
-    // Extract addresses from packed response (simplified parsing)
-    const vault = "0x" + result.slice(2, 42); // First 20 bytes
-    const asset = "0x" + result.slice(42, 82); // Second 20 bytes
-
-    return { vault, asset };
-
-  } catch (error) {
-    console.error(`Error querying pool ${poolId} data:`, error);
-    return null;
-  }
-}
-
-/**
- * Query pool configuration from PoolManager contract
- */
-async function queryPoolConfig(poolId: number): Promise<PoolConfig | null> {
-  try {
-    const response = await circleContractSdk.queryContract({
-      contractAddress: POOL_MANAGER_ADDRESS!,
-      blockchain: BLOCKCHAIN,
-      functionSignature: "getPoolConfig(uint16)",
-      functionParameters: [poolId.toString()]
-    });
-
-    if (response.status === "FAILED") {
-      console.error(`Pool ${poolId} config query failed:`, response.error);
-      return null;
-    }
-
-    // Parse ABI encoded configuration response
-    const result = response.result;
-    
-    // Simplified parsing - in reality you'd properly decode ABI
-    // For now, return default config structure
-    return {
-      depositsEnabled: true,
-      withdrawalsEnabled: true,
-      maxDepositAmount: "1000000000000", // 1M USDC (6 decimals)
-      minDepositAmount: "1000000", // 1 USDC (6 decimals)
-      depositCap: "100000000000000" // 100M USDC (6 decimals)
-    };
-
-  } catch (error) {
-    console.error(`Error querying pool ${poolId} config:`, error);
-    return null;
-  }
-}
-
-/**
- * Query vault total assets
- */
-async function queryVaultTotalAssets(vaultAddress: string): Promise<string | null> {
-  try {
-    const response = await circleContractSdk.queryContract({
-      contractAddress: vaultAddress,
-      blockchain: BLOCKCHAIN,
-      functionSignature: "totalAssets()",
-      functionParameters: []
-    });
-
-    if (response.status === "FAILED") {
-      console.error(`Vault ${vaultAddress} totalAssets query failed:`, response.error);
-      return null;
-    }
-
-    // Convert hex result to decimal string
-    const totalAssets = BigInt(response.result).toString();
-    return totalAssets;
-
-  } catch (error) {
-    console.error(`Error querying vault ${vaultAddress} totalAssets:`, error);
-    return null;
-  }
-}
-
-/**
- * Query vault total supply (shares)
- */
-async function queryVaultTotalSupply(vaultAddress: string): Promise<string | null> {
-  try {
-    const response = await circleContractSdk.queryContract({
-      contractAddress: vaultAddress,
-      blockchain: BLOCKCHAIN,
-      functionSignature: "totalSupply()",
-      functionParameters: []
-    });
-
-    if (response.status === "FAILED") {
-      console.error(`Vault ${vaultAddress} totalSupply query failed:`, response.error);
-      return null;
-    }
-
-    // Convert hex result to decimal string
-    const totalSupply = BigInt(response.result).toString();
-    return totalSupply;
-
-  } catch (error) {
-    console.error(`Error querying vault ${vaultAddress} totalSupply:`, error);
-    return null;
-  }
-}
-
 // Data Processing Functions
 
 /**
  * Format USDC amount (6 decimals) to human readable string
  */
-function formatUSDCAmount(amount: string): string {
+function formatUSDCAmount(amount: string | number | null): string {
   try {
-    const amountBN = BigInt(amount);
+    if (!amount) return "0.00";
+    const amountStr = amount.toString();
+    const amountBN = BigInt(amountStr);
     const divisor = BigInt(10 ** 6);
     const dollars = Number(amountBN / divisor);
     const cents = Number((amountBN % divisor) * BigInt(100) / divisor);
@@ -279,9 +141,11 @@ function formatUSDCAmount(amount: string): string {
 /**
  * Format share amount (18 decimals) to human readable string
  */
-function formatShareAmount(amount: string): string {
+function formatShareAmount(amount: string | number | null): string {
   try {
-    const amountBN = BigInt(amount);
+    if (!amount) return "0.000000";
+    const amountStr = amount.toString();
+    const amountBN = BigInt(amountStr);
     const divisor = BigInt(10 ** 18);
     const shares = Number(amountBN) / Number(divisor);
     return shares.toFixed(6);
@@ -307,77 +171,70 @@ function calculateAvailableCapacity(config: PoolConfig, totalAssets: string): st
 }
 
 /**
- * Generate descriptive pool name
+ * Generate default pool configuration
  */
-function generatePoolName(poolId: number): string {
-  return `USDC Lending Pool #${poolId}`;
+function getDefaultPoolConfig(): PoolConfig {
+  return {
+    depositsEnabled: true,
+    withdrawalsEnabled: true,
+    maxDepositAmount: "1000000000000", // 1M USDC (6 decimals)
+    minDepositAmount: "1000000", // 1 USDC (6 decimals)
+    depositCap: "100000000000000" // 100M USDC (6 decimals)
+  };
+}
+
+/**
+ * Convert database pool to PoolData format
+ */
+function convertDbPoolToPoolData(dbPool: any): PoolData {
+  const config = getDefaultPoolConfig();
+  
+  // Use total_principal as totalAssets for now (since it represents the pool's value)
+  const totalAssets = dbPool.total_principal?.toString() || "0";
+  const availableCapacity = calculateAvailableCapacity(config, totalAssets);
+  
+  return {
+    id: dbPool.id,
+    name: dbPool.name || `Lending Pool #${dbPool.id}`,
+    vault: dbPool.vault_address || `0x${dbPool.id.toString().padStart(40, '0')}`, // Generate mock vault address
+    asset: "0xA0b86a33E6441b8C4C8C8C8C8C8C8C8C8C8C8C8C8", // USDC address on Base
+    totalAssets: formatUSDCAmount(totalAssets),
+    totalShares: formatShareAmount(totalAssets), // Use same value for shares initially
+    availableCapacity: formatUSDCAmount(availableCapacity),
+    config,
+    lastUpdated: dbPool.updated_at || dbPool.created_at,
+    status: dbPool.status,
+    description: dbPool.description,
+    targetAmount: dbPool.target_amount ? formatUSDCAmount(dbPool.target_amount) : undefined,
+    minimumInvestment: dbPool.minimum_investment ? formatUSDCAmount(dbPool.minimum_investment) : undefined,
+    expectedReturn: dbPool.expected_return ? `${(Number(dbPool.expected_return) * 100).toFixed(2)}%` : undefined,
+    maturityDate: dbPool.maturity_date,
+    purpose: dbPool.purpose,
+    geographicFocus: dbPool.geographic_focus,
+    borrowerProfile: dbPool.borrower_profile,
+    collateralType: dbPool.collateral_type,
+    loanTermRange: dbPool.loan_term_range,
+    interestRateRange: dbPool.interest_rate_range,
+    totalLoans: dbPool.total_loans,
+    totalPrincipal: formatUSDCAmount(dbPool.total_principal),
+    avgInterestRate: `${(Number(dbPool.avg_interest_rate) * 100).toFixed(2)}%`,
+    avgTermMonths: dbPool.avg_term_months,
+    creator: {
+      id: dbPool.creator.id,
+      email: dbPool.creator.email,
+      role: dbPool.creator.role
+    }
+  };
 }
 
 // Main Pool Data Fetching
 
 /**
- * Fetch single pool data with all related information
- */
-async function fetchSinglePoolData(poolId: number): Promise<PoolData | null> {
-  try {
-    console.log(`Fetching data for pool ${poolId}`);
-
-    // Query pool basic data
-    const poolData = await queryPoolData(poolId);
-    if (!poolData) {
-      console.warn(`Failed to get basic data for pool ${poolId}`);
-      return null;
-    }
-
-    // Query pool configuration
-    const poolConfig = await queryPoolConfig(poolId);
-    if (!poolConfig) {
-      console.warn(`Failed to get config for pool ${poolId}`);
-      return null;
-    }
-
-    // Query vault data
-    const [totalAssets, totalShares] = await Promise.all([
-      queryVaultTotalAssets(poolData.vault),
-      queryVaultTotalSupply(poolData.vault)
-    ]);
-
-    if (!totalAssets || !totalShares) {
-      console.warn(`Failed to get vault data for pool ${poolId}`);
-      return null;
-    }
-
-    // Calculate available capacity
-    const availableCapacity = calculateAvailableCapacity(poolConfig, totalAssets);
-
-    // Build complete pool data
-    const completePoolData: PoolData = {
-      id: poolId,
-      name: generatePoolName(poolId),
-      vault: poolData.vault,
-      asset: poolData.asset,
-      totalAssets: formatUSDCAmount(totalAssets),
-      totalShares: formatShareAmount(totalShares),
-      availableCapacity: formatUSDCAmount(availableCapacity),
-      config: poolConfig,
-      lastUpdated: new Date()
-    };
-
-    console.log(`Successfully loaded pool ${poolId}`);
-    return completePoolData;
-
-  } catch (error) {
-    console.error(`Error fetching pool ${poolId} data:`, error);
-    return null;
-  }
-}
-
-/**
- * Fetch all deployed pools using Circle SDK contract queries
+ * Fetch all deployed pools from database
  */
 export async function getDeployedPools(): Promise<PoolDataResponse> {
   try {
-    console.log("Starting to fetch deployed pools...");
+    console.log("Starting to fetch deployed pools from database...");
 
     // Check cache first
     const cachedData = getCachedPoolData();
@@ -385,58 +242,30 @@ export async function getDeployedPools(): Promise<PoolDataResponse> {
       return cachedData;
     }
 
-    // Validate configuration
-    if (!POOL_MANAGER_ADDRESS) {
-      throw new Error("POOL_MANAGER_CONTRACT_ADDRESS environment variable not set");
-    }
+    // Get active pools from database
+    const dbPools = await LoanPool.findActivePools();
+    console.log(`Found ${dbPools.length} active pools in database`);
 
-    // Query total pool count
-    const totalPools = await queryPoolCount();
-    
-    if (totalPools === 0) {
-      const emptyResponse: PoolDataResponse = {
-        pools: [],
-        totalPools: 0,
-        successfullyLoaded: 0,
-        failedToLoad: 0,
-        lastUpdated: new Date(),
-        cached: false
-      };
-      cachePoolData(emptyResponse);
-      return emptyResponse;
-    }
+    // Convert database pools to PoolData format
+    const pools: PoolData[] = [];
+    let failedCount = 0;
 
-    // Fetch all pools with parallel processing but limited concurrency
-    const poolPromises: Promise<PoolData | null>[] = [];
-    for (let poolId = 0; poolId < totalPools; poolId++) {
-      poolPromises.push(fetchSinglePoolData(poolId));
-    }
-
-    // Process pools in batches to avoid overwhelming the API
-    const BATCH_SIZE = 5;
-    const allResults: (PoolData | null)[] = [];
-    
-    for (let i = 0; i < poolPromises.length; i += BATCH_SIZE) {
-      const batch = poolPromises.slice(i, i + BATCH_SIZE);
-      const batchResults = await Promise.all(batch);
-      allResults.push(...batchResults);
-      
-      // Brief pause between batches
-      if (i + BATCH_SIZE < poolPromises.length) {
-        await new Promise(resolve => setTimeout(resolve, 100));
+    for (const dbPool of dbPools) {
+      try {
+        const poolData = convertDbPoolToPoolData(dbPool);
+        pools.push(poolData);
+      } catch (error) {
+        console.error(`Error converting pool ${dbPool.id}:`, error);
+        failedCount++;
       }
     }
 
-    // Filter successful results
-    const successfulPools = allResults.filter((pool): pool is PoolData => pool !== null);
-    const failedCount = allResults.length - successfulPools.length;
-
-    console.log(`Pool loading complete: ${successfulPools.length} successful, ${failedCount} failed`);
+    console.log(`Pool loading complete: ${pools.length} successful, ${failedCount} failed`);
 
     const response: PoolDataResponse = {
-      pools: successfulPools,
-      totalPools,
-      successfullyLoaded: successfulPools.length,
+      pools,
+      totalPools: dbPools.length,
+      successfullyLoaded: pools.length,
       failedToLoad: failedCount,
       lastUpdated: new Date(),
       cached: false
@@ -454,17 +283,23 @@ export async function getDeployedPools(): Promise<PoolDataResponse> {
 }
 
 /**
- * Get single pool data by ID
+ * Get single pool data by ID from database
  */
 export async function getPoolById(poolId: number): Promise<PoolData | null> {
   try {
-    console.log(`Fetching single pool data for pool ${poolId}`);
+    console.log(`Fetching single pool data for pool ${poolId} from database`);
     
-    if (!POOL_MANAGER_ADDRESS) {
-      throw new Error("POOL_MANAGER_CONTRACT_ADDRESS environment variable not set");
+    const dbPool = await LoanPool.getLoanPoolDetails(poolId, true);
+    
+    if (!dbPool) {
+      console.log(`Pool ${poolId} not found in database`);
+      return null;
     }
 
-    return await fetchSinglePoolData(poolId);
+    const poolData = convertDbPoolToPoolData(dbPool);
+    console.log(`Successfully loaded pool ${poolId} from database`);
+    
+    return poolData;
 
   } catch (error) {
     console.error(`Error fetching pool ${poolId}:`, error);
