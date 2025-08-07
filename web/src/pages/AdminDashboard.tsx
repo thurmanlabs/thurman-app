@@ -22,6 +22,7 @@ import {
 
 import useAccount from "../hooks/useAccount";
 import PendingApprovalsTable from "../components/admin/PendingApprovalsTable";
+import PendingDepositsTable from "../components/admin/PendingDepositsTable";
 import { styles } from "../styles/styles";
 
 interface User {
@@ -182,6 +183,14 @@ export default function AdminDashboard() {
             Loan Pool Approvals
           </Typography>
           <PendingApprovalsTable />
+        </Box>
+
+        {/* Deposit Management Section */}
+        <Box sx={{ mt: 4 }}>
+          <Typography variant="h5" sx={{ mb: 2, color: "#29262a" }}>
+            Deposit Management
+          </Typography>
+          <PendingDepositsTable />
         </Box>
       </Box>
     </Box>

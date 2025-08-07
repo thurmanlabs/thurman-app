@@ -1,5 +1,6 @@
 import React from "react"; 
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { SnackbarProvider } from "notistack";
 import AccountProvider from "./providers/AccountProvider";
 import Header from "./components/Header";
 import Home from "./pages/Home";
@@ -18,10 +19,15 @@ import AdminDashboard from "./pages/AdminDashboard";
 function App() {
   return (
       <ThemeProvider theme={styles.theme}>
-        <Router>
-          <AccountProvider>
-            <Header />
-            <Routes>
+        <SnackbarProvider 
+          maxSnack={3}
+          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+          autoHideDuration={4000}
+        >
+          <Router>
+            <AccountProvider>
+              <Header />
+              <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/signup" element={<SignUp />} />
               <Route path="/login" element={<LogIn />} />
@@ -63,6 +69,7 @@ function App() {
             </Routes>
           </AccountProvider>
         </Router>
+        </SnackbarProvider>
       </ThemeProvider>
   );
 }
