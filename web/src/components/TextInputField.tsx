@@ -27,7 +27,7 @@ type PasswordAdornmentProps = {
     showPassword: boolean;
 }
 
-function PasswordAdornment({ handleClickShowPassword, showPassword }: PasswordAdornmentProps) {
+function PasswordAdornment({ handleClickShowPassword, showPassword }: PasswordAdornmentProps): JSX.Element {
     return (
         <InputAdornment position="end">
             <IconButton
@@ -45,10 +45,10 @@ function PasswordAdornment({ handleClickShowPassword, showPassword }: PasswordAd
     );
 }
 
-export default function TextInputField({ control, name, rules, label, type }: TextInputFieldProps) {
+export default function TextInputField({ control, name, rules, label, type }: TextInputFieldProps): JSX.Element {
     const [showPassword, setShowPassword] = useState<boolean>(false);
 
-    const handleClickShowPassword = () => setShowPassword(showPassword => !showPassword);
+    const handleClickShowPassword = (): void => setShowPassword(showPassword => !showPassword);
 
 
     return (

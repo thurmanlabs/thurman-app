@@ -16,7 +16,7 @@ import useLoanPoolCreation from "../../hooks/useLoanPoolCreation";
 
 const STEP_LABELS = ["Basic Information", "Upload Data", "Review & Submit"];
 
-export default function LoanPoolCreator() {
+export default function LoanPoolCreator(): JSX.Element {
     const navigate = useNavigate();
     const [submitError, setSubmitError] = useState<string | null>(null);
     
@@ -36,7 +36,7 @@ export default function LoanPoolCreator() {
     } = useLoanPoolCreation();
 
     // Handle form submission
-    const handleSubmit = async () => {
+    const handleSubmit = async (): Promise<{ success: boolean; error?: string }> => {
         try {
             const result = await submitLoanPool();
             if (result.success) {
@@ -61,7 +61,7 @@ export default function LoanPoolCreator() {
     };
 
     // Render current step component
-    const renderCurrentStep = () => {
+    const renderCurrentStep = (): JSX.Element => {
         const stepProps = {
             formMethods,
             onNext: nextStep,

@@ -85,7 +85,7 @@ interface PortfolioResponse {
 }
 
 // Utility functions
-const formatCurrency = (value: number) => {
+const formatCurrency = (value: number): string => {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
@@ -94,18 +94,18 @@ const formatCurrency = (value: number) => {
   }).format(value);
 };
 
-const formatPercentage = (value: number) => {
+const formatPercentage = (value: number): string => {
   const sign = value >= 0 ? "+" : "";
   return `${sign}${value.toFixed(2)}%`;
 };
 
-const formatShares = (shares: string) => {
+const formatShares = (shares: string): string => {
   const num = parseFloat(shares);
   if (isNaN(num)) return "0";
   return num.toLocaleString();
 };
 
-const formatRelativeTime = (timestamp: string) => {
+const formatRelativeTime = (timestamp: string): string => {
   const now = new Date();
   const time = new Date(timestamp);
   const diffInMinutes = Math.floor((now.getTime() - time.getTime()) / (1000 * 60));
@@ -121,7 +121,7 @@ const formatRelativeTime = (timestamp: string) => {
 };
 
 // Loading skeleton components
-const SummaryCardSkeleton = () => (
+const SummaryCardSkeleton = (): JSX.Element => (
   <Card sx={{ 
     borderRadius: "1.25em",
     backgroundColor: THURMAN_COLORS.white,
@@ -134,7 +134,7 @@ const SummaryCardSkeleton = () => (
   </Card>
 );
 
-const TableSkeleton = () => (
+const TableSkeleton = (): JSX.Element => (
   <TableContainer component={Paper} sx={{ borderRadius: "1.25em", overflow: "hidden" }}>
     <Table>
       <TableHead>
@@ -161,8 +161,17 @@ const TableSkeleton = () => (
   </TableContainer>
 );
 
-// Thurman branded button component
-const ThurmanButton = ({ children, onClick, variant = "contained", size = "medium", startIcon, ...props }: any) => (
+// Thurman branded button component interface
+interface ThurmanButtonProps {
+  children: React.ReactNode;
+  onClick?: () => void;
+  variant?: "contained" | "outlined" | "text";
+  size?: "small" | "medium" | "large";
+  startIcon?: React.ReactNode;
+  [key: string]: any; // For other Button props
+}
+
+const ThurmanButton = ({ children, onClick, variant = "contained", size = "medium", startIcon, ...props }: ThurmanButtonProps): JSX.Element => (
   <Button
     variant={variant}
     size={size}
@@ -216,7 +225,7 @@ export default function Home() {
     interval: 30000, // 30 seconds
     enabled: !!userAddress,
     requiresAuth: true,
-    onDataChange: (newData, oldData) => {
+    onDataChange: (newData: PortfolioResponse | null, oldData: PortfolioResponse | null) => {
       if (newData?.data && oldData?.data) {
         const newValue = newData.data.currentValue;
         const oldValue = oldData.data.currentValue;
@@ -246,7 +255,7 @@ export default function Home() {
   const claimableTotal = portfolio?.positions.reduce((sum, pos) => sum + pos.claimableAmount, 0) || 0;
 
   // Handle refresh
-  const handleRefresh = useCallback(() => {
+  const handleRefresh = useCallback((): void => {
     refetchPortfolio();
     enqueueSnackbar("Portfolio data refreshed", {
       variant: "info",
@@ -256,29 +265,29 @@ export default function Home() {
   }, [refetchPortfolio, enqueueSnackbar]);
 
   // Handle pool navigation
-  const handlePoolClick = useCallback((poolId: number) => {
+  const handlePoolClick = useCallback((poolId: number): void => {
     navigate(`/pools/${poolId}`);
   }, [navigate]);
 
   // Handle browse pools
-  const handleBrowsePools = useCallback(() => {
+  const handleBrowsePools = useCallback((): void => {
     navigate("/pools");
   }, [navigate]);
 
   // Handle quick deposit
-  const handleQuickDeposit = useCallback((poolId: number) => {
+  const handleQuickDeposit = useCallback((poolId: number): void => {
     navigate(`/pools/${poolId}`);
   }, [navigate]);
 
   // Get performance color
-  const getPerformanceColor = (percentage: number) => {
+  const getPerformanceColor = (percentage: number): "success" | "primary" | "error" => {
     if (percentage >= 5) return "success";
     if (percentage >= 0) return "primary";
     return "error";
   };
 
   // Get performance icon
-  const getPerformanceIcon = (percentage: number) => {
+  const getPerformanceIcon = (percentage: number): JSX.Element => {
     if (percentage >= 5) return <TrendingUpIcon />;
     if (percentage >= 0) return <ChartIcon />;
     return <ErrorIcon />;

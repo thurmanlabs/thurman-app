@@ -92,7 +92,7 @@ export function usePolling<T>(
   const { user, isAdmin } = useAccount();
 
   // Check if polling should be active
-  const shouldPoll = useCallback(() => {
+  const shouldPoll = useCallback((): boolean => {
     if (!enabled) return false;
     if (requiresAuth && !user) return false;
     if (requiresAdmin && !isAdmin) return false;
@@ -100,7 +100,7 @@ export function usePolling<T>(
   }, [enabled, requiresAuth, requiresAdmin, user, isAdmin]);
 
   // Fetch data function
-  const fetchData = useCallback(async (signal?: AbortSignal) => {
+  const fetchData = useCallback(async (signal?: AbortSignal): Promise<void> => {
     if (!shouldPoll()) return;
 
     // Only set loading to true if we don't have data yet (initial load)
@@ -176,7 +176,7 @@ export function usePolling<T>(
   }, [endpoint, shouldPoll, onDataChange, onError, onNotification, data, loading]);
 
   // Calculate backoff interval
-  const getBackoffInterval = useCallback(() => {
+  const getBackoffInterval = useCallback((): number => {
     if (retryCountRef.current <= retryAttempts) {
       return interval;
     }
@@ -188,7 +188,7 @@ export function usePolling<T>(
   }, [interval, retryAttempts, maxBackoffInterval]);
 
   // Start polling
-  const startPolling = useCallback(() => {
+  const startPolling = useCallback((): void => {
     if (!shouldPoll()) return;
 
     setIsPolling(true);
@@ -203,14 +203,14 @@ export function usePolling<T>(
 
     // Set up polling interval
     const pollInterval = getBackoffInterval();
-    intervalRef.current = setInterval(() => {
+          intervalRef.current = setInterval((): void => {
       fetchData();
     }, pollInterval);
 
   }, [shouldPoll, fetchData, getBackoffInterval]);
 
   // Stop polling
-  const stopPolling = useCallback(() => {
+  const stopPolling = useCallback((): void => {
     setIsPolling(false);
     
     if (intervalRef.current) {
@@ -230,7 +230,7 @@ export function usePolling<T>(
   }, []);
 
   // Manual refetch function
-  const refetch = useCallback(async () => {
+  const refetch = useCallback(async (): Promise<void> => {
     // Abort any ongoing request
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -244,7 +244,7 @@ export function usePolling<T>(
 
   // Handle visibility change (pause/resume polling)
   useEffect(() => {
-    const handleVisibilityChange = () => {
+    const handleVisibilityChange = (): void => {
       if (document.hidden) {
         // Pause polling when tab is not visible
         stopPolling();

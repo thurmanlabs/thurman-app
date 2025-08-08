@@ -15,13 +15,13 @@ export default function FileUploadStep({
     onNext, 
     onBack,
     uploadState 
-}: StepProps) {
-    const { fileState, handleFileAccepted, handleFileRejected, handleRemoveFile } = uploadState || {};
+}: StepProps): JSX.Element {
+    const { handleFileAccepted, handleFileRejected, handleRemoveFile, fileState } = uploadState || {};
 
     // Check if we can proceed to next step
     const canContinue = fileState?.file && fileState?.previewData && !fileState?.isProcessing && !fileState?.error;
 
-    const handleContinue = () => {
+    const handleContinue = (): void => {
         if (canContinue) {
             onNext();
         }

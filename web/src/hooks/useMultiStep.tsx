@@ -5,21 +5,21 @@ export type StepComponent<T> = ((props: T) => React.ReactNode) | (() => React.Re
 export default function useMultiStep<T = void>(steps: StepComponent<T>[]) {
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
 
-    function next() {
+    function next(): void {
         setCurrentStepIndex(i => {
             if (i >= steps.length - 1) return i;
             return i + 1;
         });
     }
 
-    function back() {
+    function back(): void {
         setCurrentStepIndex(i => {
             if (i <= 0) return i;
             return i - 1;
         });
     }
 
-    function goTo(index: number) {
+    function goTo(index: number): void {
         setCurrentStepIndex(index);
     }
 

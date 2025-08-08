@@ -63,7 +63,7 @@ interface PoolsResponse {
 }
 
 // Loading skeleton component
-const PoolCardSkeleton = () => (
+const PoolCardSkeleton = (): JSX.Element => (
   <Card sx={{ 
     height: "100%", 
     transition: "transform 0.2s ease-in-out",
@@ -95,7 +95,7 @@ interface PoolCardProps {
 
 const PoolCard: React.FC<PoolCardProps> = ({ pool, onClick }) => {
   // Format currency values
-  const formatCurrency = (value: string) => {
+  const formatCurrency = (value: string): string => {
     const num = parseFloat(value);
     if (isNaN(num)) return "$0";
     return new Intl.NumberFormat("en-US", {
@@ -107,14 +107,14 @@ const PoolCard: React.FC<PoolCardProps> = ({ pool, onClick }) => {
   };
 
   // Format minimum deposit
-  const formatMinDeposit = (minAmount: string) => {
+  const formatMinDeposit = (minAmount: string): string => {
     const num = parseFloat(minAmount);
     if (isNaN(num)) return "No minimum";
     return `${formatCurrency(minAmount)} minimum`;
   };
 
   // Get status color and text
-  const getStatusInfo = () => {
+  const getStatusInfo = (): { color: "success" | "default"; text: string } => {
     if (pool.config?.depositsEnabled) {
       return { color: "success" as const, text: "Open for Deposits" };
     }
@@ -211,7 +211,7 @@ export default function Pools() {
     document.title = "Available Lending Pools - Thurman";
   }, []);
 
-  const fetchPools = async (isRefresh = false) => {
+  const fetchPools = async (isRefresh = false): Promise<void> => {
     try {
       if (isRefresh) {
         setRefreshing(true);
@@ -249,11 +249,11 @@ export default function Pools() {
     fetchPools();
   }, []);
 
-  const handlePoolClick = (poolId: number) => {
+  const handlePoolClick = (poolId: number): void => {
     navigate(`/pools/${poolId}`);
   };
 
-  const handleRefresh = () => {
+  const handleRefresh = (): void => {
     fetchPools(true);
   };
 

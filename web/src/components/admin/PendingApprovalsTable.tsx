@@ -166,9 +166,9 @@ export default function PendingApprovalsTable() {
   };
 
   const handleWebhookEvent = (event: WebhookEvent) => {
-    console.log('Received webhook event:', event);
+    console.log("Received webhook event:", event);
     
-    if (event.type === 'deployment_update' || event.type === 'deployment_complete' || event.type === 'deployment_failed' || event.type === 'pool_configured') {
+    if (event.type === "deployment_update" || event.type === "deployment_complete" || event.type === "deployment_failed" || event.type === "pool_configured") {
       if (event.poolId) {
         // Update pools array with new status
         setPools(prev => prev.map(pool => 
@@ -184,9 +184,9 @@ export default function PendingApprovalsTable() {
         }));
 
         // Show notification for major updates
-        if (event.type === 'deployment_complete') {
+        if (event.type === "deployment_complete") {
           console.log(`Pool ${event.poolId} deployment completed!`);
-        } else if (event.type === 'deployment_failed') {
+        } else if (event.type === "deployment_failed") {
           console.log(`Pool ${event.poolId} deployment failed:`, event.error);
         }
       }
@@ -367,24 +367,24 @@ export default function PendingApprovalsTable() {
     // Determine which steps have succeeded or failed
     const steps = [
       {
-        name: 'Pool Creation',
-        status: getStepStatus(pool, 'pool_creation_tx_id', currentStatus, 'DEPLOYING_POOL', 'POOL_CREATED'),
+        name: "Pool Creation",
+        status: getStepStatus(pool, "pool_creation_tx_id", currentStatus, "DEPLOYING_POOL", "POOL_CREATED"),
         txId: pool.pool_creation_tx_id
       },
       {
-        name: 'Pool Configuration',
-        status: getStepStatus(pool, 'pool_config_tx_id', currentStatus, 'CONFIGURING_POOL', 'POOL_CONFIGURED'),
+        name: "Pool Configuration",
+        status: getStepStatus(pool, "pool_config_tx_id", currentStatus, "CONFIGURING_POOL", "POOL_CONFIGURED"),
         txId: pool.pool_config_tx_id
       },
       {
-        name: 'Loan Deployment',
-        status: getStepStatus(pool, 'loans_creation_tx_id', currentStatus, 'DEPLOYING_LOANS', 'DEPLOYED'),
+        name: "Loan Deployment",
+        status: getStepStatus(pool, "loans_creation_tx_id", currentStatus, "DEPLOYING_LOANS", "DEPLOYED"),
         txId: pool.loans_creation_tx_id
       }
     ];
     
     return (
-      <Box sx={{ width: '100%' }}>
+      <Box sx={{ width: "100%" }}>
         {/* Overall Progress Bar */}
         <LinearProgress 
           variant="determinate" 
@@ -392,41 +392,41 @@ export default function PendingApprovalsTable() {
           sx={{ 
             height: 8, 
             borderRadius: 4,
-            backgroundColor: '#f0f0f0',
+            backgroundColor: "#f0f0f0",
             mb: 1
           }}
           color={color as any}
         />
         
         {/* Overall Status Message */}
-        <Typography variant="caption" color="textSecondary" sx={{ display: 'block', mb: 1 }}>
+        <Typography variant="caption" color="textSecondary" sx={{ display: "block", mb: 1 }}>
           {message}
         </Typography>
         
         {/* Step-by-Step Progress */}
         <Box sx={{ mt: 1 }}>
           {steps.map((step, index) => (
-            <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+            <Box key={index} sx={{ display: "flex", alignItems: "center", mb: 0.5 }}>
               <Box sx={{ 
                 width: 8, 
                 height: 8, 
-                borderRadius: '50%', 
+                borderRadius: "50%", 
                 mr: 1,
                 backgroundColor: getStepColor(step.status)
               }} />
               <Typography variant="caption" sx={{ 
-                fontSize: '0.7rem',
+                fontSize: "0.7rem",
                 color: getStepColor(step.status),
-                fontWeight: step.status === 'success' ? 600 : 400
+                fontWeight: step.status === "success" ? 600 : 400
               }}>
                 {step.name}: {getStepStatusText(step.status)}
               </Typography>
               {step.txId && (
                 <Typography variant="caption" sx={{ 
                   ml: 1, 
-                  fontSize: '0.65rem',
-                  color: '#666',
-                  fontFamily: 'monospace'
+                  fontSize: "0.65rem",
+                  color: "#666",
+                  fontFamily: "monospace"
                 }}>
                   ({step.txId.substring(0, 8)}...)
                 </Typography>
@@ -445,59 +445,59 @@ export default function PendingApprovalsTable() {
     currentStatus: string, 
     inProgressStatus: string, 
     successStatus: string
-  ): 'pending' | 'in-progress' | 'success' | 'failed' => {
+  ): "pending" | "in-progress" | "success" | "failed" => {
     const txId = pool[txIdField] as string | undefined;
     
-    if (currentStatus === 'FAILED') {
+    if (currentStatus === "FAILED") {
       // If overall status is failed, check if this step has a transaction ID
       // If it has a tx ID, it likely succeeded but a later step failed
       // If it doesn't have a tx ID, this step likely failed
-      return txId ? 'success' : 'failed';
+      return txId ? "success" : "failed";
     }
     
     if (txId) {
-      return 'success'; // Has transaction ID, so it succeeded
+      return "success"; // Has transaction ID, so it succeeded
     }
     
     if (currentStatus === inProgressStatus) {
-      return 'in-progress';
+      return "in-progress";
     }
     
     if (currentStatus === successStatus || 
-        (successStatus === 'DEPLOYED' && currentStatus === 'DEPLOYED')) {
-      return 'success';
+        (successStatus === "DEPLOYED" && currentStatus === "DEPLOYED")) {
+      return "success";
     }
     
-    return 'pending';
+    return "pending";
   };
 
   // Helper function to get step color
-  const getStepColor = (status: 'pending' | 'in-progress' | 'success' | 'failed'): string => {
+  const getStepColor = (status: "pending" | "in-progress" | "success" | "failed"): string => {
     switch (status) {
-      case 'success':
-        return '#4caf50'; // Green
-      case 'in-progress':
-        return '#2196f3'; // Blue
-      case 'failed':
-        return '#f44336'; // Red
-      case 'pending':
+      case "success":
+        return "#4caf50"; // Green
+      case "in-progress":
+        return "#2196f3"; // Blue
+      case "failed":
+        return "#f44336"; // Red
+      case "pending":
       default:
-        return '#9e9e9e'; // Gray
+        return "#9e9e9e"; // Gray
     }
   };
 
   // Helper function to get step status text
-  const getStepStatusText = (status: 'pending' | 'in-progress' | 'success' | 'failed'): string => {
+  const getStepStatusText = (status: "pending" | "in-progress" | "success" | "failed"): string => {
     switch (status) {
-      case 'success':
-        return '✓ Completed';
-      case 'in-progress':
-        return '⟳ In Progress';
-      case 'failed':
-        return '✗ Failed';
-      case 'pending':
+      case "success":
+        return "✓ Completed";
+      case "in-progress":
+        return "⟳ In Progress";
+      case "failed":
+        return "✗ Failed";
+      case "pending":
       default:
-        return '⏳ Pending';
+        return "⏳ Pending";
     }
   };
 
@@ -505,11 +505,11 @@ export default function PendingApprovalsTable() {
   const getDeploymentSummary = (pool: PendingPool): string => {
     const currentStatus = deploymentStatus[pool.id] || pool.status;
     
-    if (currentStatus === 'DEPLOYED') {
-      return '✓ Fully Deployed';
+    if (currentStatus === "DEPLOYED") {
+      return "✓ Fully Deployed";
     }
     
-    if (currentStatus === 'FAILED') {
+    if (currentStatus === "FAILED") {
       const completedSteps = [
         pool.pool_creation_tx_id ? 1 : 0,
         pool.pool_config_tx_id ? 1 : 0,
@@ -519,8 +519,8 @@ export default function PendingApprovalsTable() {
       return `✗ Failed at step ${completedSteps + 1}/3`;
     }
     
-    if (currentStatus === 'PENDING') {
-      return '⏳ Awaiting Approval';
+    if (currentStatus === "PENDING") {
+      return "⏳ Awaiting Approval";
     }
     
     // For in-progress deployments
@@ -535,24 +535,24 @@ export default function PendingApprovalsTable() {
 
   const getDeploymentProgress = (status: string): { progress: number; message: string; color: string } => {
     switch (status) {
-      case 'PENDING':
-        return { progress: 0, message: 'Awaiting approval', color: 'warning' };
-      case 'DEPLOYING_POOL':
-        return { progress: 20, message: 'Creating pool on blockchain...', color: 'info' };
-      case 'POOL_CREATED':
-        return { progress: 40, message: 'Pool created successfully', color: 'info' };
-      case 'CONFIGURING_POOL':
-        return { progress: 60, message: 'Configuring pool settings...', color: 'info' };
-      case 'POOL_CONFIGURED':
-        return { progress: 80, message: 'Pool configured successfully', color: 'info' };
-      case 'DEPLOYING_LOANS':
-        return { progress: 90, message: 'Deploying loans to pool...', color: 'info' };
-      case 'DEPLOYED':
-        return { progress: 100, message: 'Deployment completed', color: 'success' };
-      case 'FAILED':
-        return { progress: 0, message: 'Deployment failed', color: 'error' };
+      case "PENDING":
+        return { progress: 0, message: "Awaiting approval", color: "warning" };
+      case "DEPLOYING_POOL":
+        return { progress: 20, message: "Creating pool on blockchain...", color: "info" };
+      case "POOL_CREATED":
+        return { progress: 40, message: "Pool created successfully", color: "info" };
+      case "CONFIGURING_POOL":
+        return { progress: 60, message: "Configuring pool settings...", color: "info" };
+      case "POOL_CONFIGURED":
+        return { progress: 80, message: "Pool configured successfully", color: "info" };
+      case "DEPLOYING_LOANS":
+        return { progress: 90, message: "Deploying loans to pool...", color: "info" };
+      case "DEPLOYED":
+        return { progress: 100, message: "Deployment completed", color: "success" };
+      case "FAILED":
+        return { progress: 0, message: "Deployment failed", color: "error" };
       default:
-        return { progress: 0, message: status, color: 'default' };
+        return { progress: 0, message: status, color: "default" };
     }
   };
 
@@ -622,11 +622,11 @@ export default function PendingApprovalsTable() {
         boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)",
       }}>
         {/* Status Filter */}
-        <Box sx={{ p: 2, borderBottom: '1px solid #e0e0e0' }}>
+        <Box sx={{ p: 2, borderBottom: "1px solid #e0e0e0" }}>
           <Typography variant="h6" sx={{ mb: 2, color: "#29262a" }}>
             Pool Approvals & Deployments
           </Typography>
-          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
             <Chip
               label={`All (${pools.length})`}
               color={statusFilter === "all" ? "primary" : "default"}
@@ -725,19 +725,19 @@ export default function PendingApprovalsTable() {
                         <DeploymentProgressIndicator pool={pool} />
                         
                         {/* Smart retry buttons for failed deployments */}
-                        {pool.status === 'FAILED' && (
+                        {pool.status === "FAILED" && (
                           <Box sx={{ mt: 1 }}>
-                            <Typography variant="caption" color="error" sx={{ display: 'block', mb: 1 }}>
+                            <Typography variant="caption" color="error" sx={{ display: "block", mb: 1 }}>
                               Failed steps (click to retry):
                             </Typography>
-                            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                            <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
                               {!pool.pool_creation_tx_id && (
                                 <Button
                                   size="small"
                                   variant="outlined"
                                   color="error"
-                                  onClick={() => handleRetryStep(pool.id, 'pool_creation')}
-                                  sx={{ fontSize: '0.75rem' }}
+                                  onClick={() => handleRetryStep(pool.id, "pool_creation")}
+                                  sx={{ fontSize: "0.75rem" }}
                                 >
                                   Retry Pool Creation
                                 </Button>
@@ -747,8 +747,8 @@ export default function PendingApprovalsTable() {
                                   size="small"
                                   variant="outlined"
                                   color="error"
-                                  onClick={() => handleRetryStep(pool.id, 'pool_config')}
-                                  sx={{ fontSize: '0.75rem' }}
+                                  onClick={() => handleRetryStep(pool.id, "pool_config")}
+                                  sx={{ fontSize: "0.75rem" }}
                                 >
                                   Retry Pool Config
                                 </Button>
@@ -758,8 +758,8 @@ export default function PendingApprovalsTable() {
                                   size="small"
                                   variant="outlined"
                                   color="error"
-                                  onClick={() => handleRetryStep(pool.id, 'loan_deployment')}
-                                  sx={{ fontSize: '0.75rem' }}
+                                  onClick={() => handleRetryStep(pool.id, "loan_deployment")}
+                                  sx={{ fontSize: "0.75rem" }}
                                 >
                                   Retry Loan Deployment
                                 </Button>
@@ -769,8 +769,8 @@ export default function PendingApprovalsTable() {
                         )}
                         
                         {/* Success summary for completed deployments */}
-                        {pool.status === 'DEPLOYED' && (
-                          <Box sx={{ mt: 1, p: 1, backgroundColor: '#e8f5e8', borderRadius: 1 }}>
+                        {pool.status === "DEPLOYED" && (
+                          <Box sx={{ mt: 1, p: 1, backgroundColor: "#e8f5e8", borderRadius: 1 }}>
                             <Typography variant="caption" color="success.main" sx={{ fontWeight: 600 }}>
                               ✓ All steps completed successfully
                             </Typography>

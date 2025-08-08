@@ -91,7 +91,7 @@ export default function useLoanPoolCreation() {
     const currentStep = LOAN_POOL_STEPS[currentStepIndex];
 
     // Handle file acceptance
-    const handleFileAccepted = useCallback(async (file: File) => {
+    const handleFileAccepted = useCallback(async (file: File): Promise<void> => {
         setFileState(prev => ({
             ...prev,
             file,
@@ -120,7 +120,7 @@ export default function useLoanPoolCreation() {
     }, [formMethods]);
 
     // Handle file rejection
-    const handleFileRejected = useCallback((errors: string[]) => {
+    const handleFileRejected = useCallback((errors: string[]): void => {
         setFileState(prev => ({
             ...prev,
             error: errors[0] || "File upload failed"
@@ -128,7 +128,7 @@ export default function useLoanPoolCreation() {
     }, []);
 
     // Handle file removal
-    const handleRemoveFile = useCallback(() => {
+    const handleRemoveFile = useCallback((): void => {
         setFileState({
             file: null,
             isProcessing: false,
@@ -151,7 +151,7 @@ export default function useLoanPoolCreation() {
     }, [currentStep, formMethods]);
 
     // Navigate to next step with validation
-    const nextStep = useCallback(async () => {
+    const nextStep = useCallback(async (): Promise<void> => {
         const isValid = await validateCurrentStep();
         
         if (isValid) {
@@ -160,17 +160,17 @@ export default function useLoanPoolCreation() {
     }, [validateCurrentStep, next]);
 
     // Navigate to previous step
-    const previousStep = useCallback(() => {
+    const previousStep = useCallback((): void => {
         back();
     }, [back]);
 
     // Navigate to specific step
-    const goToStep = useCallback((stepIndex: number) => {
+    const goToStep = useCallback((stepIndex: number): void => {
         goTo(stepIndex);
     }, [goTo]);
 
     // Submit loan pool
-    const submitLoanPool = useCallback(async () => {
+    const submitLoanPool = useCallback(async (): Promise<{ success: boolean; error?: string; data?: any; message?: string }> => {
         const isValid = await formMethods.trigger();
         
         if (!isValid) {
@@ -195,7 +195,7 @@ export default function useLoanPoolCreation() {
             });
             
             // Add the uploaded file
-                          formDataObj.append("loanDataFile", fileState.file);
+            formDataObj.append("loanDataFile", fileState.file);
             
             // Make API call
             const response = await axios.post("/api/loan-pools", formDataObj, {
@@ -235,7 +235,7 @@ export default function useLoanPoolCreation() {
     }, [formMethods, fileState]);
 
     // Reset form and state
-    const resetForm = useCallback(() => {
+    const resetForm = useCallback((): void => {
         formMethods.reset(defaultValues);
         setFileState({
             file: null,

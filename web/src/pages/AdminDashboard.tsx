@@ -54,7 +54,7 @@ export default function AdminDashboard() {
     }
   ];
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: string): "success" | "warning" | "error" | "default" => {
     switch (status) {
       case "ACTIVE":
         return "success";
@@ -67,7 +67,7 @@ export default function AdminDashboard() {
     }
   };
 
-  const getRoleColor = (role: string) => {
+  const getRoleColor = (role: string): "primary" | "default" => {
     return role === "ADMIN" ? "primary" : "default";
   };
 

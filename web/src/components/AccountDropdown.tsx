@@ -14,26 +14,26 @@ import { useNavigate } from "react-router-dom";
 import useAccount from "../hooks/useAccount";
 import { styles } from "../styles/styles";
 
-export default function AccountDropdown() {
+export default function AccountDropdown(): JSX.Element | null {
   const { user, logout } = useAccount();
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
-  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+  const handleClick = (event: React.MouseEvent<HTMLElement>): void => {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleClose = () => {
+  const handleClose = (): void => {
     setAnchorEl(null);
   };
 
-  const handleLogout = async () => {
+  const handleLogout = async (): Promise<void> => {
     handleClose();
     await logout();
   };
 
-  const handleNavigate = (path: string) => {
+  const handleNavigate = (path: string): void => {
     handleClose();
     navigate(path);
   };

@@ -12,8 +12,8 @@ import { StepProps } from "../../types/loan-pool";
 import EnhancedTextInputField from "./EnhancedTextInputField";
 import { styles } from "../../styles/styles";
 
-export default function BasicInfoStep({ formMethods, onNext }: StepProps) {
-    const { control, trigger, formState: { errors } } = formMethods;
+export default function BasicInfoStep({ formMethods, onNext }: StepProps): JSX.Element {
+    const { control, trigger } = formMethods;
     const [optionalExpanded, setOptionalExpanded] = useState(false);
     const [characteristicsExpanded, setCharacteristicsExpanded] = useState(false);
 
@@ -46,7 +46,7 @@ export default function BasicInfoStep({ formMethods, onNext }: StepProps) {
             max: { value: 30, message: "Expected return must be at most 30%." }
         },
         maturityDate: {
-            validate: (value: string) => {
+            validate: (value: string): boolean | string => {
                 if (!value) return true; // Optional field
                 const selectedDate = new Date(value);
                 const today = new Date();
@@ -56,7 +56,7 @@ export default function BasicInfoStep({ formMethods, onNext }: StepProps) {
         }
     };
 
-    const handleContinue = async () => {
+    const handleContinue = async (): Promise<void> => {
         // Validate required fields before proceeding
         const isValid = await trigger(["name", "description", "targetAmount"]);
         if (isValid) {

@@ -78,7 +78,7 @@ interface PoolResponse {
 }
 
 // Loading skeleton components
-const PoolHeaderSkeleton = () => (
+const PoolHeaderSkeleton = (): JSX.Element => (
   <Box sx={{ mb: 4 }}>
     <Skeleton variant="text" width="60%" height={48} sx={{ mb: 2 }} />
     <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
@@ -89,7 +89,7 @@ const PoolHeaderSkeleton = () => (
   </Box>
 );
 
-const PoolStatsSkeleton = () => (
+const PoolStatsSkeleton = (): JSX.Element => (
   <Card sx={{ 
     borderRadius: "1.25em",
     backgroundColor: "#FFFFFE",
@@ -111,7 +111,7 @@ const PoolStatsSkeleton = () => (
   </Card>
 );
 
-const UserStatusSkeleton = () => (
+const UserStatusSkeleton = (): JSX.Element => (
   <Card sx={{ 
     borderRadius: "1.25em",
     backgroundColor: "#FFFFFE",
@@ -136,7 +136,7 @@ interface PoolStatsCardProps {
 }
 
 const PoolStatsCard: React.FC<PoolStatsCardProps> = ({ pool, loading }) => {
-  const formatCurrency = (value: string) => {
+  const formatCurrency = (value: string): string => {
     const num = parseFloat(value);
     if (isNaN(num)) return "$0";
     return new Intl.NumberFormat("en-US", {
@@ -147,7 +147,7 @@ const PoolStatsCard: React.FC<PoolStatsCardProps> = ({ pool, loading }) => {
     }).format(num);
   };
 
-  const formatMinDeposit = (minAmount: string) => {
+  const formatMinDeposit = (minAmount: string): string => {
     const num = parseFloat(minAmount);
     if (isNaN(num)) return "No minimum";
     return `${formatCurrency(minAmount)} minimum`;
@@ -250,7 +250,7 @@ export default function PoolDetails() {
   const userAddress = user?.account || null;
 
   // Fetch pool data
-  const fetchPool = useCallback(async () => {
+  const fetchPool = useCallback(async (): Promise<void> => {
     if (!poolId) return;
 
     try {
@@ -265,16 +265,16 @@ export default function PoolDetails() {
         setPoolError("Failed to fetch pool data");
       }
     } catch (err: any) {
-              console.error("Error fetching pool:", err);
+      console.error("Error fetching pool:", err);
       
       if (axios.isAxiosError(err)) {
         if (err.response?.status === 404) {
           setPoolError("Pool not found");
         } else {
-                      setPoolError(err.response?.data?.message || "Failed to fetch pool data");
+          setPoolError(err.response?.data?.message || "Failed to fetch pool data");
         }
       } else {
-                  setPoolError("An unexpected error occurred");
+        setPoolError("An unexpected error occurred");
       }
     } finally {
       setPoolLoading(false);
@@ -297,7 +297,7 @@ export default function PoolDetails() {
   }, [pool]);
 
   // Handle back navigation
-  const handleBack = () => {
+  const handleBack = (): void => {
     navigate("/pools");
   };
 

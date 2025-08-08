@@ -16,7 +16,7 @@ type PasswordAdornmentProps = {
     showPassword: boolean;
 }
 
-function PasswordAdornment({ handleClickShowPassword, showPassword }: PasswordAdornmentProps) {
+function PasswordAdornment({ handleClickShowPassword, showPassword }: PasswordAdornmentProps): JSX.Element {
     return (
         <InputAdornment position="end">
             <IconButton
@@ -43,13 +43,13 @@ export default function EnhancedTextInputField({
     rows = 4,
     startAdornment,
     endAdornment
-}: EnhancedTextInputFieldProps) {
+}: EnhancedTextInputFieldProps): JSX.Element {
     const [showPassword, setShowPassword] = useState<boolean>(false);
 
-    const handleClickShowPassword = () => setShowPassword(showPassword => !showPassword);
+    const handleClickShowPassword = (): void => setShowPassword(showPassword => !showPassword);
 
     // Build InputProps with adornments
-    const buildInputProps = () => {
+    const buildInputProps = (): any => {
         const inputProps: any = {};
         
         // Add start adornment if provided

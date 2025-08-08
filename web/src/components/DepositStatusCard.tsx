@@ -96,12 +96,12 @@ export default function DepositStatusCard({
   };
 
   // Clear notification
-  const clearNotification = () => {
+  const clearNotification = (): void => {
     setNotification(null);
   };
 
   // Format currency
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (amount: number): string => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: "USD",
@@ -111,7 +111,7 @@ export default function DepositStatusCard({
   };
 
   // Get status color
-  const getStatusColor = (amount: number) => {
+  const getStatusColor = (amount: number): string => {
     if (amount > 0) return "#2e7d32"; // Green
     return "#666"; // Gray
   };

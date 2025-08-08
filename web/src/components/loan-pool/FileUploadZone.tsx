@@ -78,7 +78,7 @@ export default function FileUploadZone({
         return `${value.toFixed(2)}%`;
     };
 
-    const renderUploadZone = () => {
+    const renderUploadZone = (): JSX.Element => {
         if (isProcessing) {
             return (
                 <Box sx={{ textAlign: "center", py: 4 }}>
@@ -131,7 +131,7 @@ export default function FileUploadZone({
         );
     };
 
-    const renderPreviewData = () => {
+    const renderPreviewData = (): JSX.Element | null => {
         if (!previewData) return null;
 
         return (
