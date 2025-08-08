@@ -21,7 +21,7 @@ function App() {
       <ThemeProvider theme={styles.theme}>
         <SnackbarProvider 
           maxSnack={3}
-          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+          anchorOrigin={{ vertical: "top", horizontal: "right" }}
           autoHideDuration={4000}
         >
           <Router>

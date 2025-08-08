@@ -48,7 +48,7 @@ export interface PollingResult<T> {
  * 
  * // Admin pending deposits polling
  * const { data: pendingDeposits } = usePolling<PendingDeposit[]>(
- *   '/api/admin/deposits/pending',
+ *   "/api/admin/deposits/pending",
  *   { interval: 3000, requiresAdmin: true }
  * );
  * 
@@ -130,12 +130,12 @@ export function usePolling<T>(
           const current = newData as any;
           
           // Example: Notify when deposit becomes claimable
-          if (prev.status === 'pending' && current.status === 'fulfilled') {
+          if (prev.status === "pending" && current.status === "fulfilled") {
             onNotification("Your deposit has been fulfilled and is ready to claim!", "success");
           }
           
           // Example: Notify when deposit is claimed
-          if (prev.status === 'fulfilled' && current.status === 'claimed') {
+          if (prev.status === "fulfilled" && current.status === "claimed") {
             onNotification("Shares claimed successfully!", "success");
           }
         }
@@ -294,28 +294,28 @@ export function usePolling<T>(
 // Convenience hooks for common use cases
 export function useUserPolling<T>(
   endpoint: string,
-  options: Omit<PollingOptions<T>, 'requiresAuth'> = {}
+  options: Omit<PollingOptions<T>, "requiresAuth"> = {}
 ): PollingResult<T> {
   return usePolling<T>(endpoint, { ...options, requiresAuth: true });
 }
 
 export function useAdminPolling<T>(
   endpoint: string,
-  options: Omit<PollingOptions<T>, 'requiresAdmin'> = {}
+  options: Omit<PollingOptions<T>, "requiresAdmin"> = {}
 ): PollingResult<T> {
   return usePolling<T>(endpoint, { ...options, requiresAdmin: true });
 }
 
 export function useFrequentPolling<T>(
   endpoint: string,
-  options: Omit<PollingOptions<T>, 'interval'> = {}
+  options: Omit<PollingOptions<T>, "interval"> = {}
 ): PollingResult<T> {
   return usePolling<T>(endpoint, { ...options, interval: 3000 });
 }
 
 export function useSlowPolling<T>(
   endpoint: string,
-  options: Omit<PollingOptions<T>, 'interval'> = {}
+  options: Omit<PollingOptions<T>, "interval"> = {}
 ): PollingResult<T> {
   return usePolling<T>(endpoint, { ...options, interval: 30000 });
 } 

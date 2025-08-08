@@ -517,7 +517,7 @@ export default function Home() {
 
               {/* Positions Table */}
               <Box sx={{ mb: 4 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
                   <Typography variant="h6" sx={{ fontWeight: 600, color: THURMAN_COLORS.secondary }}>
                     Your Positions
                   </Typography>
@@ -532,10 +532,10 @@ export default function Home() {
                 {portfolioLoading ? (
                   <TableSkeleton />
                 ) : portfolio?.positions && portfolio.positions.length > 0 ? (
-                  <TableContainer component={Paper} sx={{ borderRadius: '1.25em', overflow: 'hidden' }}>
+                  <TableContainer component={Paper} sx={{ borderRadius: "1.25em", overflow: "hidden" }}>
                     <Table>
                       <TableHead>
-                        <TableRow sx={{ backgroundColor: '#f8f9fa' }}>
+                        <TableRow sx={{ backgroundColor: "#f8f9fa" }}>
                           <TableCell sx={{ fontWeight: 600 }}>Pool Name</TableCell>
                           <TableCell sx={{ fontWeight: 600 }}>Shares Owned</TableCell>
                           <TableCell sx={{ fontWeight: 600 }}>Current Value</TableCell>
@@ -551,11 +551,11 @@ export default function Home() {
                                 variant="text"
                                 onClick={() => handlePoolClick(position.poolId)}
                                 sx={{ 
-                                  textTransform: 'none', 
+                                  textTransform: "none", 
                                   fontWeight: 600,
                                   color: THURMAN_COLORS.primary,
                                   p: 0,
-                                  minWidth: 'auto'
+                                  minWidth: "auto"
                                 }}
                               >
                                 {position.poolName}
@@ -581,7 +581,7 @@ export default function Home() {
                               />
                             </TableCell>
                             <TableCell>
-                              <Box sx={{ display: 'flex', gap: 1 }}>
+                              <Box sx={{ display: "flex", gap: 1 }}>
                                 <Tooltip title="View Pool Details">
                                   <IconButton
                                     size="small"
@@ -608,13 +608,13 @@ export default function Home() {
                     </Table>
                   </TableContainer>
                 ) : (
-                  <Card sx={{ 
-                    borderRadius: '1.25em',
-                    backgroundColor: THURMAN_COLORS.white,
-                    boxShadow: '0 0.125em 0.25em rgba(0, 0, 0, 0.08)'
-                  }}>
-                    <CardContent sx={{ textAlign: 'center', py: 4 }}>
-                      <AccountBalanceIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
+                          <Card sx={{ 
+          borderRadius: "1.25em",
+          backgroundColor: THURMAN_COLORS.white,
+          boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)"
+        }}>
+          <CardContent sx={{ textAlign: "center", py: 4 }}>
+            <AccountBalanceIcon sx={{ fontSize: 48, color: "text.secondary", mb: 2 }} />
                       <Typography variant="h6" color="text.secondary" gutterBottom>
                         No Positions Yet
                       </Typography>
@@ -639,13 +639,13 @@ export default function Home() {
                   <Typography variant="h6" sx={{ fontWeight: 600, color: THURMAN_COLORS.secondary, mb: 2 }}>
                     Recent Activity
                   </Typography>
-                  <Card sx={{ 
-                    borderRadius: '1.25em',
-                    backgroundColor: THURMAN_COLORS.white,
-                    boxShadow: '0 0.125em 0.25em rgba(0, 0, 0, 0.08)'
-                  }}>
-                    <CardContent>
-                      <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 2 }}>
+                          <Card sx={{ 
+          borderRadius: "1.25em",
+          backgroundColor: THURMAN_COLORS.white,
+          boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)"
+        }}>
+          <CardContent>
+            <Typography variant="body2" color="text.secondary" sx={{ textAlign: "center", py: 2 }}>
                         Recent activity will be displayed here once transaction history is implemented.
                       </Typography>
                     </CardContent>
@@ -657,12 +657,12 @@ export default function Home() {
 
           {/* Welcome Section for Non-Authenticated Users */}
           {!userAddress && (
-            <Box sx={{ textAlign: 'center', py: 8 }}>
+            <Box sx={{ textAlign: "center", py: 8 }}>
               <AccountBalanceIcon sx={{ fontSize: 64, color: THURMAN_COLORS.primary, mb: 3 }} />
               <Typography variant="h4" component="h2" sx={{ fontWeight: 600, color: THURMAN_COLORS.secondary, mb: 2 }}>
                 Welcome to Thurman
               </Typography>
-              <Typography variant="body1" color="text.secondary" sx={{ mb: 4, maxWidth: 600, mx: 'auto' }}>
+              <Typography variant="body1" color="text.secondary" sx={{ mb: 4, maxWidth: 600, mx: "auto" }}>
                 Connect your wallet to start investing in lending pools and track your portfolio performance in real-time.
               </Typography>
               <ThurmanButton

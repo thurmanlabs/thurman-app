@@ -38,7 +38,7 @@ export default function ReviewStep({
     const [submitSuccess, setSubmitSuccess] = useState(false);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMsg, setSnackbarMsg] = useState("");
-    const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
+    const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">("success");
 
     const fileState = uploadState?.fileState;
 
@@ -83,7 +83,7 @@ export default function ReviewStep({
         if (!termsAccepted) {
             setSubmitError("Please accept the terms and conditions");
             setSnackbarMsg("Please accept the terms and conditions");
-            setSnackbarSeverity('error');
+            setSnackbarSeverity("error");
             setSnackbarOpen(true);
             return;
         }
@@ -96,18 +96,18 @@ export default function ReviewStep({
             if (result.success) {
                 setSubmitSuccess(true);
                 setSnackbarMsg("Loan pool created successfully!");
-                setSnackbarSeverity('success');
+                setSnackbarSeverity("success");
                 setSnackbarOpen(true);
             } else {
                 setSubmitError(result.error || "Submission failed");
                 setSnackbarMsg(result.error || "Submission failed");
-                setSnackbarSeverity('error');
+                setSnackbarSeverity("error");
                 setSnackbarOpen(true);
             }
         } catch (error) {
             setSubmitError("An unexpected error occurred");
             setSnackbarMsg("An unexpected error occurred");
-            setSnackbarSeverity('error');
+            setSnackbarSeverity("error");
             setSnackbarOpen(true);
         } finally {
             setIsSubmitting(false);
@@ -115,7 +115,7 @@ export default function ReviewStep({
     };
 
     const handleSnackbarClose = (_event?: React.SyntheticEvent | Event, reason?: string) => {
-        if (reason === 'clickaway') return;
+        if (reason === "clickaway") return;
         setSnackbarOpen(false);
     };
 
@@ -143,7 +143,7 @@ export default function ReviewStep({
                     open={snackbarOpen}
                     autoHideDuration={6000}
                     onClose={handleSnackbarClose}
-                    anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+                    anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
                     aria-label="Success notification"
                 >
                     <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ borderRadius: "1.25em" }}>
@@ -449,7 +449,7 @@ export default function ReviewStep({
                             checked={termsAccepted}
                             onChange={(e) => setTermsAccepted(e.target.checked)}
                             sx={{ color: "#725aa2" }}
-                            inputProps={{ 'aria-label': 'Accept terms and conditions' }}
+                            inputProps={{ "aria-label": "Accept terms and conditions" }}
                         />
                     }
                     label={
@@ -506,8 +506,8 @@ export default function ReviewStep({
                 open={snackbarOpen}
                 autoHideDuration={6000}
                 onClose={handleSnackbarClose}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-                aria-label={snackbarSeverity === 'success' ? "Success notification" : "Error notification"}
+                                    anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+                    aria-label={snackbarSeverity === "success" ? "Success notification" : "Error notification"}
             >
                 <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ borderRadius: "1.25em" }}>
                     {snackbarMsg}

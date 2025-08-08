@@ -10,13 +10,13 @@ import {
   IconButton,
   Tooltip,
   Skeleton
-} from '@mui/material';
+} from "@mui/material";
 import {
   Refresh as RefreshIcon,
   AccountBalance as AccountBalanceIcon,
   TrendingUp as TrendingUpIcon,
   Warning as WarningIcon
-} from '@mui/icons-material';
+} from "@mui/icons-material";
 import axios from "axios";
 import { styles } from "../styles/styles";
 
@@ -62,7 +62,7 @@ export default function UserBalanceCard({
       const newBalanceData: BalanceData = {
         balance: mockBalance,
         lastUpdated: new Date().toISOString(),
-        currency: 'USDC'
+        currency: "USDC"
       };
 
       setBalanceData(newBalanceData);
@@ -75,7 +75,7 @@ export default function UserBalanceCard({
       setError(null);
 
     } catch (err: any) {
-      const errorMessage = err.response?.data?.error || err.message || 'Failed to fetch balance';
+      const errorMessage = err.response?.data?.error || err.message || "Failed to fetch balance";
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -97,9 +97,9 @@ export default function UserBalanceCard({
 
   // Format currency
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
     }).format(amount);
@@ -107,10 +107,10 @@ export default function UserBalanceCard({
 
   // Get balance status
   const getBalanceStatus = (balance: number) => {
-    if (balance === 0) return { status: 'empty', color: '#d32f2f', icon: WarningIcon };
-    if (balance < 100) return { status: 'low', color: '#ed6c02', icon: WarningIcon };
-    if (balance < 1000) return { status: 'moderate', color: '#f57c00', icon: TrendingUpIcon };
-    return { status: 'good', color: '#2e7d32', icon: TrendingUpIcon };
+      if (balance === 0) return { status: "empty", color: "#d32f2f", icon: WarningIcon };
+  if (balance < 100) return { status: "low", color: "#ed6c02", icon: WarningIcon };
+  if (balance < 1000) return { status: "moderate", color: "#f57c00", icon: TrendingUpIcon };
+  return { status: "good", color: "#2e7d32", icon: TrendingUpIcon };
   };
 
   // Loading state
@@ -225,8 +225,8 @@ export default function UserBalanceCard({
               onClick={handleRefresh}
               disabled={isRefreshing}
               sx={{ 
-                color: '#725aa2',
-                '&:hover': { backgroundColor: 'rgba(114, 90, 162, 0.04)' }
+                    color: "#725aa2",
+    "&:hover": { backgroundColor: "rgba(114, 90, 162, 0.04)" }
               }}
             >
               {isRefreshing ? (
@@ -241,31 +241,31 @@ export default function UserBalanceCard({
         {/* Balance Display */}
         <Box sx={{ 
           p: 3, 
-          backgroundColor: '#f8f9fa', 
-          borderRadius: '1em',
-          border: `2px solid ${balanceStatus?.color || '#D3D3D3'}`,
-          position: 'relative',
+          backgroundColor: "#f8f9fa", 
+              borderRadius: "1em",
+    border: `2px solid ${balanceStatus?.color || "#D3D3D3"}`,
+    position: "relative",
           flexGrow: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center'
+              display: "flex",
+    flexDirection: "column",
+    justifyContent: "center"
         }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <StatusIcon sx={{ 
-                color: balanceStatus?.color || '#666', 
+                      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <StatusIcon sx={{ 
+                  color: balanceStatus?.color || "#666", 
                 mr: 2,
                 fontSize: 32
               }} />
               <Box>
                 <Typography variant="h4" sx={{ 
                   fontWeight: 700, 
-                  color: '#29262a',
+                  color: "#29262a",
                   lineHeight: 1
                 }}>
                   {formatCurrency(balanceData?.balance || 0)}
                 </Typography>
-                <Typography variant="body2" sx={{ color: '#666', mt: 0.5 }}>
+                <Typography variant="body2" sx={{ color: "#666", mt: 0.5 }}>
                   Available for deposits
                 </Typography>
               </Box>
@@ -275,17 +275,17 @@ export default function UserBalanceCard({
           {/* Balance Status Indicator */}
           {balanceStatus && (
             <Box sx={{ 
-              position: 'absolute',
+              position: "absolute",
               top: 8,
               right: 8,
               px: 1.5,
               py: 0.5,
               backgroundColor: balanceStatus.color,
-              color: 'white',
-              borderRadius: '0.5em',
-              fontSize: '0.75rem',
+              color: "white",
+              borderRadius: "0.5em",
+              fontSize: "0.75rem",
               fontWeight: 600,
-              textTransform: 'uppercase'
+              textTransform: "uppercase"
             }}>
               {balanceStatus.status}
             </Box>
@@ -295,23 +295,23 @@ export default function UserBalanceCard({
         {/* Balance Status Message */}
         {balanceStatus && (
           <Box sx={{ mt: 2 }}>
-            {balanceStatus.status === 'empty' && (
-              <Alert severity="warning" sx={{ borderRadius: '0.75em' }}>
+            {balanceStatus.status === "empty" && (
+              <Alert severity="warning" sx={{ borderRadius: "0.75em" }}>
                 Your USDC balance is empty. Add funds to start investing.
               </Alert>
             )}
-            {balanceStatus.status === 'low' && (
-              <Alert severity="info" sx={{ borderRadius: '0.75em' }}>
+            {balanceStatus.status === "low" && (
+              <Alert severity="info" sx={{ borderRadius: "0.75em" }}>
                 Your balance is low. Consider adding more USDC for better investment opportunities.
               </Alert>
             )}
-            {balanceStatus.status === 'moderate' && (
-              <Alert severity="success" sx={{ borderRadius: '0.75em' }}>
+            {balanceStatus.status === "moderate" && (
+              <Alert severity="success" sx={{ borderRadius: "0.75em" }}>
                 Good balance! You're ready to make deposits.
               </Alert>
             )}
-            {balanceStatus.status === 'good' && (
-              <Alert severity="success" sx={{ borderRadius: '0.75em' }}>
+            {balanceStatus.status === "good" && (
+              <Alert severity="success" sx={{ borderRadius: "0.75em" }}>
                 Excellent balance! You have plenty of USDC for investments.
               </Alert>
             )}
@@ -320,8 +320,8 @@ export default function UserBalanceCard({
 
         {/* Last Updated */}
         {balanceData && (
-          <Box sx={{ mt: 2, textAlign: 'center' }}>
-            <Typography variant="caption" sx={{ color: '#999' }}>
+          <Box sx={{ mt: 2, textAlign: "center" }}>
+            <Typography variant="caption" sx={{ color: "#999" }}>
               Last updated: {new Date(balanceData.lastUpdated).toLocaleString()}
             </Typography>
           </Box>

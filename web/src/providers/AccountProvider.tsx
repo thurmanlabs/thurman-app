@@ -43,7 +43,7 @@ export default function AccountProvider({ children }: { children: React.ReactNod
                 accountType: "SCA",
                 blockchains: ["BASE-SEPOLIA"]
             });
-            console.log('Signup response:', response.data);
+            console.log("Signup response:", response.data);
             setUser(response.data.user);
             
             // Navigate to home page after successful signup

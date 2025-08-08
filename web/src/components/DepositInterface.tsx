@@ -45,7 +45,7 @@ export default function DepositInterface({
 
   // Memoize the endpoint to prevent unnecessary polling restarts
   const depositStatusEndpoint = useMemo(() => {
-    if (!userAddress || !poolId) return '';
+    if (!userAddress || !poolId) return "";
     return `/api/deposits/status/${poolId}/${userAddress}`;
   }, [userAddress, poolId]);
 
@@ -59,34 +59,34 @@ export default function DepositInterface({
         // Notify when deposit becomes claimable
         if (prev.claimable === 0 && current.claimable > 0) {
           setNotification({
-            type: 'success',
+            type: "success",
             message: `Your deposit of $${current.claimable.toLocaleString()} is ready to claim!`
           });
         }
         
         // Notify when shares are claimed
         if (current.claimed > prev.claimed) {
-          setNotification({
-            type: 'success',
-            message: `Successfully claimed $${(current.claimed - prev.claimed).toLocaleString()} in shares!`
-          });
+                  setNotification({
+          type: "success",
+          message: `Successfully claimed $${(current.claimed - prev.claimed).toLocaleString()} in shares!`
+        });
         }
 
         // Notify when new pending deposits are added
         if (current.pending > prev.pending) {
-          setNotification({
-            type: 'info',
-            message: `New deposit of $${(current.pending - prev.pending).toLocaleString()} submitted and pending fulfillment.`
-          });
+                  setNotification({
+          type: "info",
+          message: `New deposit of $${(current.pending - prev.pending).toLocaleString()} submitted and pending fulfillment.`
+        });
         }
       }
     },
     onError: (error: Error) => {
-      console.error('Deposit status polling error:', error);
-      setNotification({
-        type: 'error',
-        message: 'Failed to update deposit status. Please refresh the page.'
-      });
+      console.error("Deposit status polling error:", error);
+              setNotification({
+          type: "error",
+          message: "Failed to update deposit status. Please refresh the page."
+        });
     }
   }), [userAddress, poolId]);
 
@@ -100,10 +100,10 @@ export default function DepositInterface({
 
   // Handle deposit success
   const handleDepositSuccess = (transactionId: string) => {
-    setNotification({
-      type: 'success',
-      message: `Deposit request submitted successfully! Transaction ID: ${transactionId}`
-    });
+            setNotification({
+          type: "success",
+          message: `Deposit request submitted successfully! Transaction ID: ${transactionId}`
+        });
     
     // Refetch deposit status after a short delay
     setTimeout(() => {
@@ -114,7 +114,7 @@ export default function DepositInterface({
   // Handle deposit error
   const handleDepositError = (error: string) => {
     setNotification({
-      type: 'error',
+      type: "error",
       message: `Deposit failed: ${error}`
     });
   };
@@ -122,7 +122,7 @@ export default function DepositInterface({
   // Handle claim success
   const handleClaimSuccess = (transactionId: string) => {
     setNotification({
-      type: 'success',
+      type: "success",
       message: `Shares claimed successfully! Transaction ID: ${transactionId}`
     });
     
@@ -135,7 +135,7 @@ export default function DepositInterface({
   // Handle claim error
   const handleClaimError = (error: string) => {
     setNotification({
-      type: 'error',
+      type: "error",
       message: `Claim failed: ${error}`
     });
   };
@@ -154,14 +154,14 @@ export default function DepositInterface({
   if (depositError && userAddress) {
     return (
       <Box sx={{ p: 3 }}>
-        <Alert severity="error" sx={{ borderRadius: '1.25em' }}>
+        <Alert severity="error" sx={{ borderRadius: "1.25em" }}>
           <Typography variant="h6" gutterBottom>
             Connection Error
           </Typography>
           <Typography variant="body2" sx={{ mb: 2 }}>
             Unable to load deposit information. Please check your connection and try again.
           </Typography>
-          <Typography variant="caption" sx={{ color: '#666' }}>
+          <Typography variant="caption" sx={{ color: "#666" }}>
             Error: {depositError.message}
           </Typography>
         </Alert>
@@ -176,12 +176,12 @@ export default function DepositInterface({
         open={!!notification}
         autoHideDuration={6000}
         onClose={clearNotification}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                  anchorOrigin={{ vertical: "top", horizontal: "center" }}
       >
         <Alert 
           onClose={clearNotification} 
           severity={notification?.type} 
-          sx={{ width: '100%' }}
+                      sx={{ width: "100%" }}
         >
           {notification?.message}
         </Alert>
@@ -228,7 +228,7 @@ export default function DepositInterface({
         {/* Unauthenticated User Message */}
         {!user && (
           <Grid item xs={12}>
-            <Alert severity="info" sx={{ borderRadius: '1.25em' }}>
+            <Alert severity="info" sx={{ borderRadius: "1.25em" }}>
               <Typography variant="h6" gutterBottom>
                 Sign in to Deposit
               </Typography>

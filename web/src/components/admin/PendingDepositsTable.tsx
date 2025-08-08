@@ -24,7 +24,7 @@ import {
   CardContent,
   Divider,
   Grid
-} from '@mui/material';
+} from "@mui/material";
 import {
   CheckCircle as CheckCircleIcon,
   ContentCopy as CopyIcon,
@@ -32,7 +32,7 @@ import {
   Warning as WarningIcon,
   Schedule as ScheduleIcon,
   AccountBalance as AccountBalanceIcon
-} from '@mui/icons-material';
+} from "@mui/icons-material";
 import { useSnackbar, closeSnackbar } from "notistack";
 import { useAdminPolling } from "../../hooks/usePolling";
 import axios from "axios";
@@ -45,7 +45,7 @@ interface PendingDeposit {
   poolName: string;
   amount: number;
   timestamp: string;
-  status: 'pending' | 'fulfilling' | 'fulfilled' | 'failed';
+  status: "pending" | "fulfilling" | "fulfilled" | "failed";
 }
 
 interface PendingDepositsResponse {
@@ -66,14 +66,14 @@ interface PendingDepositsTableProps {
 
 // Utility functions
 const formatAddress = (address: string) => {
-  if (!address) return 'Unknown';
+      if (!address) return "Unknown";
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
 };
 
 const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
+      return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(amount);
@@ -84,14 +84,14 @@ const formatRelativeTime = (timestamp: string) => {
   const time = new Date(timestamp);
   const diffInMinutes = Math.floor((now.getTime() - time.getTime()) / (1000 * 60));
   
-  if (diffInMinutes < 1) return 'Just now';
-  if (diffInMinutes < 60) return `${diffInMinutes} minute${diffInMinutes > 1 ? 's' : ''} ago`;
+  if (diffInMinutes < 1) return "Just now";
+  if (diffInMinutes < 60) return `${diffInMinutes} minute${diffInMinutes > 1 ? "s" : ""} ago`;
   
   const diffInHours = Math.floor(diffInMinutes / 60);
-  if (diffInHours < 24) return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
+  if (diffInHours < 24) return `${diffInHours} hour${diffInHours > 1 ? "s" : ""} ago`;
   
   const diffInDays = Math.floor(diffInHours / 24);
-  return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
+  return `${diffInDays} day${diffInDays > 1 ? "s" : ""} ago`;
 };
 
 const copyToClipboard = async (text: string) => {
@@ -99,14 +99,14 @@ const copyToClipboard = async (text: string) => {
     await navigator.clipboard.writeText(text);
     return true;
   } catch (err) {
-    console.error('Failed to copy to clipboard:', err);
+    console.error("Failed to copy to clipboard:", err);
     return false;
   }
 };
 
 // Loading skeleton component
 const TableSkeleton = () => (
-  <TableContainer component={Paper} sx={{ borderRadius: '1.25em', overflow: 'hidden' }}>
+  <TableContainer component={Paper} sx={{ borderRadius: "1.25em", overflow: "hidden" }}>
     <Table>
       <TableHead>
         <TableRow>
@@ -155,14 +155,14 @@ const SummaryStats: React.FC<SummaryStatsProps> = React.memo(({ summary, loading
 
   return (
     <Stack spacing={2} sx={{ mb: 3 }}>
-      <Card sx={{ 
-        borderRadius: '1em',
-        backgroundColor: '#FFFFFE',
-        boxShadow: '0 0.125em 0.25em rgba(0, 0, 0, 0.08)'
+            <Card sx={{ 
+        borderRadius: "1em",
+        backgroundColor: "#FFFFFE",
+        boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)"
       }}>
         <CardContent>
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-              <ScheduleIcon sx={{ fontSize: 20, color: "warning.main" }} />
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+            <ScheduleIcon sx={{ fontSize: 20, color: "warning.main" }} />
             <Typography variant="body2" color="text.secondary">
               Pending Requests
             </Typography>
@@ -173,14 +173,14 @@ const SummaryStats: React.FC<SummaryStatsProps> = React.memo(({ summary, loading
         </CardContent>
       </Card>
       
-      <Card sx={{ 
-        borderRadius: '1em',
-        backgroundColor: '#FFFFFE',
-        boxShadow: '0 0.125em 0.25em rgba(0, 0, 0, 0.08)'
+            <Card sx={{ 
+        borderRadius: "1em",
+        backgroundColor: "#FFFFFE",
+        boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)"
       }}>
         <CardContent>
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-              <AccountBalanceIcon sx={{ fontSize: 20, color: "primary.main" }} />
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+            <AccountBalanceIcon sx={{ fontSize: 20, color: "primary.main" }} />
             <Typography variant="body2" color="text.secondary">
               Total Amount
             </Typography>
@@ -191,20 +191,20 @@ const SummaryStats: React.FC<SummaryStatsProps> = React.memo(({ summary, loading
         </CardContent>
       </Card>
       
-      <Card sx={{ 
-        borderRadius: '1em',
-        backgroundColor: '#FFFFFE',
-        boxShadow: '0 0.125em 0.25em rgba(0, 0, 0, 0.08)'
+            <Card sx={{ 
+        borderRadius: "1em",
+        backgroundColor: "#FFFFFE",
+        boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)"
       }}>
         <CardContent>
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-              <CheckCircleIcon sx={{ fontSize: 20, color: "success.main" }} />
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+            <CheckCircleIcon sx={{ fontSize: 20, color: "success.main" }} />
             <Typography variant="body2" color="text.secondary">
               Average Amount
             </Typography>
           </Box>
           <Typography variant="h5" fontWeight={600}>
-            {summary.count > 0 ? formatCurrency(summary.totalAmount / summary.count) : '$0'}
+            {summary.count > 0 ? formatCurrency(summary.totalAmount / summary.count) : "$0"}
           </Typography>
         </CardContent>
       </Card>
@@ -241,7 +241,7 @@ const PendingDepositsTable: React.FC<PendingDepositsTableProps> = ({ onDataChang
       setIsPolling(true);
       setError(null);
       
-      const response = await axios.get('/api/admin/deposits/pending');
+      const response = await axios.get("/api/admin/deposits/pending");
       const newData = response.data;
       
       // Check if data has changed
@@ -271,9 +271,9 @@ const PendingDepositsTable: React.FC<PendingDepositsTableProps> = ({ onDataChang
                 enqueueSnackbar(
                   `New deposit request: ${formatCurrency(deposit.amount)} from ${formatAddress(deposit.userAddress)}`,
                   { 
-                    variant: 'info',
+                    variant: "info",
                     autoHideDuration: 5000,
-                    anchorOrigin: { vertical: 'top', horizontal: 'right' }
+                    anchorOrigin: { vertical: "top", horizontal: "right" }
                   }
                 );
               });
@@ -288,7 +288,7 @@ const PendingDepositsTable: React.FC<PendingDepositsTableProps> = ({ onDataChang
       
       setLoading(false);
     } catch (err: any) {
-      console.error('Error fetching pending deposits:', err);
+      console.error("Error fetching pending deposits:", err);
       setError(err);
       setLoading(false);
     } finally {
@@ -335,7 +335,7 @@ const PendingDepositsTable: React.FC<PendingDepositsTableProps> = ({ onDataChang
     try {
       setFulfillingDeposits(prev => new Set(prev).add(deposit.id));
       
-      const response = await axios.post('/api/admin/deposits/fulfill', {
+      const response = await axios.post("/api/admin/deposits/fulfill", {
         depositId: deposit.id,
         userAddress: deposit.userAddress,
         poolId: deposit.poolId,
@@ -346,27 +346,27 @@ const PendingDepositsTable: React.FC<PendingDepositsTableProps> = ({ onDataChang
         enqueueSnackbar(
           `Fulfilled ${formatCurrency(deposit.amount)} deposit for ${formatAddress(deposit.userAddress)}`,
           { 
-            variant: 'success',
+            variant: "success",
             autoHideDuration: 4000,
-            anchorOrigin: { vertical: 'top', horizontal: 'right' }
+            anchorOrigin: { vertical: "top", horizontal: "right" }
           }
         );
         
         // Refresh data to get updated status
         refetch();
       } else {
-        throw new Error(response.data.message || 'Failed to fulfill deposit');
+        throw new Error(response.data.message || "Failed to fulfill deposit");
       }
     } catch (err: any) {
-      console.error('Error fulfilling deposit:', err);
+      console.error("Error fulfilling deposit:", err);
       
-      const errorMessage = err.response?.data?.message || err.message || 'Failed to fulfill deposit';
+      const errorMessage = err.response?.data?.message || err.message || "Failed to fulfill deposit";
       enqueueSnackbar(
         `Error: ${errorMessage}`,
         { 
-          variant: 'error',
+          variant: "error",
           autoHideDuration: 6000,
-          anchorOrigin: { vertical: 'top', horizontal: 'right' },
+          anchorOrigin: { vertical: "top", horizontal: "right" },
           action: (key) => (
             <Button 
               color="inherit" 
@@ -394,16 +394,16 @@ const PendingDepositsTable: React.FC<PendingDepositsTableProps> = ({ onDataChang
   const handleCopyAddress = useCallback(async (address: string) => {
     const success = await copyToClipboard(address);
     if (success) {
-      enqueueSnackbar('Address copied to clipboard', { 
-        variant: 'success',
+      enqueueSnackbar("Address copied to clipboard", { 
+        variant: "success",
         autoHideDuration: 2000,
-        anchorOrigin: { vertical: 'top', horizontal: 'right' }
+        anchorOrigin: { vertical: "top", horizontal: "right" }
       });
     } else {
-      enqueueSnackbar('Failed to copy address', { 
-        variant: 'error',
+      enqueueSnackbar("Failed to copy address", { 
+        variant: "error",
         autoHideDuration: 2000,
-        anchorOrigin: { vertical: 'top', horizontal: 'right' }
+        anchorOrigin: { vertical: "top", horizontal: "right" }
       });
     }
   }, [enqueueSnackbar]);
@@ -431,15 +431,15 @@ const PendingDepositsTable: React.FC<PendingDepositsTableProps> = ({ onDataChang
       <SummaryStats summary={summary} loading={loading} />
 
       {/* Header */}
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-        <Typography variant="h6" sx={{ fontWeight: 600, color: '#29262a' }}>
+      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
+        <Typography variant="h6" sx={{ fontWeight: 600, color: "#29262a" }}>
           Pending Deposits
         </Typography>
         <Tooltip title="Refresh">
           <IconButton 
             onClick={refetch}
             disabled={loading}
-            sx={{ color: 'primary.main' }}
+            sx={{ color: "primary.main" }}
           >
             <RefreshIcon />
           </IconButton>
@@ -466,12 +466,12 @@ const PendingDepositsTable: React.FC<PendingDepositsTableProps> = ({ onDataChang
         <TableSkeleton />
       ) : sortedDeposits.length === 0 ? (
         <Card sx={{ 
-          borderRadius: '1.25em',
-          backgroundColor: '#FFFFFE',
-          boxShadow: '0 0.125em 0.25em rgba(0, 0, 0, 0.08)'
+          borderRadius: "1.25em",
+          backgroundColor: "#FFFFFE",
+          boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)"
         }}>
-          <CardContent sx={{ textAlign: 'center', py: 4 }}>
-            <CheckCircleIcon sx={{ fontSize: 48, color: 'success.main', mb: 2 }} />
+          <CardContent sx={{ textAlign: "center", py: 4 }}>
+            <CheckCircleIcon sx={{ fontSize: 48, color: "success.main", mb: 2 }} />
             <Typography variant="h6" color="text.secondary" gutterBottom>
               No Pending Deposits
             </Typography>
@@ -484,7 +484,7 @@ const PendingDepositsTable: React.FC<PendingDepositsTableProps> = ({ onDataChang
         <TableContainer component={Paper} sx={{ borderRadius: "1.25em", overflow: "hidden" }}>
           <Table>
             <TableHead>
-              <TableRow sx={{ backgroundColor: '#f8f9fa' }}>
+              <TableRow sx={{ backgroundColor: "#f8f9fa" }}>
                 <TableCell sx={{ fontWeight: 600 }}>User Address</TableCell>
                 <TableCell sx={{ fontWeight: 600 }}>Pool</TableCell>
                 <TableCell sx={{ fontWeight: 600 }}>Amount</TableCell>
@@ -499,8 +499,8 @@ const PendingDepositsTable: React.FC<PendingDepositsTableProps> = ({ onDataChang
                 return (
                   <TableRow key={deposit.id} hover>
                     <TableCell>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        <Typography variant="body2" sx={{ fontFamily: "monospace" }}>
                           {formatAddress(deposit.userAddress)}
                         </Typography>
                         <Tooltip title="Copy address">
@@ -540,13 +540,13 @@ const PendingDepositsTable: React.FC<PendingDepositsTableProps> = ({ onDataChang
                         onClick={() => setConfirmDialog({ open: true, deposit })}
                         sx={{ 
                           minWidth: 100,
-                          backgroundColor: isFulfilling ? 'grey.400' : 'success.main',
-                          '&:hover': {
-                            backgroundColor: isFulfilling ? 'grey.400' : 'success.dark'
+                          backgroundColor: isFulfilling ? "grey.400" : "success.main",
+                          "&:hover": {
+                            backgroundColor: isFulfilling ? "grey.400" : "success.dark"
                           }
                         }}
                       >
-                        {isFulfilling ? 'Fulfilling...' : 'Fulfill'}
+                        {isFulfilling ? "Fulfilling..." : "Fulfill"}
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -573,7 +573,7 @@ const PendingDepositsTable: React.FC<PendingDepositsTableProps> = ({ onDataChang
               <Typography variant="body1">
                 Are you sure you want to fulfill this deposit request?
               </Typography>
-              <Box sx={{ p: 2, backgroundColor: '#f8f9fa', borderRadius: 1 }}>
+              <Box sx={{ p: 2, backgroundColor: "#f8f9fa", borderRadius: 1 }}>
                 <Typography variant="body2" color="text.secondary">
                   <strong>User:</strong> {formatAddress(confirmDialog.deposit.userAddress)}
                 </Typography>
@@ -596,7 +596,7 @@ const PendingDepositsTable: React.FC<PendingDepositsTableProps> = ({ onDataChang
         <DialogActions>
           <Button 
             onClick={() => setConfirmDialog({ open: false, deposit: null })}
-            disabled={fulfillingDeposits.has(confirmDialog.deposit?.id || '')}
+            disabled={fulfillingDeposits.has(confirmDialog.deposit?.id || "")}
           >
             Cancel
           </Button>
@@ -604,10 +604,10 @@ const PendingDepositsTable: React.FC<PendingDepositsTableProps> = ({ onDataChang
             onClick={handleConfirmFulfill}
             variant="contained"
             color="success"
-            disabled={fulfillingDeposits.has(confirmDialog.deposit?.id || '')}
+            disabled={fulfillingDeposits.has(confirmDialog.deposit?.id || "")}
             startIcon={<CheckCircleIcon />}
           >
-            {fulfillingDeposits.has(confirmDialog.deposit?.id || '') ? 'Fulfilling...' : 'Confirm Fulfill'}
+            {fulfillingDeposits.has(confirmDialog.deposit?.id || "") ? "Fulfilling..." : "Confirm Fulfill"}
           </Button>
         </DialogActions>
       </Dialog>
