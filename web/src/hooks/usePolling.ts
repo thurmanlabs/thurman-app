@@ -10,7 +10,7 @@ export interface PollingOptions<T> {
   requiresAdmin?: boolean; // Skip polling if not admin (default: false)
   onDataChange?: (prevData: T | null, currentData: T | null) => void; // Callback for data changes
   onError?: (error: Error) => void; // Callback for errors
-  onNotification?: (message: string, type: 'success' | 'warning' | 'error') => void; // Callback for notifications
+  onNotification?: (message: string, type: "success" | "warning" | "error") => void; // Callback for notifications
   retryAttempts?: number; // Max retry attempts before exponential backoff (default: 3)
   maxBackoffInterval?: number; // Maximum backoff interval in milliseconds (default: 30000)
 }
@@ -131,12 +131,12 @@ export function usePolling<T>(
           
           // Example: Notify when deposit becomes claimable
           if (prev.status === 'pending' && current.status === 'fulfilled') {
-            onNotification('Your deposit has been fulfilled and is ready to claim!', 'success');
+            onNotification("Your deposit has been fulfilled and is ready to claim!", "success");
           }
           
           // Example: Notify when deposit is claimed
           if (prev.status === 'fulfilled' && current.status === 'claimed') {
-            onNotification('Shares claimed successfully!', 'success');
+            onNotification("Shares claimed successfully!", "success");
           }
         }
 
@@ -150,9 +150,9 @@ export function usePolling<T>(
 
     } catch (err: any) {
       // Don't set error if request was aborted
-      if (err.name === 'AbortError') return;
+      if (err.name === "AbortError") return;
 
-      const error = err instanceof Error ? err : new Error(err.message || 'Unknown error');
+      const error = err instanceof Error ? err : new Error(err.message || "Unknown error");
       setError(error);
       
       // Call onError callback if provided
@@ -164,8 +164,8 @@ export function usePolling<T>(
       retryCountRef.current++;
 
       // Show error notification for network issues
-      if (onNotification && (error.message.includes('Network Error') || error.message.includes('timeout'))) {
-        onNotification('Connection lost. Retrying...', 'warning');
+          if (onNotification && (error.message.includes("Network Error") || error.message.includes("timeout"))) {
+      onNotification("Connection lost. Retrying...", "warning");
       }
     } finally {
       // Only set loading to false if it was set to true in this request
@@ -254,10 +254,10 @@ export function usePolling<T>(
       }
     };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
     
     return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [startPolling, stopPolling]);
 

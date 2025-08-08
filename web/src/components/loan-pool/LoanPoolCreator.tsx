@@ -43,7 +43,7 @@ export default function LoanPoolCreator() {
                 // Reset form after successful submission
                 resetForm();
                 // Redirect to My Loan Pools page
-                navigate('/manage/my-loan-pools', { 
+                navigate("/manage/my-loan-pools", { 
                     state: { 
                         message: "Pool created successfully! You can track its status below." 
                     } 

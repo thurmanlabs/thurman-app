@@ -48,9 +48,9 @@ export default function FileUploadZone({
     const { getRootProps, getInputProps, isDragActive, isDragReject } = useDropzone({
         onDrop,
         accept: {
-            'text/csv': ['.csv'],
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
-            'application/vnd.ms-excel': ['.xls']
+                "text/csv": [".csv"],
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
+    "application/vnd.ms-excel": [".xls"]
         },
         maxSize: 10485760, // 10MB
         multiple: false,

@@ -146,9 +146,9 @@ const SummaryStats: React.FC<SummaryStatsProps> = React.memo(({ summary, loading
   if (loading) {
     return (
       <Stack spacing={2} sx={{ mb: 3 }}>
-        <Skeleton variant="rectangular" height={80} sx={{ borderRadius: '1em' }} />
-        <Skeleton variant="rectangular" height={80} sx={{ borderRadius: '1em' }} />
-        <Skeleton variant="rectangular" height={80} sx={{ borderRadius: '1em' }} />
+                    <Skeleton variant="rectangular" height={80} sx={{ borderRadius: "1em" }} />
+            <Skeleton variant="rectangular" height={80} sx={{ borderRadius: "1em" }} />
+            <Skeleton variant="rectangular" height={80} sx={{ borderRadius: "1em" }} />
       </Stack>
     );
   }
@@ -161,8 +161,8 @@ const SummaryStats: React.FC<SummaryStatsProps> = React.memo(({ summary, loading
         boxShadow: '0 0.125em 0.25em rgba(0, 0, 0, 0.08)'
       }}>
         <CardContent>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-            <ScheduleIcon sx={{ fontSize: 20, color: 'warning.main' }} />
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+              <ScheduleIcon sx={{ fontSize: 20, color: "warning.main" }} />
             <Typography variant="body2" color="text.secondary">
               Pending Requests
             </Typography>
@@ -179,8 +179,8 @@ const SummaryStats: React.FC<SummaryStatsProps> = React.memo(({ summary, loading
         boxShadow: '0 0.125em 0.25em rgba(0, 0, 0, 0.08)'
       }}>
         <CardContent>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-            <AccountBalanceIcon sx={{ fontSize: 20, color: 'primary.main' }} />
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+              <AccountBalanceIcon sx={{ fontSize: 20, color: "primary.main" }} />
             <Typography variant="body2" color="text.secondary">
               Total Amount
             </Typography>
@@ -197,8 +197,8 @@ const SummaryStats: React.FC<SummaryStatsProps> = React.memo(({ summary, loading
         boxShadow: '0 0.125em 0.25em rgba(0, 0, 0, 0.08)'
       }}>
         <CardContent>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-            <CheckCircleIcon sx={{ fontSize: 20, color: 'success.main' }} />
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+              <CheckCircleIcon sx={{ fontSize: 20, color: "success.main" }} />
             <Typography variant="body2" color="text.secondary">
               Average Amount
             </Typography>
@@ -481,7 +481,7 @@ const PendingDepositsTable: React.FC<PendingDepositsTableProps> = ({ onDataChang
           </CardContent>
         </Card>
       ) : (
-        <TableContainer component={Paper} sx={{ borderRadius: '1.25em', overflow: 'hidden' }}>
+        <TableContainer component={Paper} sx={{ borderRadius: "1.25em", overflow: "hidden" }}>
           <Table>
             <TableHead>
               <TableRow sx={{ backgroundColor: '#f8f9fa' }}>

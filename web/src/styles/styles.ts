@@ -174,7 +174,7 @@ const accountDropdown: StyleSet = {
     },
     disconnectBox: {
         p: 1,
-        '&:hover': {
+        "&:hover": {
             bgcolor: "error.lighter",
             cursor: "pointer"
         }

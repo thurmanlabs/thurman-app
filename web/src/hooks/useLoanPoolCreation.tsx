@@ -189,18 +189,18 @@ export default function useLoanPoolCreation() {
             const formValues = formMethods.getValues();
             Object.keys(formValues).forEach(key => {
                 const value = formValues[key as keyof LoanPoolData];
-                if (value !== undefined && value !== null && key !== 'loanDataFile') {
+                if (value !== undefined && value !== null && key !== "loanDataFile") {
                     formDataObj.append(key, value.toString());
                 }
             });
             
             // Add the uploaded file
-            formDataObj.append('loanDataFile', fileState.file);
+                          formDataObj.append("loanDataFile", fileState.file);
             
             // Make API call
-            const response = await axios.post('/api/loan-pools', formDataObj, {
+            const response = await axios.post("/api/loan-pools", formDataObj, {
                 headers: {
-                    'Content-Type': 'multipart/form-data'
+                    "Content-Type": "multipart/form-data"
                 },
                 withCredentials: true
             });

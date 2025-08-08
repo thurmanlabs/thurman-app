@@ -21,12 +21,12 @@ export default function BasicInfoStep({ formMethods, onNext }: StepProps) {
     const validation = {
         name: {
             required: "Pool name is required. Please enter a unique name for your pool.",
-            minLength: { value: 3, message: "Pool name must be at least 3 characters (e.g., 'Spring 2024 Small Business Pool')." },
+            minLength: { value: 3, message: "Pool name must be at least 3 characters (e.g., \"Spring 2024 Small Business Pool\")." },
             maxLength: { value: 100, message: "Pool name must be at most 100 characters." }
         },
         description: {
             required: "Description is required. Please provide a detailed summary of your pool.",
-            minLength: { value: 20, message: "Description must be at least 20 characters (e.g., 'This pool supports small businesses in California with flexible terms.')." },
+            minLength: { value: 20, message: "Description must be at least 20 characters (e.g., \"This pool supports small businesses in California with flexible terms.\")." },
             maxLength: { value: 1000, message: "Description must be at most 1000 characters." }
         },
         targetAmount: {
@@ -85,7 +85,7 @@ export default function BasicInfoStep({ formMethods, onNext }: StepProps) {
                 rules={validation.name}
                 label="Pool Name"
                 type="text"
-                helperText="Enter a descriptive name for your loan pool (e.g., 'Spring 2024 Small Business Pool')."
+                helperText="Enter a descriptive name for your loan pool (e.g., Spring 2024 Small Business Pool)."
             />
 
             <EnhancedTextInputField
@@ -96,7 +96,7 @@ export default function BasicInfoStep({ formMethods, onNext }: StepProps) {
                 type="text"
                 multiline={true}
                 rows={4}
-                helperText="Provide a detailed description of the loan pool (e.g., 'This pool supports small businesses in California with flexible terms.')."
+                helperText="Provide a detailed description of the loan pool (e.g., This pool supports small businesses in California with flexible terms.)."
             />
 
             <EnhancedTextInputField

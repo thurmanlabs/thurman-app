@@ -5,7 +5,7 @@ import {
   Typography,
   Alert,
   Snackbar
-} from '@mui/material';
+} from "@mui/material";
 import { usePolling } from "../hooks/usePolling";
 import useAccount from "../hooks/useAccount";
 import DepositSection from "./DepositSection";
@@ -39,7 +39,7 @@ export default function DepositInterface({
   const userAddress = user?.account; // Get wallet address from user account
   const [userBalance, setUserBalance] = useState<number>(0);
   const [notification, setNotification] = useState<{
-    type: 'success' | 'error' | 'info';
+    type: "success" | "error" | "info";
     message: string;
   } | null>(null);
 

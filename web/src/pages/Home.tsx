@@ -123,9 +123,9 @@ const formatRelativeTime = (timestamp: string) => {
 // Loading skeleton components
 const SummaryCardSkeleton = () => (
   <Card sx={{ 
-    borderRadius: '1.25em',
+    borderRadius: "1.25em",
     backgroundColor: THURMAN_COLORS.white,
-    boxShadow: '0 0.125em 0.25em rgba(0, 0, 0, 0.08)'
+    boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)"
   }}>
     <CardContent>
       <Skeleton variant="text" width="60%" height={24} sx={{ mb: 1 }} />
@@ -135,7 +135,7 @@ const SummaryCardSkeleton = () => (
 );
 
 const TableSkeleton = () => (
-  <TableContainer component={Paper} sx={{ borderRadius: '1.25em', overflow: 'hidden' }}>
+  <TableContainer component={Paper} sx={{ borderRadius: "1.25em", overflow: "hidden" }}>
     <Table>
       <TableHead>
         <TableRow>
@@ -162,34 +162,34 @@ const TableSkeleton = () => (
 );
 
 // Thurman branded button component
-const ThurmanButton = ({ children, onClick, variant = 'contained', size = 'medium', startIcon, ...props }: any) => (
+const ThurmanButton = ({ children, onClick, variant = "contained", size = "medium", startIcon, ...props }: any) => (
   <Button
     variant={variant}
     size={size}
     startIcon={startIcon}
     onClick={onClick}
     sx={{
-      background: variant === 'contained' ? 'linear-gradient(90deg, #725aa2 0%, #29262a 100%)' : 'transparent',
-      color: variant === 'contained' ? THURMAN_COLORS.white : THURMAN_COLORS.primary,
-      borderRadius: '1.25em',
-      textTransform: 'none',
+      background: variant === "contained" ? "linear-gradient(90deg, #725aa2 0%, #29262a 100%)" : "transparent",
+      color: variant === "contained" ? THURMAN_COLORS.white : THURMAN_COLORS.primary,
+      borderRadius: "1.25em",
+      textTransform: "none",
       fontWeight: 700,
-      padding: size === 'large' ? '0.75em 3em' : '0.325em 2.5em',
-      border: variant === 'outlined' ? `2px solid ${THURMAN_COLORS.primary}` : 'none',
-      '&:hover': {
-        background: variant === 'contained' 
-          ? 'linear-gradient(90deg, #725aa2 20%, #29262a 100%)'
-          : 'rgba(114, 90, 162, 0.1)',
-        transform: 'translateY(-1px)',
-        boxShadow: '0 4px 12px rgba(114, 90, 162, 0.3)',
+      padding: size === "large" ? "0.75em 3em" : "0.325em 2.5em",
+      border: variant === "outlined" ? `2px solid ${THURMAN_COLORS.primary}` : "none",
+      "&:hover": {
+        background: variant === "contained" 
+          ? "linear-gradient(90deg, #725aa2 20%, #29262a 100%)"
+          : "rgba(114, 90, 162, 0.1)",
+        transform: "translateY(-1px)",
+        boxShadow: "0 4px 12px rgba(114, 90, 162, 0.3)",
       },
-      '&:disabled': {
-        background: '#E0E0E0',
-        color: '#A0A0A0',
-        transform: 'none',
-        boxShadow: 'none'
+      "&:disabled": {
+        background: "#E0E0E0",
+        color: "#A0A0A0",
+        transform: "none",
+        boxShadow: "none"
       },
-      transition: 'all 0.2s ease-in-out',
+      transition: "all 0.2s ease-in-out",
       ...props.sx
     }}
     {...props}
@@ -225,13 +225,13 @@ export default function Home() {
 
         // Show notification for significant changes (>1% or >$10)
         if (Math.abs(changePercent) > 1 || Math.abs(change) > 10) {
-          const sign = change >= 0 ? '+' : '';
+          const sign = change >= 0 ? "+" : "";
           enqueueSnackbar(
-            `Portfolio ${change >= 0 ? 'increased' : 'decreased'} by ${sign}${formatCurrency(change)} (${sign}${changePercent.toFixed(2)}%)`,
+            `Portfolio ${change >= 0 ? "increased" : "decreased"} by ${sign}${formatCurrency(change)} (${sign}${changePercent.toFixed(2)}%)`,
             {
-              variant: change >= 0 ? 'success' : 'warning',
+              variant: change >= 0 ? "success" : "warning",
               autoHideDuration: 5000,
-              anchorOrigin: { vertical: 'top', horizontal: 'right' }
+              anchorOrigin: { vertical: "top", horizontal: "right" }
             }
           );
         }
@@ -248,10 +248,10 @@ export default function Home() {
   // Handle refresh
   const handleRefresh = useCallback(() => {
     refetchPortfolio();
-    enqueueSnackbar('Portfolio data refreshed', {
-      variant: 'info',
+    enqueueSnackbar("Portfolio data refreshed", {
+      variant: "info",
       autoHideDuration: 2000,
-      anchorOrigin: { vertical: 'top', horizontal: 'right' }
+      anchorOrigin: { vertical: "top", horizontal: "right" }
     });
   }, [refetchPortfolio, enqueueSnackbar]);
 
@@ -262,7 +262,7 @@ export default function Home() {
 
   // Handle browse pools
   const handleBrowsePools = useCallback(() => {
-    navigate('/pools');
+    navigate("/pools");
   }, [navigate]);
 
   // Handle quick deposit
@@ -272,9 +272,9 @@ export default function Home() {
 
   // Get performance color
   const getPerformanceColor = (percentage: number) => {
-    if (percentage >= 5) return 'success';
-    if (percentage >= 0) return 'primary';
-    return 'error';
+    if (percentage >= 5) return "success";
+    if (percentage >= 0) return "primary";
+    return "error";
   };
 
   // Get performance icon
@@ -289,17 +289,17 @@ export default function Home() {
       <ContentContainer>
         <Box sx={{ py: 4 }}>
           {/* Header */}
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 4 }}>
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 4 }}>
             <Box>
               <Typography variant="h4" component="h1" sx={{ fontWeight: 600, color: THURMAN_COLORS.secondary, mb: 1 }}>
                 Portfolio Dashboard
               </Typography>
               <Typography variant="body1" color="text.secondary">
-                {userAddress ? `Welcome back, ${userAddress.slice(0, 6)}...${userAddress.slice(-4)}` : 'Connect your wallet to view your portfolio'}
+                {userAddress ? `Welcome back, ${userAddress.slice(0, 6)}...${userAddress.slice(-4)}` : "Connect your wallet to view your portfolio"}
               </Typography>
             </Box>
             
-            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+            <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
               {portfolio && (
                 <Typography variant="body2" color="text.secondary">
                   Last updated: {formatRelativeTime(portfolio.lastUpdated)}
@@ -349,19 +349,19 @@ export default function Home() {
                     <SummaryCardSkeleton />
                   ) : (
                     <Card sx={{ 
-                      borderRadius: '1.25em',
+                      borderRadius: "1.25em",
                       backgroundColor: THURMAN_COLORS.white,
-                      boxShadow: '0 0.125em 0.25em rgba(0, 0, 0, 0.08)'
+                      boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)"
                     }}>
                       <CardContent>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
                           <MoneyIcon sx={{ fontSize: 20, color: THURMAN_COLORS.primary }} />
                           <Typography variant="body2" color="text.secondary">
                             Total Invested
                           </Typography>
                         </Box>
                         <Typography variant="h5" fontWeight={600}>
-                          {portfolio ? formatCurrency(portfolio.totalInvested) : '$0'}
+                          {portfolio ? formatCurrency(portfolio.totalInvested) : "$0"}
                         </Typography>
                       </CardContent>
                     </Card>
@@ -373,19 +373,19 @@ export default function Home() {
                     <SummaryCardSkeleton />
                   ) : (
                     <Card sx={{ 
-                      borderRadius: '1.25em',
+                      borderRadius: "1.25em",
                       backgroundColor: THURMAN_COLORS.white,
-                      boxShadow: '0 0.125em 0.25em rgba(0, 0, 0, 0.08)'
+                      boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)"
                     }}>
                       <CardContent>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
                           <AccountBalanceIcon sx={{ fontSize: 20, color: THURMAN_COLORS.success }} />
                           <Typography variant="body2" color="text.secondary">
                             Current Value
                           </Typography>
                         </Box>
                         <Typography variant="h5" fontWeight={600}>
-                          {portfolio ? formatCurrency(portfolio.currentValue) : '$0'}
+                          {portfolio ? formatCurrency(portfolio.currentValue) : "$0"}
                         </Typography>
                       </CardContent>
                     </Card>
@@ -397,19 +397,19 @@ export default function Home() {
                     <SummaryCardSkeleton />
                   ) : (
                     <Card sx={{ 
-                      borderRadius: '1.25em',
+                      borderRadius: "1.25em",
                       backgroundColor: THURMAN_COLORS.white,
-                      boxShadow: '0 0.125em 0.25em rgba(0, 0, 0, 0.08)'
+                      boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)"
                     }}>
                       <CardContent>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
                           <TrendingUpIcon sx={{ fontSize: 20, color: THURMAN_COLORS.success }} />
                           <Typography variant="body2" color="text.secondary">
                             Total Return
                           </Typography>
                         </Box>
                         <Typography variant="h5" fontWeight={600} color={(portfolio?.returnPercentage ?? 0) >= 0 ? THURMAN_COLORS.success : THURMAN_COLORS.error}>
-                          {portfolio ? formatPercentage(portfolio.returnPercentage ?? 0) : '0%'}
+                          {portfolio ? formatPercentage(portfolio.returnPercentage ?? 0) : "0%"}
                         </Typography>
                       </CardContent>
                     </Card>
@@ -421,12 +421,12 @@ export default function Home() {
                     <SummaryCardSkeleton />
                   ) : (
                     <Card sx={{ 
-                      borderRadius: '1.25em',
+                      borderRadius: "1.25em",
                       backgroundColor: THURMAN_COLORS.white,
-                      boxShadow: '0 0.125em 0.25em rgba(0, 0, 0, 0.08)'
+                      boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)"
                     }}>
                       <CardContent>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
                           <ChartIcon sx={{ fontSize: 20, color: THURMAN_COLORS.primary }} />
                           <Typography variant="body2" color="text.secondary">
                             Active Positions
@@ -447,15 +447,15 @@ export default function Home() {
                   {pendingTotal > 0 && (
                     <Grid item xs={12} sm={6}>
                       <Card sx={{ 
-                        borderRadius: '1.25em',
+                        borderRadius: "1.25em",
                         backgroundColor: THURMAN_COLORS.white,
-                        boxShadow: '0 0.125em 0.25em rgba(0, 0, 0, 0.08)',
+                        boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)",
                         border: `2px solid ${THURMAN_COLORS.warning}`
                       }}>
                         <CardContent>
-                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                             <Box>
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
                                 <ScheduleIcon sx={{ fontSize: 20, color: THURMAN_COLORS.warning }} />
                                 <Typography variant="body2" color="text.secondary">
                                   Pending Deposits
@@ -469,7 +469,7 @@ export default function Home() {
                               variant="outlined"
                               size="small"
                               startIcon={<VisibilityIcon />}
-                              onClick={() => navigate('/pools')}
+                              onClick={() => navigate("/pools")}
                             >
                               View Pools
                             </ThurmanButton>
@@ -482,15 +482,15 @@ export default function Home() {
                   {claimableTotal > 0 && (
                     <Grid item xs={12} sm={6}>
                       <Card sx={{ 
-                        borderRadius: '1.25em',
+                        borderRadius: "1.25em",
                         backgroundColor: THURMAN_COLORS.white,
-                        boxShadow: '0 0.125em 0.25em rgba(0, 0, 0, 0.08)',
+                        boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)",
                         border: `2px solid ${THURMAN_COLORS.success}`
                       }}>
                         <CardContent>
-                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                             <Box>
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
                                 <CheckCircleIcon sx={{ fontSize: 20, color: THURMAN_COLORS.success }} />
                                 <Typography variant="body2" color="text.secondary">
                                   Claimable Amount
@@ -503,7 +503,7 @@ export default function Home() {
                             <ThurmanButton
                               size="small"
                               startIcon={<CheckCircleIcon />}
-                              onClick={() => navigate('/pools')}
+                              onClick={() => navigate("/pools")}
                             >
                               Claim All
                             </ThurmanButton>
