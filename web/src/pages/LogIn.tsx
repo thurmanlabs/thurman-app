@@ -9,7 +9,7 @@ const options: AuthOptionProps[] = [
     { avatar: "", name: "Log in with email", type: "email", next: () => {}},
 ];
 
-export default function LogIn() {
+export default function LogIn(): JSX.Element {
     return (
         <BackgroundContainer>  
             <ContentContainer>

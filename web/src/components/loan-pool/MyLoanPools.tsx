@@ -72,7 +72,7 @@ const useLoanPools = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchPools = useCallback(async () => {
+  const fetchPools = useCallback(async (): Promise<void> => {
     try {
       setLoading(true);
       setError(null);
@@ -128,12 +128,12 @@ const formatDate = (dateString: string): string => {
   });
 };
 
-const getStatusConfig = (status: LoanPool["status"]) => {
+const getStatusConfig = (status: LoanPool["status"]): { color: string; text: string } => {
   return STATUS_CONFIG[status] || { color: "default", text: status };
 };
 
 // Loading skeleton component
-const LoadingSkeleton = () => (
+const LoadingSkeleton = (): JSX.Element => (
   <Box sx={styles.containers.backgroundContainer}>
     <Container maxWidth="lg" sx={styles.containers.content}>
       <Typography variant="h4" sx={{ mb: 3, fontWeight: 600 }}>

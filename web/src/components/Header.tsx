@@ -13,7 +13,7 @@ import ContentContainer from "./ContentContainer";
 import NavigateButton from "./NavigateButton";
 import thurman from "../assets/images/thurman.png";
 
-export default function Header() {
+export default function Header(): JSX.Element {
   const navigate = useNavigate();
   const { user } = useAccount();
 

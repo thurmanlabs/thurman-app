@@ -1,37 +1,52 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
-  Paper,
+  Box,
+  Button,
+  Card,
+  Container,
+  Typography,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Button,
+  Paper,
   Chip,
-  Box,
-  Typography,
   IconButton,
-  Tooltip,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   TextField,
-  CircularProgress,
   Alert,
-  LinearProgress
+  CircularProgress,
+  Skeleton,
+  Stack,
+  LinearProgress,
+  Tooltip,
+  Menu,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Select,
+  SelectChangeEvent
 } from "@mui/material";
 import {
   CheckCircle as CheckCircleIcon,
-  Cancel as CancelIcon,
-  Visibility as VisibilityIcon,
   Error as ErrorIcon,
-  HourglassEmpty as HourglassIcon
+  Hourglass as HourglassIcon,
+  Visibility as VisibilityIcon,
+  ThumbUp as ThumbUpIcon,
+  ThumbDown as ThumbDownIcon,
+  Refresh as RefreshIcon,
+  MoreVert as MoreVertIcon,
+  PlayArrow as PlayArrowIcon
 } from "@mui/icons-material";
-
+import { useSnackbar } from "notistack";
 import axios from "axios";
 import { styles } from "../../styles/styles";
+import { useForm, Controller, SubmitHandler } from "react-hook-form";
 
 interface PendingPool {
   id: number;
@@ -73,7 +88,11 @@ interface WebhookEvent {
   };
 }
 
-export default function PendingApprovalsTable() {
+interface RejectionFormData {
+  rejectionReason: string;
+}
+
+export default function PendingApprovalsTable(): JSX.Element {
   const [pools, setPools] = useState<PendingPool[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -85,10 +104,22 @@ export default function PendingApprovalsTable() {
   const [approvalDialog, setApprovalDialog] = useState(false);
   const [rejectionDialog, setRejectionDialog] = useState(false);
   const [detailsDialog, setDetailsDialog] = useState(false);
-  const [rejectionReason, setRejectionReason] = useState("");
   
   // SSE connection ref
   const eventSourceRef = useRef<EventSource | null>(null);
+
+  // React Hook Form for rejection reason
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors }
+  } = useForm<RejectionFormData>({
+    defaultValues: {
+      rejectionReason: ""
+    },
+    mode: "onChange"
+  });
 
   useEffect(() => {
     fetchPendingPools();
@@ -99,7 +130,7 @@ export default function PendingApprovalsTable() {
     };
   }, []);
 
-  const fetchPendingPools = async () => {
+  const fetchPendingPools = async (): Promise<void> => {
     try {
       setLoading(true);
       setError(null);
@@ -130,7 +161,7 @@ export default function PendingApprovalsTable() {
     }
   };
 
-  const setupSSEConnection = () => {
+  const setupSSEConnection = (): void => {
     try {
       eventSourceRef.current = new EventSource("/api/webhooks/circle");
       
@@ -158,14 +189,14 @@ export default function PendingApprovalsTable() {
     }
   };
 
-  const cleanupSSEConnection = () => {
+  const cleanupSSEConnection = (): void => {
     if (eventSourceRef.current) {
       eventSourceRef.current.close();
       eventSourceRef.current = null;
     }
   };
 
-  const handleWebhookEvent = (event: WebhookEvent) => {
+  const handleWebhookEvent = (event: WebhookEvent): void => {
     console.log("Received webhook event:", event);
     
     if (event.type === "deployment_update" || event.type === "deployment_complete" || event.type === "deployment_failed" || event.type === "pool_configured") {
@@ -217,7 +248,7 @@ export default function PendingApprovalsTable() {
     }
   };
 
-  const handleApprove = async () => {
+  const handleApprove = async (): Promise<void> => {
     if (!selectedPool) {
       return;
     }
@@ -240,7 +271,7 @@ export default function PendingApprovalsTable() {
     }
   };
 
-  const handleRetryStep = async (poolId: number, step: string) => {
+  const handleRetryStep = async (poolId: number, step: string): Promise<void> => {
     try {
       const response = await axios.post(
         `/api/loan-pools/${poolId}/retry-step`,
@@ -258,21 +289,21 @@ export default function PendingApprovalsTable() {
     }
   };
 
-  const handleReject = async () => {
-    if (!selectedPool || !rejectionReason.trim()) {
+  const handleReject = async (): Promise<void> => {
+    if (!selectedPool) {
       return;
     }
 
     try {
       const response = await axios.patch(
         `/api/loan-pools/${selectedPool.id}/reject`,
-        { reason: rejectionReason },
+        { reason: "" }, // Will be updated with form data
         { withCredentials: true }
       );
 
       if (response.data.success) {
         setRejectionDialog(false);
-        setRejectionReason("");
+        reset(); // Reset form
         setSelectedPool(null);
         fetchPendingPools(); // Refresh the list
       }
@@ -282,12 +313,36 @@ export default function PendingApprovalsTable() {
     }
   };
 
-  const handleViewDetails = (pool: PendingPool) => {
+  const onSubmitRejection: SubmitHandler<RejectionFormData> = async (data): Promise<void> => {
+    if (!selectedPool) {
+      return;
+    }
+
+    try {
+      const response = await axios.patch(
+        `/api/loan-pools/${selectedPool.id}/reject`,
+        { reason: data.rejectionReason },
+        { withCredentials: true }
+      );
+
+      if (response.data.success) {
+        setRejectionDialog(false);
+        reset(); // Reset form
+        setSelectedPool(null);
+        fetchPendingPools(); // Refresh the list
+      }
+    } catch (err: any) {
+      console.error("Error rejecting pool:", err);
+      setError(err.response?.data?.message || "Failed to reject pool");
+    }
+  };
+
+  const handleViewDetails = (pool: PendingPool): void => {
     setSelectedPool(pool);
     setDetailsDialog(true);
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: string): "warning" | "success" | "error" | "info" | "default" => {
     switch (status) {
       case "PENDING":
         return "warning";
@@ -310,7 +365,7 @@ export default function PendingApprovalsTable() {
     }
   };
 
-  const getStatusCategory = (status: string) => {
+  const getStatusCategory = (status: string): "pending" | "deploying" | "completed" | "failed" | "rejected" | "other" => {
     switch (status) {
       case "PENDING":
         return "pending";
@@ -331,7 +386,7 @@ export default function PendingApprovalsTable() {
     }
   };
 
-  const getStatusIcon = (status: string) => {
+  const getStatusIcon = (status: string): JSX.Element | undefined => {
     switch (status) {
       case "DEPLOYING_POOL":
       case "POOL_CREATED":
@@ -348,19 +403,19 @@ export default function PendingApprovalsTable() {
     }
   };
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (amount: number): string => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: "USD"
     }).format(amount);
   };
 
-  const formatPercentage = (rate: number) => {
+  const formatPercentage = (rate: number): string => {
     return `${(rate * 100).toFixed(2)}%`;
   };
 
   // Enhanced Deployment Progress Indicator Component
-  const DeploymentProgressIndicator = ({ pool }: { pool: PendingPool }) => {
+  const DeploymentProgressIndicator = ({ pool }: { pool: PendingPool }): JSX.Element => {
     const currentStatus = deploymentStatus[pool.id] || pool.status;
     const { progress, message, color } = getDeploymentProgress(currentStatus);
     
@@ -811,7 +866,7 @@ export default function PendingApprovalsTable() {
                                     setRejectionDialog(true);
                                   }}
                                 >
-                                  <CancelIcon />
+                                  <ThumbDownIcon />
                                 </IconButton>
                               </Tooltip>
                             </>
@@ -975,20 +1030,30 @@ export default function PendingApprovalsTable() {
           <Typography sx={{ mb: 2, color: "#29262a" }}>
             Are you sure you want to reject "{selectedPool?.name}"?
           </Typography>
-          <TextField
-            fullWidth
-            label="Rejection Reason"
-            value={rejectionReason}
-            onChange={(e) => setRejectionReason(e.target.value)}
-            placeholder="Enter reason for rejection"
-            multiline
-            rows={3}
-            sx={{ 
-              mt: 2,
-              "& .MuiOutlinedInput-root": {
-                borderRadius: "1.25em"
-              }
-            }}
+          <Controller
+            name="rejectionReason"
+            control={control}
+            rules={{ required: "Rejection reason is required" }}
+            render={({ field }) => (
+              <TextField
+                fullWidth
+                label="Rejection Reason"
+                value={field.value}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+                error={!!errors.rejectionReason}
+                helperText={errors.rejectionReason?.message}
+                placeholder="Enter reason for rejection"
+                multiline
+                rows={3}
+                sx={{ 
+                  mt: 2,
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "1.25em"
+                  }
+                }}
+              />
+            )}
           />
         </DialogContent>
         <DialogActions>
@@ -999,12 +1064,12 @@ export default function PendingApprovalsTable() {
             Cancel
           </Button>
           <Button 
-            onClick={handleReject} 
+            onClick={handleSubmit(onSubmitRejection)} 
             sx={{
               ...styles.button.primary,
               background: "linear-gradient(90deg, #d32f2f 0%, #b71c1c 100%)"
             }}
-            disabled={!rejectionReason.trim()}
+            disabled={!control.formState.isValid}
           >
             Reject
           </Button>

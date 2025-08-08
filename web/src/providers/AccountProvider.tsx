@@ -8,14 +8,14 @@ import axios from "axios";
 axios.defaults.baseURL = "http://localhost:8080";
 axios.defaults.withCredentials = true;
 
-export default function AccountProvider({ children }: { children: React.ReactNode }) {
+export default function AccountProvider({ children }: { children: React.ReactNode }): JSX.Element {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     // Fetch current user on mount
     useEffect(() => {
-        const fetchCurrentUser = async () => {
+        const fetchCurrentUser = async (): Promise<void> => {
             try {
                 setLoading(true);
                 const response = await axios.get("/api/user/me");
@@ -33,7 +33,7 @@ export default function AccountProvider({ children }: { children: React.ReactNod
         fetchCurrentUser();
     }, []);
 
-    const signup = async (data: IEmailAuthFormInput) => {
+    const signup = async (data: IEmailAuthFormInput): Promise<void> => {
         try {
             setLoading(true);
             console.log("Attempting signup request to:", "/api/auth/signup");
@@ -66,7 +66,7 @@ export default function AccountProvider({ children }: { children: React.ReactNod
         }
     };
 
-    const login = async (data: IEmailAuthFormInput) => {
+    const login = async (data: IEmailAuthFormInput): Promise<void> => {
         try {
             setLoading(true);
             const response = await axios.post("/api/auth/login", {
@@ -86,7 +86,7 @@ export default function AccountProvider({ children }: { children: React.ReactNod
         }
     };
 
-    const logout = async () => {
+    const logout = async (): Promise<void> => {
         try {
             setLoading(true);
             await axios.post("/api/auth/logout");

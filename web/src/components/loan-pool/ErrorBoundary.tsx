@@ -15,17 +15,17 @@ export default class ErrorBoundary extends React.Component<{
     this.state = { hasError: false, error: null, errorInfo: null };
   }
 
-  static getDerivedStateFromError(error: Error) {
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     return { hasError: true, error, errorInfo: null };
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
     // Log error to console or external service
     console.error("ErrorBoundary caught an error:", error, errorInfo);
     this.setState({ error, errorInfo });
   }
 
-  handleReload = () => {
+  handleReload = (): void => {
     this.setState({ hasError: false, error: null, errorInfo: null });
     window.location.reload();
   };

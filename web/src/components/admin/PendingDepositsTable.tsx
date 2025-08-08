@@ -65,21 +65,21 @@ interface PendingDepositsTableProps {
 }
 
 // Utility functions
-const formatAddress = (address: string) => {
-      if (!address) return "Unknown";
+const formatAddress = (address: string): string => {
+  if (!address) return "Unknown";
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
 };
 
-const formatCurrency = (amount: number) => {
-      return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
+const formatCurrency = (amount: number): string => {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(amount);
 };
 
-const formatRelativeTime = (timestamp: string) => {
+const formatRelativeTime = (timestamp: string): string => {
   const now = new Date();
   const time = new Date(timestamp);
   const diffInMinutes = Math.floor((now.getTime() - time.getTime()) / (1000 * 60));
@@ -94,7 +94,7 @@ const formatRelativeTime = (timestamp: string) => {
   return `${diffInDays} day${diffInDays > 1 ? "s" : ""} ago`;
 };
 
-const copyToClipboard = async (text: string) => {
+const copyToClipboard = async (text: string): Promise<boolean> => {
   try {
     await navigator.clipboard.writeText(text);
     return true;
@@ -105,7 +105,7 @@ const copyToClipboard = async (text: string) => {
 };
 
 // Loading skeleton component
-const TableSkeleton = () => (
+const TableSkeleton = (): JSX.Element => (
   <TableContainer component={Paper} sx={{ borderRadius: "1.25em", overflow: "hidden" }}>
     <Table>
       <TableHead>
@@ -234,7 +234,7 @@ const PendingDepositsTable: React.FC<PendingDepositsTableProps> = ({ onDataChang
   const lastNotificationTimeRef = useRef<number>(0);
 
   // Manual polling function
-  const fetchPendingDeposits = useCallback(async () => {
+  const fetchPendingDeposits = useCallback(async (): Promise<void> => {
     if (isPolling) return;
     
     try {
@@ -297,7 +297,7 @@ const PendingDepositsTable: React.FC<PendingDepositsTableProps> = ({ onDataChang
   }, [onDataChange, enqueueSnackbar, isPolling]);
 
   // Manual refetch function
-  const refetch = useCallback(() => {
+  const refetch = useCallback((): void => {
     fetchPendingDeposits();
   }, [fetchPendingDeposits]);
 
@@ -329,7 +329,7 @@ const PendingDepositsTable: React.FC<PendingDepositsTableProps> = ({ onDataChang
   }, [deposits]);
 
   // Handle fulfill deposit
-  const handleFulfill = useCallback(async (deposit: PendingDeposit) => {
+  const handleFulfill = useCallback(async (deposit: PendingDeposit): Promise<void> => {
     if (fulfillingDeposits.has(deposit.id)) return;
 
     try {
@@ -391,7 +391,7 @@ const PendingDepositsTable: React.FC<PendingDepositsTableProps> = ({ onDataChang
   }, [fulfillingDeposits, enqueueSnackbar, refetch]);
 
   // Handle copy address
-  const handleCopyAddress = useCallback(async (address: string) => {
+  const handleCopyAddress = useCallback(async (address: string): Promise<void> => {
     const success = await copyToClipboard(address);
     if (success) {
       enqueueSnackbar("Address copied to clipboard", { 
@@ -409,7 +409,7 @@ const PendingDepositsTable: React.FC<PendingDepositsTableProps> = ({ onDataChang
   }, [enqueueSnackbar]);
 
   // Handle confirm dialog
-  const handleConfirmFulfill = useCallback(() => {
+  const handleConfirmFulfill = useCallback((): void => {
     if (confirmDialog.deposit) {
       handleFulfill(confirmDialog.deposit);
     }

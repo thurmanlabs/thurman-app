@@ -99,11 +99,11 @@ export default function DepositInterface({
   } = usePolling<DepositStatus>(depositStatusEndpoint, pollingOptions);
 
   // Handle deposit success
-  const handleDepositSuccess = (transactionId: string) => {
-            setNotification({
-          type: "success",
-          message: `Deposit request submitted successfully! Transaction ID: ${transactionId}`
-        });
+  const handleDepositSuccess = (transactionId: string): void => {
+    setNotification({
+      type: "success",
+      message: `Deposit request submitted successfully! Transaction ID: ${transactionId}`
+    });
     
     // Refetch deposit status after a short delay
     setTimeout(() => {
@@ -112,7 +112,7 @@ export default function DepositInterface({
   };
 
   // Handle deposit error
-  const handleDepositError = (error: string) => {
+  const handleDepositError = (error: string): void => {
     setNotification({
       type: "error",
       message: `Deposit failed: ${error}`
@@ -120,7 +120,7 @@ export default function DepositInterface({
   };
 
   // Handle claim success
-  const handleClaimSuccess = (transactionId: string) => {
+  const handleClaimSuccess = (transactionId: string): void => {
     setNotification({
       type: "success",
       message: `Shares claimed successfully! Transaction ID: ${transactionId}`
@@ -133,7 +133,7 @@ export default function DepositInterface({
   };
 
   // Handle claim error
-  const handleClaimError = (error: string) => {
+  const handleClaimError = (error: string): void => {
     setNotification({
       type: "error",
       message: `Claim failed: ${error}`
@@ -141,12 +141,12 @@ export default function DepositInterface({
   };
 
   // Handle balance update
-  const handleBalanceUpdate = (balance: number) => {
+  const handleBalanceUpdate = (balance: number): void => {
     setUserBalance(balance);
   };
 
   // Clear notification
-  const clearNotification = () => {
+  const clearNotification = (): void => {
     setNotification(null);
   };
 

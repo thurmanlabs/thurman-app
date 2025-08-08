@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   Box,
   Button,
@@ -13,6 +13,7 @@ import {
   Divider
 } from "@mui/material";
 import { AccountBalance as AccountBalanceIcon } from "@mui/icons-material";
+import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import axios from "axios";
 import { styles } from "../styles/styles";
 
@@ -24,6 +25,10 @@ interface DepositSectionProps {
   userBalance?: number;
   onDepositSuccess?: (transactionId: string) => void;
   onDepositError?: (error: string) => void;
+}
+
+interface DepositFormData {
+  amount: string;
 }
 
 interface ValidationState {
@@ -40,23 +45,37 @@ export default function DepositSection({
   userBalance = 0,
   onDepositSuccess,
   onDepositError
-}: DepositSectionProps) {
-  const [amount, setAmount] = useState("");
-  const [validation, setValidation] = useState<ValidationState>({ isValid: false });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [notification, setNotification] = useState<{
+}: DepositSectionProps): JSX.Element {
+  const [validation, setValidation] = React.useState<ValidationState>({ isValid: false });
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [notification, setNotification] = React.useState<{
     type: "success" | "error" | "info";
     message: string;
   } | null>(null);
 
+  const {
+    control,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors }
+  } = useForm<DepositFormData>({
+    defaultValues: {
+      amount: ""
+    },
+    mode: "onChange"
+  });
+
+  const watchedAmount = watch("amount");
+
   // Real-time validation
-  useEffect(() => {
-    if (!amount) {
+  React.useEffect(() => {
+    if (!watchedAmount) {
       setValidation({ isValid: false });
       return;
     }
 
-    const numAmount = parseFloat(amount);
+    const numAmount = parseFloat(watchedAmount);
     
     // Check if it's a valid number
     if (isNaN(numAmount) || numAmount <= 0) {
@@ -103,20 +122,10 @@ export default function DepositSection({
     } else {
       setValidation({ isValid: true });
     }
-  }, [amount, minDeposit, maxDeposit, userBalance]);
-
-  // Format amount input
-  const handleAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    
-    // Only allow numbers and decimal points
-    if (/^\d*\.?\d{0,2}$/.test(value) || value === "") {
-      setAmount(value);
-    }
-  };
+  }, [watchedAmount, minDeposit, maxDeposit, userBalance]);
 
   // Handle deposit request
-  const handleDepositRequest = async () => {
+  const onSubmit: SubmitHandler<DepositFormData> = async (data): Promise<void> => {
     if (!validation.isValid || isSubmitting) return;
 
     setIsSubmitting(true);
@@ -125,7 +134,7 @@ export default function DepositSection({
     try {
       const response = await axios.post("/api/deposits/request", {
         poolId,
-        amount: parseFloat(amount).toString()
+        amount: parseFloat(data.amount).toString()
       });
 
       if (response.data.success) {
@@ -137,7 +146,7 @@ export default function DepositSection({
         });
 
         // Clear form
-        setAmount("");
+        setValue("amount", "");
         
         // Call success callback
         if (onDepositSuccess) {
@@ -147,7 +156,7 @@ export default function DepositSection({
         throw new Error(response.data.error || "Deposit request failed");
       }
     } catch (error: any) {
-              const errorMessage = error.response?.data?.error || error.message || "Failed to submit deposit request";
+      const errorMessage = error.response?.data?.error || error.message || "Failed to submit deposit request";
       
       setNotification({
         type: "error",
@@ -163,7 +172,7 @@ export default function DepositSection({
   };
 
   // Clear notification
-  const clearNotification = () => {
+  const clearNotification = (): void => {
     setNotification(null);
   };
 
@@ -195,38 +204,66 @@ export default function DepositSection({
 
         {/* Amount Input */}
         <Box sx={{ mb: 3 }}>
-          <TextField
-            fullWidth
-            label="Deposit Amount (USDC)"
-            value={amount}
-            onChange={handleAmountChange}
-            placeholder="0.00"
-            variant="outlined"
-            size="small"
-            error={!!validation.error}
-            disabled={isSubmitting}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <AccountBalanceIcon sx={{ color: "#725aa2" }} />
-                </InputAdornment>
-              ),
-              sx: {
-                borderRadius: "1.25em",
-                "& .MuiOutlinedInput-notchedOutline": {
-                  borderColor: validation.error ? "#d32f2f" : "#D3D3D3"
+          <Controller
+            name="amount"
+            control={control}
+            rules={{
+              required: "Amount is required",
+              pattern: {
+                value: /^\d*\.?\d{0,2}$/,
+                message: "Please enter a valid amount (up to 2 decimal places)"
+              },
+              validate: (value) => {
+                const numValue = parseFloat(value);
+                if (isNaN(numValue) || numValue <= 0) {
+                  return "Please enter a valid amount greater than 0";
                 }
+                if (numValue < minDeposit) {
+                  return `Minimum deposit amount is $${minDeposit.toLocaleString()}`;
+                }
+                if (numValue > maxDeposit) {
+                  return `Maximum deposit amount is $${maxDeposit.toLocaleString()}`;
+                }
+                if (numValue > userBalance) {
+                  return `Insufficient balance. You have $${userBalance.toLocaleString()} USDC available`;
+                }
+                return true;
               }
             }}
-            InputLabelProps={{
-              sx: { color: "#666" }
-            }}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                fullWidth
+                label="Deposit Amount (USDC)"
+                placeholder="0.00"
+                variant="outlined"
+                size="small"
+                error={!!validation.error || !!errors.amount}
+                disabled={isSubmitting}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <AccountBalanceIcon sx={{ color: "#725aa2" }} />
+                    </InputAdornment>
+                  ),
+                  sx: {
+                    borderRadius: "1.25em",
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      borderColor: (validation.error || errors.amount) ? "#d32f2f" : "#D3D3D3"
+                    }
+                  }
+                }}
+                InputLabelProps={{
+                  sx: { color: "#666" }
+                }}
+              />
+            )}
           />
           
           {/* Validation Messages */}
-          {validation.error && (
+          {(validation.error || errors.amount) && (
             <FormHelperText error sx={{ mt: 1, ml: 1 }}>
-              {validation.error}
+              {validation.error || errors.amount?.message}
             </FormHelperText>
           )}
           
@@ -261,7 +298,7 @@ export default function DepositSection({
         <Button
           fullWidth
           variant="contained"
-          onClick={handleDepositRequest}
+          onClick={handleSubmit(onSubmit)}
           disabled={!validation.isValid || isSubmitting}
           sx={{
             ...styles.button.primary,
