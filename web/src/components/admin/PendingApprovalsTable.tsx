@@ -35,7 +35,7 @@ import {
 import {
   CheckCircle as CheckCircleIcon,
   Error as ErrorIcon,
-  Hourglass as HourglassIcon,
+  HourglassTop as HourglassIcon,
   Visibility as VisibilityIcon,
   ThumbUp as ThumbUpIcon,
   ThumbDown as ThumbDownIcon,
@@ -618,8 +618,8 @@ export default function PendingApprovalsTable(): JSX.Element {
         backgroundColor: "#FFFFFE",
         boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)",
       }}>
-        <Box sx={{ textAlign: "center", py: 4 }}>
-          <CircularProgress sx={{ color: "#725aa2", mb: 2 }} />
+        <Box sx={styles.containers.loadingState}>
+          <CircularProgress sx={styles.containers.circularProgressLarge} />
           <Typography variant="body2" color="#29262a">
             Loading pending approvals...
           </Typography>
@@ -635,8 +635,8 @@ export default function PendingApprovalsTable(): JSX.Element {
         backgroundColor: "#FFFFFE",
         boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)",
       }}>
-        <Box sx={{ textAlign: "center", py: 4 }}>
-          <Alert severity="error" sx={{ mb: 2, borderRadius: "1.25em" }}>
+        <Box sx={styles.containers.errorState}>
+          <Alert severity="error" sx={styles.containers.alertRounded}>
             {error}
           </Alert>
           <Button 
@@ -677,11 +677,11 @@ export default function PendingApprovalsTable(): JSX.Element {
         boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)",
       }}>
         {/* Status Filter */}
-        <Box sx={{ p: 2, borderBottom: "1px solid #e0e0e0" }}>
-          <Typography variant="h6" sx={{ mb: 2, color: "#29262a" }}>
+        <Box sx={styles.containers.filterContainer}>
+          <Typography variant="h6" sx={styles.header.sectionTitle}>
             Pool Approvals & Deployments
           </Typography>
-          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+          <Box sx={styles.containers.filterChips}>
             <Chip
               label={`All (${pools.length})`}
               color={statusFilter === "all" ? "primary" : "default"}
@@ -719,25 +719,25 @@ export default function PendingApprovalsTable(): JSX.Element {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ fontWeight: 600, color: "#29262a" }}>
+                <TableCell sx={styles.header.tableHeader}>
                   Pool Name
                 </TableCell>
-                <TableCell sx={{ fontWeight: 600, color: "#29262a" }}>
+                <TableCell sx={styles.header.tableHeader}>
                   Creator
                 </TableCell>
-                <TableCell sx={{ fontWeight: 600, color: "#29262a" }}>
+                <TableCell sx={styles.header.tableHeader}>
                   Total Loans
                 </TableCell>
-                <TableCell sx={{ fontWeight: 600, color: "#29262a" }}>
+                <TableCell sx={styles.header.tableHeader}>
                   Total Amount
                 </TableCell>
-                <TableCell sx={{ fontWeight: 600, color: "#29262a" }}>
+                <TableCell sx={styles.header.tableHeader}>
                   Created
                 </TableCell>
-                <TableCell sx={{ fontWeight: 600, color: "#29262a" }}>
+                <TableCell sx={styles.header.tableHeader}>
                   Status
                 </TableCell>
-                <TableCell sx={{ fontWeight: 600, color: "#29262a" }}>
+                <TableCell sx={styles.header.tableHeader}>
                   Actions
                 </TableCell>
               </TableRow>
@@ -745,7 +745,7 @@ export default function PendingApprovalsTable(): JSX.Element {
             <TableBody>
               {filteredPools.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} sx={{ textAlign: "center" }}>
+                  <TableCell colSpan={7} sx={styles.containers.textCenter}>
                     <Typography variant="body2" color="#29262a">
                       {statusFilter === "all" ? "No pools found" : 
                        `No ${statusFilter} pools found`}
@@ -764,16 +764,16 @@ export default function PendingApprovalsTable(): JSX.Element {
                           {pool.description.substring(0, 50)}...
                         </Typography>
                       </TableCell>
-                      <TableCell sx={{ color: "#29262a" }}>
+                      <TableCell sx={styles.header.tableCell}>
                         {pool.creator?.email}
                       </TableCell>
-                      <TableCell sx={{ color: "#29262a" }}>
+                      <TableCell sx={styles.header.tableCell}>
                         {pool.total_loans}
                       </TableCell>
-                      <TableCell sx={{ color: "#29262a" }}>
+                      <TableCell sx={styles.header.tableCell}>
                         {formatCurrency(pool.total_principal)}
                       </TableCell>
-                      <TableCell sx={{ color: "#29262a" }}>
+                      <TableCell sx={styles.header.tableCell}>
                         {new Date(pool.created_at).toLocaleDateString()}
                       </TableCell>
                       <TableCell>
@@ -781,18 +781,18 @@ export default function PendingApprovalsTable(): JSX.Element {
                         
                         {/* Smart retry buttons for failed deployments */}
                         {pool.status === "FAILED" && (
-                          <Box sx={{ mt: 1 }}>
-                            <Typography variant="caption" color="error" sx={{ display: "block", mb: 1 }}>
+                          <Box sx={styles.containers.retryContainer}>
+                            <Typography variant="caption" color="error" sx={styles.typography.captionTextError}>
                               Failed steps (click to retry):
                             </Typography>
-                            <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+                            <Box sx={styles.containers.retryButtons}>
                               {!pool.pool_creation_tx_id && (
                                 <Button
                                   size="small"
                                   variant="outlined"
                                   color="error"
                                   onClick={() => handleRetryStep(pool.id, "pool_creation")}
-                                  sx={{ fontSize: "0.75rem" }}
+                                  sx={styles.button.retryButton}
                                 >
                                   Retry Pool Creation
                                 </Button>
@@ -803,7 +803,7 @@ export default function PendingApprovalsTable(): JSX.Element {
                                   variant="outlined"
                                   color="error"
                                   onClick={() => handleRetryStep(pool.id, "pool_config")}
-                                  sx={{ fontSize: "0.75rem" }}
+                                  sx={styles.button.retryButton}
                                 >
                                   Retry Pool Config
                                 </Button>
@@ -814,7 +814,7 @@ export default function PendingApprovalsTable(): JSX.Element {
                                   variant="outlined"
                                   color="error"
                                   onClick={() => handleRetryStep(pool.id, "loan_deployment")}
-                                  sx={{ fontSize: "0.75rem" }}
+                                  sx={styles.button.retryButton}
                                 >
                                   Retry Loan Deployment
                                 </Button>
@@ -833,11 +833,11 @@ export default function PendingApprovalsTable(): JSX.Element {
                         )}
                       </TableCell>
                       <TableCell>
-                        <Box sx={{ display: "flex", gap: 1 }}>
+                        <Box sx={styles.containers.actionButtons}>
                           <Tooltip title="View Details">
                             <IconButton 
                               size="small"
-                              sx={{ color: "#725aa2" }}
+                              sx={styles.button.iconButton}
                               onClick={() => handleViewDetails(pool)}
                             >
                               <VisibilityIcon />
@@ -895,21 +895,21 @@ export default function PendingApprovalsTable(): JSX.Element {
           }
         }}
       >
-        <DialogTitle sx={{ color: "#29262a" }}>
+        <DialogTitle sx={styles.header.dialogTitle}>
           Pool Details: {selectedPool?.name}
         </DialogTitle>
         <DialogContent>
           {selectedPool && (
-            <Box sx={{ mt: 2 }}>
-              <Typography variant="h6" sx={{ mb: 2, color: "#29262a" }}>
+            <Box sx={styles.containers.dialogContent}>
+              <Typography variant="h6" sx={styles.header.sectionTitle}>
                 Pool Information
               </Typography>
-              <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2, mb: 3 }}>
+              <Box sx={styles.containers.dialogGrid}>
                 <Box>
-                  <Typography variant="body2" color="#29262a" fontWeight={600}>
+                  <Typography variant="body2" sx={styles.header.cardTitle}>
                     Creator
                   </Typography>
-                  <Typography variant="body1" color="#29262a">
+                  <Typography variant="body1" sx={styles.header.tableCell}>
                     {selectedPool.creator?.email}
                   </Typography>
                 </Box>
@@ -1069,7 +1069,7 @@ export default function PendingApprovalsTable(): JSX.Element {
               ...styles.button.primary,
               background: "linear-gradient(90deg, #d32f2f 0%, #b71c1c 100%)"
             }}
-            disabled={!control.formState.isValid}
+            disabled={!control._formState.isValid}
           >
             Reject
           </Button>

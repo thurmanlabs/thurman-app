@@ -74,13 +74,13 @@ export default function AdminDashboard() {
   return (
     <Box sx={styles.containers.backgroundContainer}>
       <Box sx={styles.containers.content}>
-        <Typography variant="h4" sx={{ mb: 4, color: "#29262a" }}>
+        <Typography variant="h4" sx={styles.header.pageTitle}>
           Admin Dashboard
         </Typography>
 
         {/* User Management Section */}
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="h5" sx={{ mb: 2, color: "#29262a" }}>
+        <Box sx={styles.containers.sectionHeader}>
+          <Typography variant="h5" sx={styles.header.sectionTitle}>
             User Management
           </Typography>
           <Paper sx={{
@@ -92,19 +92,19 @@ export default function AdminDashboard() {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 600, color: "#29262a" }}>
+                    <TableCell sx={styles.header.tableHeader}>
                       User
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 600, color: "#29262a" }}>
+                    <TableCell sx={styles.header.tableHeader}>
                       Role
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 600, color: "#29262a" }}>
+                    <TableCell sx={styles.header.tableHeader}>
                       Status
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 600, color: "#29262a" }}>
+                    <TableCell sx={styles.header.tableHeader}>
                       Created
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 600, color: "#29262a" }}>
+                    <TableCell sx={styles.header.tableHeader}>
                       Actions
                     </TableCell>
                   </TableRow>
@@ -113,11 +113,11 @@ export default function AdminDashboard() {
                   {users.map((user) => (
                     <TableRow key={user.id}>
                       <TableCell>
-                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                        <Box sx={styles.containers.flexCenter}>
                           <Avatar sx={styles.avatar.small}>
                             {user.email.charAt(0).toUpperCase()}
                           </Avatar>
-                          <Typography sx={{ ml: 2, color: "#29262a" }}>
+                          <Typography sx={{ ml: 2, ...styles.header.tableCell }}>
                             {user.email}
                           </Typography>
                         </Box>
@@ -138,15 +138,15 @@ export default function AdminDashboard() {
                           sx={{ borderRadius: "0.25em" }}
                         />
                       </TableCell>
-                      <TableCell sx={{ color: "#29262a" }}>
+                      <TableCell sx={styles.header.tableCell}>
                         {user.createdAt}
                       </TableCell>
                       <TableCell>
-                        <Box sx={{ display: "flex", gap: 1 }}>
+                        <Box sx={styles.containers.actionButtons}>
                           <Tooltip title="View Details">
                             <IconButton 
                               size="small"
-                              sx={{ color: "#725aa2" }}
+                              sx={styles.button.iconButton}
                             >
                               <VisibilityIcon />
                             </IconButton>
@@ -178,16 +178,16 @@ export default function AdminDashboard() {
         </Box>
 
         {/* Loan Pool Approvals Section */}
-        <Box sx={{ mt: 4 }}>
-          <Typography variant="h5" sx={{ mb: 2, color: "#29262a" }}>
+        <Box sx={styles.containers.sectionHeader}>
+          <Typography variant="h5" sx={styles.header.sectionTitle}>
             Loan Pool Approvals
           </Typography>
           <PendingApprovalsTable />
         </Box>
 
         {/* Deposit Management Section */}
-        <Box sx={{ mt: 4 }}>
-          <Typography variant="h5" sx={{ mb: 2, color: "#29262a" }}>
+        <Box sx={styles.containers.sectionHeader}>
+          <Typography variant="h5" sx={styles.header.sectionTitle}>
             Deposit Management
           </Typography>
           <PendingDepositsTable />

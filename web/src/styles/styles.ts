@@ -39,6 +39,238 @@ const containers: StyleSet = {
         padding: "2em 2em 3em 2em",     // top right bottom left
         margin: "2em 0 2em 0",          // top right bottom left
         borderRadius: "1.25em",
+    },
+    formContainer: {
+        padding: "2em 2em 3em 2em",
+        margin: "2em 0 2em 0",
+        borderRadius: "1.25em",
+    },
+    pageContainer: {
+        py: 4
+    },
+    sectionHeader: {
+        mb: 4
+    },
+    flexCenter: {
+        display: "flex",
+        alignItems: "center"
+    },
+    flexBetween: {
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center"
+    },
+    flexColumn: {
+        display: "flex",
+        flexDirection: "column"
+    },
+    textCenter: {
+        textAlign: "center"
+    },
+    cardContainer: {
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "stretch"
+    },
+    cardContent: {
+        flexGrow: 1,
+        display: "flex",
+        flexDirection: "column"
+    },
+    gridContainer: {
+        flexGrow: 1
+    },
+    iconContainer: {
+        display: "flex",
+        alignItems: "center",
+        gap: 1,
+        mb: 1
+    },
+    iconSmall: {
+        fontSize: 16,
+        color: "text.secondary"
+    },
+    iconMedium: {
+        fontSize: 20,
+        color: "primary.main"
+    },
+    iconLarge: {
+        fontSize: 48,
+        color: "text.secondary",
+        mb: 2
+    },
+    iconExtraLarge: {
+        fontSize: 64,
+        color: "primary.main",
+        mb: 3
+    },
+    skeletonContainer: {
+        mb: 2
+    },
+    skeletonText: {
+        mb: 1
+    },
+    skeletonLarge: {
+        mb: 2
+    },
+    divider: {
+        my: 2
+    },
+    alert: {
+        mb: 4
+    },
+    alertRounded: {
+        mb: 2,
+        borderRadius: "1.25em"
+    },
+    tableContainer: {
+        borderRadius: "1.25em",
+        overflow: "hidden"
+    },
+    tableHeader: {
+        backgroundColor: "#f8f9fa"
+    },
+    emptyState: {
+        textAlign: "center",
+        py: 8
+    },
+    loadingState: {
+        textAlign: "center",
+        py: 4
+    },
+    errorState: {
+        textAlign: "center",
+        py: 4
+    },
+    infoBox: {
+        mb: 3,
+        p: 2,
+        backgroundColor: "#f8f9fa",
+        borderRadius: "0.75em"
+    },
+    successBox: {
+        mt: 1,
+        p: 1,
+        backgroundColor: "#e8f5e8",
+        borderRadius: 1
+    },
+    filterContainer: {
+        p: 2,
+        borderBottom: "1px solid #e0e0e0"
+    },
+    filterChips: {
+        display: "flex",
+        gap: 1,
+        flexWrap: "wrap"
+    },
+    progressContainer: {
+        width: "100%"
+    },
+    progressBar: {
+        height: 8,
+        borderRadius: 4,
+        backgroundColor: "#f0f0f0",
+        mb: 1
+    },
+    progressMessage: {
+        display: "block",
+        mb: 1
+    },
+    stepContainer: {
+        mt: 1
+    },
+    stepItem: {
+        display: "flex",
+        alignItems: "center",
+        mb: 0.5
+    },
+    stepDot: {
+        width: 8,
+        height: 8,
+        borderRadius: "50%",
+        mr: 1
+    },
+    stepText: {
+        fontSize: "0.7rem",
+        fontWeight: 400
+    },
+    stepTextSuccess: {
+        fontSize: "0.7rem",
+        fontWeight: 600
+    },
+    stepTxId: {
+        ml: 1,
+        fontSize: "0.65rem",
+        color: "#666",
+        fontFamily: "monospace"
+    },
+    retryContainer: {
+        mt: 1
+    },
+    retryButtons: {
+        display: "flex",
+        gap: 1,
+        flexWrap: "wrap"
+    },
+    retryButton: {
+        fontSize: "0.75rem"
+    },
+    actionButtons: {
+        display: "flex",
+        gap: 1
+    },
+    dialogTitle: {
+        color: "#29262a"
+    },
+    dialogContent: {
+        mt: 2
+    },
+    dialogGrid: {
+        display: "grid",
+        gridTemplateColumns: "1fr 1fr",
+        gap: 2,
+        mb: 3
+    },
+    dialogField: {
+        mt: 2,
+        "& .MuiOutlinedInput-root": {
+            borderRadius: "1.25em"
+        }
+    },
+    formHelperText: {
+        mt: 1,
+        ml: 1
+    },
+    formHelperTextWarning: {
+        mt: 1,
+        ml: 1,
+        color: "#ed6c02"
+    },
+    circularProgress: {
+        mr: 1,
+        color: "#FFFFFE"
+    },
+    circularProgressLarge: {
+        color: "#725aa2",
+        mb: 2
+    },
+    backButton: {
+        mr: 2
+    },
+    chipContainer: {
+        mt: 2,
+        display: "flex",
+        gap: 2,
+        flexWrap: "wrap"
+    },
+    refreshIcon: {
+        transform: "none",
+        transition: "transform 0.5s"
+    },
+    refreshIconSpinning: {
+        transform: "rotate(360deg)",
+        transition: "transform 0.5s"
     }
 }
 
@@ -74,6 +306,39 @@ const header: StyleSet = {
         "&:hover": {
             color: "#29262a"
         }
+    },
+    pageTitle: {
+        mb: 4,
+        color: "#29262a"
+    },
+    sectionTitle: {
+        mb: 2,
+        color: "#29262a"
+    },
+    cardTitle: {
+        fontWeight: 600,
+        color: "#29262a"
+    },
+    tableHeader: {
+        fontWeight: 600,
+        color: "#29262a"
+    },
+    tableCell: {
+        color: "#29262a"
+    },
+    emptyTitle: {
+        fontWeight: 600,
+        color: "#29262a",
+        mb: 2
+    },
+    emptySubtitle: {
+        mb: 3,
+        color: "text.secondary"
+    },
+    emptyDescription: {
+        mb: 4,
+        maxWidth: 600,
+        mx: "auto"
     }
 }
 
@@ -143,6 +408,62 @@ const button: StyleSet = {
             borderColor: "#D3D3D3",
             backgroundColor: "#F2F1F0"
         }
+    },
+    iconButton: {
+        color: "#725aa2"
+    },
+    iconButtonSuccess: {
+        color: "success.main"
+    },
+    iconButtonError: {
+        color: "error.main"
+    },
+    retryButton: {
+        fontSize: "0.75rem"
+    },
+    rejectButton: {
+        background: "linear-gradient(90deg, #d32f2f 0%, #b71c1c 100%)"
+    },
+    large: {
+        background: "linear-gradient(90deg, #725aa2 0%, #29262a 100%)",
+        color: "#FFFFFE",
+        borderRadius: "1.25em",
+        textTransform: "none",
+        fontWeight: 700,
+        padding: "0.75em 3em",
+        "&:hover": {
+            background: "linear-gradient(90deg, #725aa2 20%, #29262a 100%)",
+            transform: "translateY(-1px)",
+            boxShadow: "0 4px 12px rgba(114, 90, 162, 0.3)",
+        },
+        "&:disabled": {
+            background: "#E0E0E0",
+            color: "#A0A0A0",
+            transform: "none",
+            boxShadow: "none"
+        },
+        transition: "all 0.2s ease-in-out"
+    },
+    outlined: {
+        background: "transparent",
+        color: "#725aa2",
+        borderRadius: "1.25em",
+        textTransform: "none",
+        fontWeight: 700,
+        padding: "0.325em 2.5em",
+        border: "2px solid #725aa2",
+        "&:hover": {
+            background: "rgba(114, 90, 162, 0.1)",
+            transform: "translateY(-1px)",
+            boxShadow: "0 4px 12px rgba(114, 90, 162, 0.3)",
+        },
+        "&:disabled": {
+            background: "#E0E0E0",
+            color: "#A0A0A0",
+            transform: "none",
+            boxShadow: "none"
+        },
+        transition: "all 0.2s ease-in-out"
     }
 }
 
@@ -220,6 +541,39 @@ const accountDropdown: StyleSet = {
     }
 }
 
+const typography: StyleSet = {
+    bodyText: {
+        color: "#666"
+    },
+    bodyTextSecondary: {
+        color: "text.secondary"
+    },
+    bodyTextBold: {
+        fontWeight: 500
+    },
+    bodyTextBoldLarge: {
+        fontWeight: 600
+    },
+    captionText: {
+        color: "#666"
+    },
+    captionTextError: {
+        color: "error.main"
+    },
+    captionTextSuccess: {
+        color: "success.main",
+        fontWeight: 600
+    },
+    captionTextSmall: {
+        fontSize: "0.7rem"
+    },
+    captionTextMonospace: {
+        fontSize: "0.65rem",
+        color: "#666",
+        fontFamily: "monospace"
+    }
+}
+
 export const styles = {
     containers,
     header,
@@ -228,6 +582,16 @@ export const styles = {
     theme,
     accountDropdown,
     forms,
+    typography,
+    colors: {
+        primary: "#725aa2",
+        secondary: "#29262a",
+        background: "#eff6fd",
+        white: "#FFFFFE",
+        success: "#4caf50",
+        warning: "#ff9800",
+        error: "#f44336"
+    },
     table: {
         container: {
             borderRadius: "1.25em",

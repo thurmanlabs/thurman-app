@@ -37,17 +37,9 @@ import { usePolling } from "../hooks/usePolling";
 import useAccount from "../hooks/useAccount";
 import BackgroundContainer from "../components/BackgroundContainer";
 import ContentContainer from "../components/ContentContainer";
+import { styles } from "../styles/styles";
 
-// Thurman brand colors
-const THURMAN_COLORS = {
-  primary: "#725aa2",
-  secondary: "#29262a",
-  background: "#eff6fd",
-  white: "#FFFFFE",
-  success: "#4caf50",
-  warning: "#ff9800",
-  error: "#f44336"
-};
+
 
 // Types
 interface PortfolioPosition {
@@ -122,11 +114,7 @@ const formatRelativeTime = (timestamp: string): string => {
 
 // Loading skeleton components
 const SummaryCardSkeleton = (): JSX.Element => (
-  <Card sx={{ 
-    borderRadius: "1.25em",
-    backgroundColor: THURMAN_COLORS.white,
-    boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)"
-  }}>
+  <Card sx={styles.metrics.card}>
     <CardContent>
       <Skeleton variant="text" width="60%" height={24} sx={{ mb: 1 }} />
       <Skeleton variant="text" width="40%" height={32} />
@@ -161,51 +149,7 @@ const TableSkeleton = (): JSX.Element => (
   </TableContainer>
 );
 
-// Thurman branded button component interface
-interface ThurmanButtonProps {
-  children: React.ReactNode;
-  onClick?: () => void;
-  variant?: "contained" | "outlined" | "text";
-  size?: "small" | "medium" | "large";
-  startIcon?: React.ReactNode;
-  [key: string]: any; // For other Button props
-}
 
-const ThurmanButton = ({ children, onClick, variant = "contained", size = "medium", startIcon, ...props }: ThurmanButtonProps): JSX.Element => (
-  <Button
-    variant={variant}
-    size={size}
-    startIcon={startIcon}
-    onClick={onClick}
-    sx={{
-      background: variant === "contained" ? "linear-gradient(90deg, #725aa2 0%, #29262a 100%)" : "transparent",
-      color: variant === "contained" ? THURMAN_COLORS.white : THURMAN_COLORS.primary,
-      borderRadius: "1.25em",
-      textTransform: "none",
-      fontWeight: 700,
-      padding: size === "large" ? "0.75em 3em" : "0.325em 2.5em",
-      border: variant === "outlined" ? `2px solid ${THURMAN_COLORS.primary}` : "none",
-      "&:hover": {
-        background: variant === "contained" 
-          ? "linear-gradient(90deg, #725aa2 20%, #29262a 100%)"
-          : "rgba(114, 90, 162, 0.1)",
-        transform: "translateY(-1px)",
-        boxShadow: "0 4px 12px rgba(114, 90, 162, 0.3)",
-      },
-      "&:disabled": {
-        background: "#E0E0E0",
-        color: "#A0A0A0",
-        transform: "none",
-        boxShadow: "none"
-      },
-      transition: "all 0.2s ease-in-out",
-      ...props.sx
-    }}
-    {...props}
-  >
-    {children}
-  </Button>
-);
 
 // Main Home component
 export default function Home() {
@@ -296,11 +240,11 @@ export default function Home() {
   return (
     <BackgroundContainer>
       <ContentContainer>
-        <Box sx={{ py: 4 }}>
+        <Box sx={styles.containers.pageContainer}>
           {/* Header */}
-          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 4 }}>
+          <Box sx={styles.containers.flexBetween}>
             <Box>
-              <Typography variant="h4" component="h1" sx={{ fontWeight: 600, color: THURMAN_COLORS.secondary, mb: 1 }}>
+              <Typography variant="h4" component="h1" sx={styles.header.pageTitle}>
                 Portfolio Dashboard
               </Typography>
               <Typography variant="body1" color="text.secondary">
@@ -308,7 +252,7 @@ export default function Home() {
               </Typography>
             </Box>
             
-            <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+            <Box sx={styles.containers.flexCenter}>
               {portfolio && (
                 <Typography variant="body2" color="text.secondary">
                   Last updated: {formatRelativeTime(portfolio.lastUpdated)}
@@ -318,7 +262,7 @@ export default function Home() {
                 <IconButton 
                   onClick={handleRefresh}
                   disabled={portfolioLoading}
-                  sx={{ color: THURMAN_COLORS.primary }}
+                  sx={styles.button.iconButton}
                 >
                   <RefreshIcon />
                 </IconButton>
@@ -328,7 +272,7 @@ export default function Home() {
 
           {/* Authentication Required */}
           {!userAddress && (
-            <Alert severity="info" sx={{ mb: 4 }}>
+            <Alert severity="info" sx={styles.containers.alert}>
               Please connect your wallet to view your portfolio and start investing in lending pools.
             </Alert>
           )}
@@ -337,7 +281,7 @@ export default function Home() {
           {portfolioError && (
             <Alert 
               severity="error" 
-              sx={{ mb: 4 }}
+              sx={styles.containers.alert}
               action={
                 <Button color="inherit" size="small" onClick={handleRefresh}>
                   Retry
@@ -352,19 +296,15 @@ export default function Home() {
           {userAddress && (
             <>
               {/* Summary Cards */}
-              <Grid container spacing={3} sx={{ mb: 4 }}>
+              <Grid container spacing={3} sx={styles.containers.alert}>
                 <Grid item xs={12} sm={6} md={3}>
                   {portfolioLoading ? (
                     <SummaryCardSkeleton />
                   ) : (
-                    <Card sx={{ 
-                      borderRadius: "1.25em",
-                      backgroundColor: THURMAN_COLORS.white,
-                      boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)"
-                    }}>
+                    <Card sx={styles.metrics.card}>
                       <CardContent>
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-                          <MoneyIcon sx={{ fontSize: 20, color: THURMAN_COLORS.primary }} />
+                        <Box sx={styles.containers.iconContainer}>
+                          <MoneyIcon sx={styles.containers.iconMedium} />
                           <Typography variant="body2" color="text.secondary">
                             Total Invested
                           </Typography>
@@ -381,14 +321,10 @@ export default function Home() {
                   {portfolioLoading ? (
                     <SummaryCardSkeleton />
                   ) : (
-                    <Card sx={{ 
-                      borderRadius: "1.25em",
-                      backgroundColor: THURMAN_COLORS.white,
-                      boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)"
-                    }}>
+                    <Card sx={styles.metrics.card}>
                       <CardContent>
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-                          <AccountBalanceIcon sx={{ fontSize: 20, color: THURMAN_COLORS.success }} />
+                        <Box sx={styles.containers.iconContainer}>
+                          <AccountBalanceIcon sx={styles.containers.iconMedium} />
                           <Typography variant="body2" color="text.secondary">
                             Current Value
                           </Typography>
@@ -405,19 +341,15 @@ export default function Home() {
                   {portfolioLoading ? (
                     <SummaryCardSkeleton />
                   ) : (
-                    <Card sx={{ 
-                      borderRadius: "1.25em",
-                      backgroundColor: THURMAN_COLORS.white,
-                      boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)"
-                    }}>
+                    <Card sx={styles.metrics.card}>
                       <CardContent>
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-                          <TrendingUpIcon sx={{ fontSize: 20, color: THURMAN_COLORS.success }} />
+                        <Box sx={styles.containers.iconContainer}>
+                          <TrendingUpIcon sx={styles.containers.iconMedium} />
                           <Typography variant="body2" color="text.secondary">
                             Total Return
                           </Typography>
                         </Box>
-                        <Typography variant="h5" fontWeight={600} color={(portfolio?.returnPercentage ?? 0) >= 0 ? THURMAN_COLORS.success : THURMAN_COLORS.error}>
+                        <Typography variant="h5" fontWeight={600} color={(portfolio?.returnPercentage ?? 0) >= 0 ? styles.colors.success : styles.colors.error}>
                           {portfolio ? formatPercentage(portfolio.returnPercentage ?? 0) : "0%"}
                         </Typography>
                       </CardContent>
@@ -429,14 +361,10 @@ export default function Home() {
                   {portfolioLoading ? (
                     <SummaryCardSkeleton />
                   ) : (
-                    <Card sx={{ 
-                      borderRadius: "1.25em",
-                      backgroundColor: THURMAN_COLORS.white,
-                      boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)"
-                    }}>
+                    <Card sx={styles.metrics.card}>
                       <CardContent>
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-                          <ChartIcon sx={{ fontSize: 20, color: THURMAN_COLORS.primary }} />
+                        <Box sx={styles.containers.iconContainer}>
+                          <ChartIcon sx={styles.containers.iconMedium} />
                           <Typography variant="body2" color="text.secondary">
                             Active Positions
                           </Typography>
@@ -455,33 +383,32 @@ export default function Home() {
                 <Grid container spacing={3} sx={{ mb: 4 }}>
                   {pendingTotal > 0 && (
                     <Grid item xs={12} sm={6}>
-                      <Card sx={{ 
-                        borderRadius: "1.25em",
-                        backgroundColor: THURMAN_COLORS.white,
-                        boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)",
-                        border: `2px solid ${THURMAN_COLORS.warning}`
+                      <Card sx={{
+                        ...styles.metrics.card,
+                        border: `2px solid ${styles.colors.warning}`
                       }}>
                         <CardContent>
                           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                             <Box>
                               <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-                                <ScheduleIcon sx={{ fontSize: 20, color: THURMAN_COLORS.warning }} />
+                                <ScheduleIcon sx={{ fontSize: 20, color: styles.colors.warning }} />
                                 <Typography variant="body2" color="text.secondary">
                                   Pending Deposits
                                 </Typography>
                               </Box>
-                              <Typography variant="h6" fontWeight={600} color={THURMAN_COLORS.warning}>
+                              <Typography variant="h6" fontWeight={600} color={styles.colors.warning}>
                                 {formatCurrency(pendingTotal)}
                               </Typography>
                             </Box>
-                            <ThurmanButton
+                            <Button
                               variant="outlined"
                               size="small"
                               startIcon={<VisibilityIcon />}
                               onClick={() => navigate("/pools")}
+                              sx={styles.button.outlined}
                             >
                               View Pools
-                            </ThurmanButton>
+                            </Button>
                           </Box>
                         </CardContent>
                       </Card>
@@ -492,30 +419,31 @@ export default function Home() {
                     <Grid item xs={12} sm={6}>
                       <Card sx={{ 
                         borderRadius: "1.25em",
-                        backgroundColor: THURMAN_COLORS.white,
+                        backgroundColor: styles.metrics.card,
                         boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)",
-                        border: `2px solid ${THURMAN_COLORS.success}`
+                        border: `2px solid ${styles.colors.success}`
                       }}>
                         <CardContent>
                           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                             <Box>
                               <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-                                <CheckCircleIcon sx={{ fontSize: 20, color: THURMAN_COLORS.success }} />
+                                <CheckCircleIcon sx={{ fontSize: 20, color: styles.colors.success }} />
                                 <Typography variant="body2" color="text.secondary">
                                   Claimable Amount
                                 </Typography>
                               </Box>
-                              <Typography variant="h6" fontWeight={600} color={THURMAN_COLORS.success}>
+                              <Typography variant="h6" fontWeight={600} color={styles.colors.success}>
                                 {formatCurrency(claimableTotal)}
                               </Typography>
                             </Box>
-                            <ThurmanButton
+                            <Button
                               size="small"
                               startIcon={<CheckCircleIcon />}
                               onClick={() => navigate("/pools")}
+                              sx={styles.button.primary}
                             >
                               Claim All
-                            </ThurmanButton>
+                            </Button>
                           </Box>
                         </CardContent>
                       </Card>
@@ -527,15 +455,16 @@ export default function Home() {
               {/* Positions Table */}
               <Box sx={{ mb: 4 }}>
                 <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 600, color: THURMAN_COLORS.secondary }}>
+                  <Typography variant="h6" sx={{ fontWeight: 600, color: styles.colors.secondary }}>
                     Your Positions
                   </Typography>
-                  <ThurmanButton
+                  <Button
                     startIcon={<AddIcon />}
                     onClick={handleBrowsePools}
+                    sx={styles.button.primary}
                   >
                     Browse Pools
-                  </ThurmanButton>
+                  </Button>
                 </Box>
 
                 {portfolioLoading ? (
@@ -562,7 +491,7 @@ export default function Home() {
                                 sx={{ 
                                   textTransform: "none", 
                                   fontWeight: 600,
-                                  color: THURMAN_COLORS.primary,
+                                  color: styles.colors.primary,
                                   p: 0,
                                   minWidth: "auto"
                                 }}
@@ -595,7 +524,7 @@ export default function Home() {
                                   <IconButton
                                     size="small"
                                     onClick={() => handlePoolClick(position.poolId)}
-                                    sx={{ color: THURMAN_COLORS.primary }}
+                                    sx={{ color: styles.colors.primary }}
                                   >
                                     <VisibilityIcon />
                                   </IconButton>
@@ -604,7 +533,7 @@ export default function Home() {
                                   <IconButton
                                     size="small"
                                     onClick={() => handleQuickDeposit(position.poolId)}
-                                    sx={{ color: THURMAN_COLORS.success }}
+                                    sx={{ color: styles.colors.success }}
                                   >
                                     <AddIcon />
                                   </IconButton>
@@ -619,7 +548,7 @@ export default function Home() {
                 ) : (
                           <Card sx={{ 
           borderRadius: "1.25em",
-          backgroundColor: THURMAN_COLORS.white,
+          backgroundColor: styles.metrics.card,
           boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)"
         }}>
           <CardContent sx={{ textAlign: "center", py: 4 }}>
@@ -630,13 +559,14 @@ export default function Home() {
                       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
                         Start investing in lending pools to build your portfolio
                       </Typography>
-                      <ThurmanButton
+                      <Button
                         size="large"
                         onClick={handleBrowsePools}
                         startIcon={<AddIcon />}
+                        sx={styles.button.large}
                       >
                         Browse Available Pools
-                      </ThurmanButton>
+                      </Button>
                     </CardContent>
                   </Card>
                 )}
@@ -645,12 +575,12 @@ export default function Home() {
               {/* Recent Activity Section */}
               {portfolio?.positions && portfolio.positions.length > 0 && (
                 <Box sx={{ mb: 4 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 600, color: THURMAN_COLORS.secondary, mb: 2 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 600, color: styles.colors.secondary, mb: 2 }}>
                     Recent Activity
                   </Typography>
                           <Card sx={{ 
           borderRadius: "1.25em",
-          backgroundColor: THURMAN_COLORS.white,
+          backgroundColor: styles.metrics.card,
           boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)"
         }}>
           <CardContent>
@@ -667,20 +597,21 @@ export default function Home() {
           {/* Welcome Section for Non-Authenticated Users */}
           {!userAddress && (
             <Box sx={{ textAlign: "center", py: 8 }}>
-              <AccountBalanceIcon sx={{ fontSize: 64, color: THURMAN_COLORS.primary, mb: 3 }} />
-              <Typography variant="h4" component="h2" sx={{ fontWeight: 600, color: THURMAN_COLORS.secondary, mb: 2 }}>
+              <AccountBalanceIcon sx={{ fontSize: 64, color: styles.colors.primary, mb: 3 }} />
+              <Typography variant="h4" component="h2" sx={{ fontWeight: 600, color: styles.colors.secondary, mb: 2 }}>
                 Welcome to Thurman
               </Typography>
               <Typography variant="body1" color="text.secondary" sx={{ mb: 4, maxWidth: 600, mx: "auto" }}>
                 Connect your wallet to start investing in lending pools and track your portfolio performance in real-time.
               </Typography>
-              <ThurmanButton
+              <Button
                 size="large"
                 onClick={handleBrowsePools}
                 startIcon={<AddIcon />}
+                sx={styles.button.large}
               >
                 Browse Lending Pools
-              </ThurmanButton>
+              </Button>
             </Box>
           )}
         </Box>
