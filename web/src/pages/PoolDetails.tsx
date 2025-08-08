@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -15,7 +15,7 @@ import {
   Stack,
   IconButton,
   Tooltip
-} from '@mui/material';
+} from "@mui/material";
 import {
   ArrowBack as ArrowBackIcon,
   TrendingUp as TrendingUpIcon,
@@ -23,14 +23,14 @@ import {
   Schedule as ScheduleIcon,
   Refresh as RefreshIcon,
   CheckCircle as CheckCircleIcon
-} from '@mui/icons-material';
-import BackgroundContainer from '../components/BackgroundContainer';
-import ContentContainer from '../components/ContentContainer';
-import DepositInterface from '../components/DepositInterface';
-import UserBalanceCard from '../components/UserBalanceCard';
-import useAccount from '../hooks/useAccount';
-import { usePolling } from '../hooks/usePolling';
-import axios from 'axios';
+} from "@mui/icons-material";
+import BackgroundContainer from "../components/BackgroundContainer";
+import ContentContainer from "../components/ContentContainer";
+import DepositInterface from "../components/DepositInterface";
+import UserBalanceCard from "../components/UserBalanceCard";
+import useAccount from "../hooks/useAccount";
+import { usePolling } from "../hooks/usePolling";
+import axios from "axios";
 
 // Types
 interface PoolConfig {
@@ -81,7 +81,7 @@ interface PoolResponse {
 const PoolHeaderSkeleton = () => (
   <Box sx={{ mb: 4 }}>
     <Skeleton variant="text" width="60%" height={48} sx={{ mb: 2 }} />
-    <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+    <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
       <Skeleton variant="rectangular" width={120} height={32} />
       <Skeleton variant="rectangular" width={100} height={32} />
       <Skeleton variant="rectangular" width={80} height={32} />
@@ -91,9 +91,9 @@ const PoolHeaderSkeleton = () => (
 
 const PoolStatsSkeleton = () => (
   <Card sx={{ 
-    borderRadius: '1.25em',
-    backgroundColor: '#FFFFFE',
-    boxShadow: '0 0.125em 0.25em rgba(0, 0, 0, 0.08)'
+    borderRadius: "1.25em",
+    backgroundColor: "#FFFFFE",
+    boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)"
   }}>
     <CardContent>
       <Skeleton variant="text" width="40%" height={32} sx={{ mb: 2 }} />
@@ -113,13 +113,13 @@ const PoolStatsSkeleton = () => (
 
 const UserStatusSkeleton = () => (
   <Card sx={{ 
-    borderRadius: '1.25em',
-    backgroundColor: '#FFFFFE',
-    boxShadow: '0 0.125em 0.25em rgba(0, 0, 0, 0.08)'
+    borderRadius: "1.25em",
+    backgroundColor: "#FFFFFE",
+    boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)"
   }}>
     <CardContent>
       <Skeleton variant="text" width="50%" height={32} sx={{ mb: 2 }} />
-      <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+      <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
         <Skeleton variant="rectangular" width={100} height={32} />
         <Skeleton variant="rectangular" width={100} height={32} />
         <Skeleton variant="rectangular" width={100} height={32} />
@@ -138,10 +138,10 @@ interface PoolStatsCardProps {
 const PoolStatsCard: React.FC<PoolStatsCardProps> = ({ pool, loading }) => {
   const formatCurrency = (value: string) => {
     const num = parseFloat(value);
-    if (isNaN(num)) return '$0';
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    if (isNaN(num)) return "$0";
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(num);
@@ -149,7 +149,7 @@ const PoolStatsCard: React.FC<PoolStatsCardProps> = ({ pool, loading }) => {
 
   const formatMinDeposit = (minAmount: string) => {
     const num = parseFloat(minAmount);
-    if (isNaN(num)) return 'No minimum';
+    if (isNaN(num)) return "No minimum";
     return `${formatCurrency(minAmount)} minimum`;
   };
 
@@ -159,75 +159,75 @@ const PoolStatsCard: React.FC<PoolStatsCardProps> = ({ pool, loading }) => {
 
   return (
     <Card sx={{ 
-      borderRadius: '1.25em',
-      backgroundColor: '#FFFFFE',
-      boxShadow: '0 0.125em 0.25em rgba(0, 0, 0, 0.08)',
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column'
+      borderRadius: "1.25em",
+      backgroundColor: "#FFFFFE",
+      boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)",
+      height: "100%",
+      display: "flex",
+      flexDirection: "column"
     }}>
-      <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+      <CardContent sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
         <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
           Pool Statistics
         </Typography>
         
         <Grid container spacing={3} sx={{ flexGrow: 1 }}>
           <Grid item xs={12} sm={6}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-              <TrendingUpIcon sx={{ fontSize: 20, color: 'primary.main' }} />
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+              <TrendingUpIcon sx={{ fontSize: 20, color: "primary.main" }} />
               <Typography variant="body2" color="text.secondary">
                 Total Value Locked
               </Typography>
             </Box>
             <Typography variant="h6" fontWeight={600}>
-              {formatCurrency(pool.totalAssets || '0')}
+              {formatCurrency(pool.totalAssets || "0")}
             </Typography>
           </Grid>
 
           <Grid item xs={12} sm={6}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-              <AccountBalanceIcon sx={{ fontSize: 20, color: 'primary.main' }} />
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+              <AccountBalanceIcon sx={{ fontSize: 20, color: "primary.main" }} />
               <Typography variant="body2" color="text.secondary">
                 Minimum Deposit
               </Typography>
             </Box>
             <Typography variant="h6" fontWeight={600}>
-              {formatMinDeposit(pool.config?.minDepositAmount || '0')}
+              {formatMinDeposit(pool.config?.minDepositAmount || "0")}
             </Typography>
           </Grid>
 
           <Grid item xs={12} sm={6}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-              <ScheduleIcon sx={{ fontSize: 20, color: 'primary.main' }} />
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+              <ScheduleIcon sx={{ fontSize: 20, color: "primary.main" }} />
               <Typography variant="body2" color="text.secondary">
                 Available Capacity
               </Typography>
             </Box>
             <Typography variant="h6" fontWeight={600}>
-              {formatCurrency(pool.availableCapacity || '0')}
+              {formatCurrency(pool.availableCapacity || "0")}
             </Typography>
           </Grid>
 
           <Grid item xs={12} sm={6}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-              <CheckCircleIcon sx={{ fontSize: 20, color: 'primary.main' }} />
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+              <CheckCircleIcon sx={{ fontSize: 20, color: "primary.main" }} />
               <Typography variant="body2" color="text.secondary">
                 Deposit Status
               </Typography>
             </Box>
             <Chip
-              label={pool.config?.depositsEnabled ? 'Open for Deposits' : 'Closed'}
-              color={pool.config?.depositsEnabled ? 'success' : 'default'}
+              label={pool.config?.depositsEnabled ? "Open for Deposits" : "Closed"}
+              color={pool.config?.depositsEnabled ? "success" : "default"}
               size="small"
-              variant={pool.config?.depositsEnabled ? 'filled' : 'outlined'}
+              variant={pool.config?.depositsEnabled ? "filled" : "outlined"}
             />
           </Grid>
         </Grid>
 
         <Divider sx={{ my: 2 }} />
         
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 'auto' }}>
-          Last updated: {pool.lastUpdated ? new Date(pool.lastUpdated).toLocaleString() : 'Unknown'}
+        <Typography variant="body2" color="text.secondary" sx={{ mt: "auto" }}>
+          Last updated: {pool.lastUpdated ? new Date(pool.lastUpdated).toLocaleString() : "Unknown"}
         </Typography>
       </CardContent>
     </Card>
@@ -262,19 +262,19 @@ export default function PoolDetails() {
       if (response.data.success) {
         setPool(response.data.data.pool);
       } else {
-        setPoolError('Failed to fetch pool data');
+        setPoolError("Failed to fetch pool data");
       }
     } catch (err: any) {
-      console.error('Error fetching pool:', err);
+              console.error("Error fetching pool:", err);
       
       if (axios.isAxiosError(err)) {
         if (err.response?.status === 404) {
-          setPoolError('Pool not found');
+          setPoolError("Pool not found");
         } else {
-          setPoolError(err.response?.data?.message || 'Failed to fetch pool data');
+                      setPoolError(err.response?.data?.message || "Failed to fetch pool data");
         }
       } else {
-        setPoolError('An unexpected error occurred');
+                  setPoolError("An unexpected error occurred");
       }
     } finally {
       setPoolLoading(false);
@@ -292,13 +292,13 @@ export default function PoolDetails() {
     if (pool) {
       document.title = `${pool.name} - Pool Details - Thurman`;
     } else {
-      document.title = 'Pool Details - Thurman';
+      document.title = "Pool Details - Thurman";
     }
   }, [pool]);
 
   // Handle back navigation
   const handleBack = () => {
-    navigate('/pools');
+    navigate("/pools");
   };
 
   // Error state
@@ -307,7 +307,7 @@ export default function PoolDetails() {
       <BackgroundContainer>
         <ContentContainer>
           <Box sx={{ py: 4 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
+            <Box sx={{ display: "flex", alignItems: "center", mb: 4 }}>
               <IconButton onClick={handleBack} sx={{ mr: 2 }}>
                 <ArrowBackIcon />
               </IconButton>
@@ -346,7 +346,7 @@ export default function PoolDetails() {
       <ContentContainer>
         <Box sx={{ py: 4 }}>
           {/* Header */}
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
+          <Box sx={{ display: "flex", alignItems: "center", mb: 4 }}>
             <IconButton onClick={handleBack} sx={{ mr: 2 }}>
               <ArrowBackIcon />
             </IconButton>
@@ -366,7 +366,7 @@ export default function PoolDetails() {
             <Tooltip title="Refresh">
               <IconButton 
                 onClick={() => window.location.reload()}
-                sx={{ color: 'primary.main' }}
+                sx={{ color: "primary.main" }}
               >
                 <RefreshIcon />
               </IconButton>
@@ -375,11 +375,11 @@ export default function PoolDetails() {
 
           {/* Pool Status */}
           {pool && (
-            <Box sx={{ mb: 4, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+            <Box sx={{ mb: 4, display: "flex", gap: 2, flexWrap: "wrap" }}>
               <Chip
-                label={pool.config?.depositsEnabled ? 'Open for Deposits' : 'Closed'}
-                color={pool.config?.depositsEnabled ? 'success' : 'default'}
-                variant={pool.config?.depositsEnabled ? 'filled' : 'outlined'}
+                label={pool.config?.depositsEnabled ? "Open for Deposits" : "Closed"}
+                color={pool.config?.depositsEnabled ? "success" : "default"}
+                variant={pool.config?.depositsEnabled ? "filled" : "outlined"}
               />
               <Chip
                 label={`Pool ID: ${pool.id}`}
@@ -392,13 +392,13 @@ export default function PoolDetails() {
           {/* Main Content Grid */}
           <Grid container spacing={3}>
             {/* Pool Statistics */}
-            <Grid item xs={12} lg={8} sx={{ display: 'flex' }}>
+            <Grid item xs={12} lg={8} sx={{ display: "flex" }}>
               {pool && <PoolStatsCard pool={pool} loading={poolLoading} />}
             </Grid>
 
             {/* USDC Balance Card - Only show for open pools */}
             {pool?.config?.depositsEnabled && (
-              <Grid item xs={12} lg={4} sx={{ display: 'flex' }}>
+              <Grid item xs={12} lg={4} sx={{ display: "flex" }}>
                 <UserBalanceCard
                   userAddress={user?.account}
                   onBalanceUpdate={() => {}}
@@ -422,11 +422,11 @@ export default function PoolDetails() {
             {/* Closed Pool Message */}
             {pool && !pool.config?.depositsEnabled && (
               <Grid item xs={12}>
-                <Card sx={{ 
-                  borderRadius: '1.25em',
-                  backgroundColor: '#FFFFFE',
-                  boxShadow: '0 0.125em 0.25em rgba(0, 0, 0, 0.08)'
-                }}>
+                    <Card sx={{ 
+      borderRadius: "1.25em",
+      backgroundColor: "#FFFFFE",
+      boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)"
+    }}>
                   <CardContent>
                     <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
                       Pool Status

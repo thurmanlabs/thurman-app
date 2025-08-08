@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Box,
   Button,
@@ -18,8 +18,8 @@ import {
   AccountBalance as AccountBalanceIcon,
   TrendingUp as TrendingUpIcon
 } from '@mui/icons-material';
-import axios from 'axios';
-import { styles } from '../styles/styles';
+import axios from "axios";
+import { styles } from "../styles/styles";
 
 interface DepositStatus {
   pending: number;

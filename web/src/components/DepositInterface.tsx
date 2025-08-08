@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Box,
   Grid,
@@ -6,11 +6,11 @@ import {
   Alert,
   Snackbar
 } from '@mui/material';
-import { usePolling } from '../hooks/usePolling';
-import useAccount from '../hooks/useAccount';
-import DepositSection from './DepositSection';
-import DepositStatusCard from './DepositStatusCard';
-import UserBalanceCard from './UserBalanceCard';
+import { usePolling } from "../hooks/usePolling";
+import useAccount from "../hooks/useAccount";
+import DepositSection from "./DepositSection";
+import DepositStatusCard from "./DepositStatusCard";
+import UserBalanceCard from "./UserBalanceCard";
 
 interface DepositInterfaceProps {
   poolId: number;

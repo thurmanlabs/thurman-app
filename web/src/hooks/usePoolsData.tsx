@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { MetricsData, LendingPool } from '../types/pools';
+import { useState, useEffect } from "react";
+import { MetricsData, LendingPool } from "../types/pools";
 
 const MOCK_POOLS: LendingPool[] = [
   {

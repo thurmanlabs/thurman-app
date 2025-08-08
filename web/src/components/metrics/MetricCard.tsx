@@ -1,5 +1,5 @@
-import { Paper, Typography } from '@mui/material';
-import { styles } from '../../styles/styles';
+import { Paper, Typography } from "@mui/material";
+import { styles } from "../../styles/styles";
 
 interface MetricCardProps {
   label: string;

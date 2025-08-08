@@ -125,12 +125,12 @@ export default function AccountDropdown() {
         
         <Divider />
         
-        <MenuItem onClick={() => handleNavigate('/manage/my-loan-pools')} sx={{ py: 1.5 }}>
+        <MenuItem onClick={() => handleNavigate("/manage/my-loan-pools")} sx={{ py: 1.5 }}>
           <Dashboard sx={{ mr: 2, fontSize: 20 }} />
           <Typography variant="body2">My Loan Pools</Typography>
         </MenuItem>
         
-        <MenuItem onClick={() => handleNavigate('/manage/create-loan-pool')} sx={{ py: 1.5 }}>
+        <MenuItem onClick={() => handleNavigate("/manage/create-loan-pool")} sx={{ py: 1.5 }}>
           <Add sx={{ mr: 2, fontSize: 20 }} />
           <Typography variant="body2">Create Loan Pool</Typography>
         </MenuItem>

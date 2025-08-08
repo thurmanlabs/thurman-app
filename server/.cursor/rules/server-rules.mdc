@@ -1,0 +1,466 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Thurman App - Server Directory Cursor Rules
+
+## Core Code Standards
+
+### Quotes and Formatting
+- **ALWAYS use double quotes** for strings, imports, object properties
+- 2-space indentation, semicolons required, trailing commas in multi-line structures
+- Line length: 80-100 characters
+
+### TypeScript Requirements
+- **ALWAYS type Express request/response handlers**
+- **ALWAYS type middleware functions with proper interfaces**
+- **ALWAYS type all function parameters and return values explicitly**
+- Use explicit types for database models and API responses
+- Extend Express Request interface for authenticated routes
+- Never use `any` type - always define proper interfaces
+
+```typescript
+import express, { Router, Request, Response, NextFunction } from "express";
+import { AuthRequest } from "../middleware/auth";
+
+interface ApiResponse {
+  success: boolean;
+  message: string;
+  data?: any;
+  error?: string;
+}
+
+interface CreateUserData {
+  email: string;
+  password: string;
+}
+
+const handler = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  // handler logic
+};
+
+const validateInput = (data: CreateUserData): { valid: boolean; error?: string } => {
+  // validation logic with explicit return type
+};
+
+const processData = async (input: string): Promise<ApiResponse> => {
+  // async function with explicit return type
+};
+```
+
+## Import Organization
+```typescript
+// 1. Node.js built-in modules
+import express, { Router, Request, Response, NextFunction } from "express";
+import bcrypt from "bcrypt";
+
+// 2. Third-party packages
+import jwt from "jsonwebtoken";
+import { PrismaClient, UserRole } from "@prisma/client";
+
+// 3. Internal imports
+import { config } from "../config";
+import { requireAuth, AuthRequest } from "../middleware/auth";
+import { getUser } from "../prisma/models";
+```
+
+## Express Route Structure
+
+### Router Pattern
+- Use `express.Router()` for all route modules
+- Export routers with descriptive variable names
+- Group related endpoints in same router file
+
+```typescript
+import express, { Router } from "express";
+
+var authRouter: Router = express.Router();
+
+// Route definitions
+authRouter.post("/login", handler);
+authRouter.post("/signup", handler);
+
+export default authRouter;
+```
+
+### Route Handler Pattern
+```typescript
+routerName.method("/path", 
+  middleware1,
+  middleware2,
+  async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+      // Validate request
+      if (!req.body.email) {
+        return res.status(400).json({
+          success: false,
+          error: "Validation failed",
+          message: "Email is required"
+        });
+      }
+
+      // Business logic
+      const result = await serviceFunction(req.body);
+
+      // Success response
+      return res.status(200).json({
+        success: true,
+        message: "Operation completed successfully",
+        data: result
+      });
+
+    } catch (error: any) {
+      console.error("Handler error:", error);
+      next(error); // Pass to error handler middleware
+    }
+  }
+);
+```
+
+## Authentication Patterns
+
+### Middleware Usage
+- Use `requireAuth` for protected routes
+- Use `requireRole` for role-based access control
+- Always use `AuthRequest` interface for authenticated routes
+
+```typescript
+import { requireAuth, requireRole, AuthRequest } from "../middleware/auth";
+
+// Protected route
+router.get("/profile", requireAuth, async (req: AuthRequest, res: Response) => {
+  const userId = req.user?.id; // Type-safe access
+});
+
+// Admin-only route  
+router.get("/admin", requireAuth, requireRole(["ADMIN"]), handler);
+```
+
+### JWT Token Handling
+- Extract tokens from cookies first, fallback to Authorization header
+- Use consistent error responses for authentication failures
+- Always verify token and fetch fresh user data
+
+## Database Patterns with Prisma
+
+### Model Access
+- Use centralized database client from `../utils/prismaClient`
+- Create focused model functions in `../prisma/models/`
+- Always use Prisma's type-safe queries
+
+```typescript
+import db from "../utils/prismaClient";
+import { UserRole, UserStatus } from "@prisma/client";
+
+export const createUser = async (userData: CreateUserData): Promise<User> => {
+  try {
+    const user = await db.user.create({
+      data: {
+        email: userData.email,
+        password: userData.hashedPassword,
+        role: UserRole.USER,
+        status: UserStatus.PENDING
+      },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        status: true
+      }
+    });
+    return user;
+  } catch (error) {
+    console.error("Database error:", error);
+    throw new Error("Failed to create user");
+  }
+};
+```
+
+### Query Patterns
+- Use `select` to limit returned fields
+- Use `include` for relations only when needed
+- Handle database errors with meaningful messages
+- Use transactions for multi-step operations
+
+## Service Layer Architecture
+
+### Service Functions
+- Keep business logic in service layer, not in route handlers
+- Create focused service modules for different domains
+- **ALWAYS type function parameters and return values explicitly**
+- Always return consistent data structures
+
+```typescript
+// services/userService.ts
+interface AuthResult {
+  success: boolean;
+  user?: User;
+  error?: string;
+}
+
+interface CreateUserData {
+  email: string;
+  password: string;
+  firstName?: string;
+  lastName?: string;
+}
+
+export const authenticateUser = async (email: string, password: string): Promise<AuthResult> => {
+  try {
+    const user: User | null = await getUser(email);
+    if (!user) {
+      return { success: false, error: "User not found" };
+    }
+
+    const isValidPassword: boolean = await bcrypt.compare(password, user.password);
+    if (!isValidPassword) {
+      return { success: false, error: "Invalid password" };
+    }
+
+    return { success: true, user };
+  } catch (error) {
+    console.error("Authentication error:", error);
+    throw new Error("Authentication failed");
+  }
+};
+
+export const createUser = async (userData: CreateUserData): Promise<User> => {
+  // Explicit types for all parameters and return values
+};
+```
+
+## Error Handling
+
+### Consistent Error Responses
+- Use standard HTTP status codes
+- Return consistent error response format
+- Log errors with appropriate detail level
+
+```typescript
+// Success response format
+{
+  success: true,
+  message: "Operation completed successfully",
+  data?: any
+}
+
+// Error response format  
+{
+  success: false,
+  error: "Error category",
+  message: "User-friendly error message"
+}
+```
+
+### Error Handler Middleware
+- Always use `next(error)` to pass errors to error handler
+- Handle different error types appropriately
+- Don't expose sensitive information in error messages
+
+## Validation Patterns
+
+### Request Validation
+- Validate required fields before processing
+- Use regex patterns for email/password validation
+- Return specific validation error messages
+- **ALWAYS type validation function parameters and return values**
+
+```typescript
+interface ValidationResult {
+  valid: boolean;
+  error?: string;
+}
+
+interface SignupData {
+  email: string;
+  password: string;
+  firstName?: string;
+  lastName?: string;
+}
+
+const validateSignupData = (data: SignupData): ValidationResult => {
+  if (!data.email) {
+    return { valid: false, error: "Email is required" };
+  }
+
+  const emailRegex: RegExp = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+  if (!emailRegex.test(data.email)) {
+    return { valid: false, error: "Invalid email format" };
+  }
+
+  if (!data.password) {
+    return { valid: false, error: "Password is required" };
+  }
+
+  return { valid: true };
+};
+
+const hashPassword = async (password: string): Promise<string> => {
+  const saltRounds: number = 10;
+  return await bcrypt.hash(password, saltRounds);
+};
+```
+
+## Security Patterns
+
+### Password Security
+- Always hash passwords with bcrypt (minimum 10 salt rounds)
+- Never store or log plain text passwords
+- Use secure JWT secret keys
+- **ALWAYS type security function parameters and return values**
+
+```typescript
+import bcrypt from "bcrypt";
+
+const SALT_ROUNDS: number = 10;
+
+const hashPassword = async (password: string): Promise<string> => {
+  return await bcrypt.hash(password, SALT_ROUNDS);
+};
+
+const comparePassword = async (password: string, hashedPassword: string): Promise<boolean> => {
+  return await bcrypt.compare(password, hashedPassword);
+};
+
+const generateJWT = (payload: { email: string; id: number }): string => {
+  return jwt.sign(payload, config.jwtSecretKey, { expiresIn: "24h" });
+};
+```
+
+### Environment Configuration
+- Use centralized config from `../config`
+- Validate required environment variables on startup
+- Never hardcode sensitive values
+
+```typescript
+// config/index.ts
+export const config = {
+  port: process.env.PORT || 3001,
+  jwtSecretKey: process.env.JWT_SECRET_KEY || "",
+  databaseUrl: process.env.DATABASE_URL || "",
+  // Additional config...
+};
+```
+
+## File Organization
+```
+src/
+├── routes/          # Express route handlers
+├── middleware/      # Express middleware functions
+├── services/        # Business logic layer
+├── prisma/          # Database models and schema
+│   └── models/      # Database query functions
+├── utils/           # Utility functions and helpers
+├── config/          # Configuration management
+└── app.ts           # Express app setup
+```
+
+## Middleware Order in app.ts
+```typescript
+// 1. CORS and body parsing FIRST
+app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+app.use(cookieParser());
+app.use(express.json());
+
+// 2. Logging middleware
+app.use(expressWinston.logger(loggerOptions));
+
+// 3. API routes with prefix
+app.use(`${apiPrefix}/auth`, authRouter);
+app.use(`${apiPrefix}/users`, userRouter);
+
+// 4. 404 handler for unmatched routes
+app.use(notFound);
+
+// 5. Error handler middleware LAST
+app.use(errorHandler);
+```
+
+## Database Seeding Pattern
+```typescript
+// prisma/seed.ts
+import { PrismaClient, UserRole, UserStatus } from "@prisma/client";
+import bcrypt from "bcrypt";
+
+const prisma = new PrismaClient();
+
+async function main() {
+  console.log("🌱 Starting database seed...");
+  
+  const hashedPassword = await bcrypt.hash("admin123!", 10);
+  
+  const adminUser = await prisma.user.upsert({
+    where: { email: "admin@thurman.com" },
+    update: { password: hashedPassword },
+    create: {
+      email: "admin@thurman.com",
+      password: hashedPassword,
+      role: UserRole.ADMIN,
+      status: UserStatus.ACTIVE
+    }
+  });
+  
+  console.log("✅ Admin user created:", adminUser.email);
+}
+
+main()
+  .catch((error) => {
+    console.error("💥 Seeding failed:", error);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });
+```
+
+## API Response Patterns
+
+### Success Responses
+```typescript
+// Single resource
+return res.status(200).json({
+  success: true,
+  message: "User retrieved successfully",
+  data: user
+});
+
+// List of resources
+return res.status(200).json({
+  success: true,
+  message: "Users retrieved successfully", 
+  data: users,
+  count: users.length
+});
+```
+
+### Error Responses
+```typescript
+// Validation error
+return res.status(400).json({
+  success: false,
+  error: "Validation failed",
+  message: "Email is required"
+});
+
+// Authentication error
+return res.status(401).json({
+  success: false,
+  error: "Unauthorized",
+  message: "Invalid credentials"
+});
+```
+
+## Key Reminders
+- Double quotes everywhere
+- **Type ALL function parameters and return values explicitly**
+- Type all Express handlers and middleware
+- Use AuthRequest interface for protected routes
+- Keep business logic in service layer
+- Return consistent API response format
+- Handle errors gracefully with meaningful messages
+- Use Prisma for type-safe database operations
+- Always hash passwords with bcrypt
+- Validate inputs before processing
+- Never use `any` type - define proper interfaces
+- Create specific interfaces for all data structures

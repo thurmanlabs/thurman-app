@@ -27,7 +27,7 @@ interface EmailAuthFormProps {
 export default function EmailAuthForm({ authType }: EmailAuthFormProps) {
     const { signup, login, loading } = useAccount();
     const [notification, setNotification] = useState<{
-        type: 'success' | 'error';
+        type: "success" | "error";
         message: string;
     } | null>(null);
     
@@ -52,14 +52,14 @@ export default function EmailAuthForm({ authType }: EmailAuthFormProps) {
             if (authType === "Login") {
                 await login(data);
                 setNotification({
-                    type: 'success',
-                    message: 'Successfully logged in!'
+                    type: "success",
+                    message: "Successfully logged in!"
                 });
             } else {
                 await signup(data);
                 setNotification({
-                    type: 'success',
-                    message: 'Account created! Pending admin approval.'
+                    type: "success",
+                    message: "Account created! Pending admin approval."
                 });
                 // Clear form after successful signup
                 reset();
@@ -68,7 +68,7 @@ export default function EmailAuthForm({ authType }: EmailAuthFormProps) {
             console.error("Authentication error:", error);
             
             // Handle server error responses
-            let errorMessage = 'Authentication failed. Please try again.';
+            let errorMessage = "Authentication failed. Please try again.";
             
             if (error.response?.data?.errorMessage) {
                 errorMessage = error.response.data.errorMessage;
@@ -77,7 +77,7 @@ export default function EmailAuthForm({ authType }: EmailAuthFormProps) {
             }
             
             setNotification({
-                type: 'error',
+                type: "error",
                 message: errorMessage
             });
             
@@ -85,21 +85,21 @@ export default function EmailAuthForm({ authType }: EmailAuthFormProps) {
             if (error.response?.data?.fieldErrors) {
                 const fieldErrors = error.response.data.fieldErrors;
                 if (fieldErrors.email) {
-                    setError('emailValue', { message: fieldErrors.email });
+                    setError("emailValue", { message: fieldErrors.email });
                 }
                 if (fieldErrors.password) {
-                    setError('passwordValue', { message: fieldErrors.password });
+                    setError("passwordValue", { message: fieldErrors.password });
                 }
             }
         }
     };
 
     const passwordRequirements = [
-        'At least 8 characters',
-        'At least 1 uppercase letter',
-        'At least 1 lowercase letter', 
-        'At least 1 number',
-        'At least 1 special character'
+        "At least 8 characters",
+        "At least 1 uppercase letter",
+        "At least 1 lowercase letter", 
+        "At least 1 number",
+        "At least 1 special character"
     ];
 
     return (
@@ -139,7 +139,7 @@ export default function EmailAuthForm({ authType }: EmailAuthFormProps) {
                                 <Typography 
                                     variant="caption" 
                                     color="error" 
-                                    sx={{ mt: 0.5, display: 'block' }}
+                                    sx={{ mt: 0.5, display: "block" }}
                                 >
                                     {errors.emailValue.message}
                                 </Typography>
@@ -165,7 +165,7 @@ export default function EmailAuthForm({ authType }: EmailAuthFormProps) {
                                 <Typography 
                                     variant="caption" 
                                     color="error" 
-                                    sx={{ mt: 0.5, display: 'block' }}
+                                    sx={{ mt: 0.5, display: "block" }}
                                 >
                                     {errors.passwordValue.message}
                                 </Typography>
@@ -184,7 +184,7 @@ export default function EmailAuthForm({ authType }: EmailAuthFormProps) {
                                                 variant="caption" 
                                                 color="text.secondary"
                                                 component="li"
-                                                sx={{ fontSize: '0.75rem' }}
+                                                sx={{ fontSize: "0.75rem" }}
                                             >
                                                 {requirement}
                                             </Typography>
@@ -202,8 +202,8 @@ export default function EmailAuthForm({ authType }: EmailAuthFormProps) {
                                 disabled={!isValid || loading}
                                 sx={{
                                     ...styles.button.primary,
-                                    width: '100%',
-                                    position: 'relative'
+                                    width: "100%",
+                                    position: "relative"
                                 }}
                             >
                                 {loading ? (
@@ -211,11 +211,11 @@ export default function EmailAuthForm({ authType }: EmailAuthFormProps) {
                                         <CircularProgress 
                                             size={20} 
                                             sx={{ 
-                                                color: 'white', 
+                                                color: "white", 
                                                 mr: 1,
-                                                position: 'absolute',
-                                                left: '50%',
-                                                transform: 'translateX(-50%)'
+                                                position: "absolute",
+                                                left: "50%",
+                                                transform: "translateX(-50%)"
                                             }} 
                                         />
                                         {authType === "Login" ? "Logging In..." : "Creating Account..."}

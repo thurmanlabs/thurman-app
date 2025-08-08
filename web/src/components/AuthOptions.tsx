@@ -6,7 +6,7 @@ import EmailAuthOption from "./EmailAuthOption";
 import { styles } from "../styles/styles" ;
 import thurman from "../assets/images/thurman.png";
 import EmailAuthForm from "./EmailAuthForm";
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 interface AuthOptionsProps {
     authType: string;
@@ -58,12 +58,12 @@ export default function AuthOptions({ authType, options }: AuthOptionsProps) {
                 sx={styles.containers.authOptionHeader}
             >
                 {currentStepIndex > 0 && (
-                    <Grid container sx={{ width: '100%' }}>
+                    <Grid container sx={{ width: "100%" }}>
                         <IconButton 
                             onClick={back}
                             sx={{
                                 backgroundColor: "#f5f5f5",
-                                '&:hover': {
+                                "&:hover": {
                                     backgroundColor: "#e0e0e0"
                                 }
                             }}

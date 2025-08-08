@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -17,8 +17,8 @@ import {
   TrendingUp as TrendingUpIcon,
   Warning as WarningIcon
 } from '@mui/icons-material';
-import axios from 'axios';
-import { styles } from '../styles/styles';
+import axios from "axios";
+import { styles } from "../styles/styles";
 
 interface UserBalanceCardProps {
   userAddress?: string;

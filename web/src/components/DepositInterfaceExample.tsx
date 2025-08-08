@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Box,
   Typography,
@@ -13,7 +13,7 @@ import {
   Schedule as ScheduleIcon,
   AccountBalance as AccountBalanceIcon
 } from '@mui/icons-material';
-import DepositInterface from './DepositInterface';
+import DepositInterface from "./DepositInterface";
 
 // Example usage in PoolDetails page
 export default function DepositInterfaceExample() {

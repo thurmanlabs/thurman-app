@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -12,9 +12,9 @@ import {
   FormHelperText,
   Divider
 } from '@mui/material';
-import { AccountBalance as AccountBalanceIcon } from '@mui/icons-material';
-import axios from 'axios';
-import { styles } from '../styles/styles';
+import { AccountBalance as AccountBalanceIcon } from "@mui/icons-material";
+import axios from "axios";
+import { styles } from "../styles/styles";
 
 interface DepositSectionProps {
   poolId: number;

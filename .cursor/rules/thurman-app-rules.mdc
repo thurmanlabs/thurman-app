@@ -1,0 +1,281 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Thurman App - Root Level Cursor Rules
+
+## Project Overview
+
+Thurman is a full-stack lending platform with a React frontend and Express/Prisma backend. The project follows a monorepo structure with separate web and server directories, each with their own specific Cursor rules.
+
+## General Code Standards
+
+### Universal Formatting Rules
+- **ALWAYS use double quotes** for all strings, imports, and object properties
+- 2-space indentation across all files (TypeScript, JSON, YAML, Markdown)
+- Line length: 80-100 characters maximum
+- Always include semicolons in TypeScript/JavaScript
+- Use trailing commas in multi-line objects and arrays
+
+### TypeScript Standards (Universal)
+- **ALWAYS type all function parameters and return values explicitly**
+- Never use `any` type - create proper interfaces instead
+- Use PascalCase for interfaces, types, and React components
+- Use camelCase for variables, functions, and file names (except components)
+- Export interfaces that are used across multiple files
+
+## Project Structure
+
+### Monorepo Organization
+```
+thurman-app/
+├── .cursorrules              # This file - general project rules
+├── web/                      # React frontend application
+│   ├── .cursorrules         # Frontend-specific rules (React, Material-UI)
+│   ├── src/
+│   ├── package.json
+│   └── public/
+├── server/                   # Express backend application  
+│   ├── .cursorrules         # Backend-specific rules (Express, Prisma)
+│   ├── src/
+│   ├── package.json
+│   └── prisma/
+├── package.json             # Root workspace configuration
+├── package-lock.json        # Lockfile for dependencies
+├── .env                     # Environment variables
+├── .gitignore              # Git ignore patterns
+└── README.md               # Project documentation
+```
+
+### Directory-Specific Rules
+- **Frontend (web/)**: Follow React patterns with Material-UI styling
+- **Backend (server/)**: Follow Express/Node.js patterns with Prisma ORM
+- **Shared**: Common TypeScript standards and formatting rules
+
+## Environment Configuration
+
+### Environment Variables (.env)
+- Store all sensitive configuration in `.env` file at project root
+- Never commit `.env` file to version control
+- Use descriptive variable names with service prefixes
+
+```bash
+# Database
+DATABASE_URL="postgresql://username:password@localhost:5432/thurman_dev"
+
+# Authentication
+JWT_SECRET_KEY="your-jwt-secret-key-change-in-production"
+
+# External Services
+CIRCLE_TEST_API_KEY="test_api_key_your_circle_key"
+COINBASE_APP_ID="your-coinbase-app-id"
+PLAID_CLIENT_ID="your-plaid-client-id"
+
+# Server Configuration
+PORT=3001
+API_PREFIX="/api"
+```
+
+### Development Ports
+- **Frontend (React)**: http://localhost:3000
+- **Backend (Express)**: http://localhost:3001
+- **Database (PostgreSQL)**: localhost:5432
+
+## Development Workflow
+
+### Starting the Application
+```bash
+# Start backend server (from server directory)
+cd server && npm run dev
+
+# Start frontend application (from web directory)  
+cd web && npm start
+
+# Alternative: Run both simultaneously (if workspace scripts exist)
+npm run dev
+```
+
+### Database Operations
+```bash
+# Generate Prisma client (from server directory)
+cd server && npx prisma generate
+
+# Run database migrations
+cd server && npx prisma migrate dev
+
+# Seed database with initial data
+cd server && npx prisma db seed
+
+# View database in Prisma Studio
+cd server && npx prisma studio
+```
+
+## Git and Version Control
+
+### Commit Message Standards
+- Use conventional commit format: `type(scope): description`
+- Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
+- Keep first line under 50 characters
+- Use imperative mood: "Add feature" not "Added feature"
+
+```bash
+# Examples
+feat(auth): add user registration with email validation
+fix(api): resolve password hashing issue in signup
+docs(readme): update installation instructions
+refactor(components): break down large UserDashboard component
+```
+
+### Branch Naming
+- Use descriptive branch names with type prefixes
+- Format: `type/short-description-with-hyphens`
+- Types: `feature`, `bugfix`, `hotfix`, `refactor`, `docs`
+
+```bash
+# Examples
+feature/user-authentication-system
+bugfix/fix-login-validation-error
+refactor/break-down-dashboard-components
+docs/update-api-documentation
+```
+
+## File Naming Conventions
+
+### TypeScript/JavaScript Files
+- **Components**: PascalCase (`UserDashboard.tsx`, `EmailAuthForm.tsx`)
+- **Hooks**: camelCase with "use" prefix (`useAccount.ts`, `useApiCall.ts`)
+- **Services**: camelCase (`authService.ts`, `apiService.ts`)
+- **Types**: PascalCase (`UserTypes.ts`, `ApiTypes.ts`)
+- **Utils**: camelCase (`dateUtils.ts`, `validationUtils.ts`)
+
+### Configuration Files
+- Use lowercase with hyphens: `deploy-config.ts`, `database-config.js`
+- Environment files: `.env`, `.env.example`, `.env.local`
+
+## Documentation Standards
+
+### Code Documentation
+- Write self-documenting code with clear variable and function names
+- Add JSDoc comments for complex functions and public APIs
+- Document component props and interfaces
+- Keep README files updated in each directory
+
+### API Documentation
+- Document all API endpoints with request/response examples
+- Include authentication requirements
+- Specify error response formats
+- Document rate limits and usage restrictions
+
+## Security Best Practices
+
+### Authentication & Authorization
+- Use JWT tokens with secure secret keys
+- Implement role-based access control (RBAC)
+- Hash passwords with bcrypt (minimum 10 salt rounds)
+- Validate all user inputs on both client and server
+
+### Environment Security
+- Never commit sensitive data (API keys, passwords, tokens)
+- Use environment variables for all configuration
+- Implement proper CORS policies
+- Use HTTPS in production environments
+
+### Database Security
+- Use parameterized queries (Prisma handles this automatically)
+- Implement proper data validation before database operations
+- Use database migrations for schema changes
+- Regular database backups in production
+
+## Performance Guidelines
+
+### Frontend Performance
+- Use React.memo() for components that re-render frequently
+- Implement proper loading states for async operations
+- Optimize bundle size by lazy loading routes and components
+- Use Material-UI theming system efficiently
+
+### Backend Performance
+- Implement database query optimization with Prisma
+- Use proper indexing on frequently queried fields
+- Implement caching strategies for expensive operations
+- Monitor API response times and optimize slow endpoints
+
+## Testing Strategy
+
+### Current State
+- No testing framework currently implemented
+- Focus on manual testing and quality code practices
+- Implement error handling and validation thoroughly
+
+### Future Testing Implementation
+- Unit tests for utility functions and services
+- Integration tests for API endpoints
+- Component testing for React components
+- End-to-end testing for critical user flows
+
+## Error Handling Standards
+
+### Frontend Error Handling
+- Use try/catch blocks for all async operations
+- Display user-friendly error messages with Material-UI components
+- Log errors to console for debugging
+- Implement error boundaries for React components
+
+### Backend Error Handling
+- Use consistent error response format across all endpoints
+- Log errors with appropriate detail level
+- Return meaningful HTTP status codes
+- Never expose sensitive information in error messages
+
+## Package Management
+
+### Dependency Management
+- Use npm for package management
+- Keep dependencies up to date with regular updates
+- Use `package-lock.json` for dependency locking
+- Separate devDependencies from production dependencies
+
+### Package.json Scripts
+- Use consistent script naming across web and server
+- Implement development, build, and deployment scripts
+- Use environment-specific scripts when needed
+
+## Deployment Considerations
+
+### Environment Setup
+- Maintain separate configurations for development, staging, and production
+- Use environment-specific database connections
+- Implement proper logging in production environments
+- Use process managers for production deployments
+
+### Build Process
+- Optimize frontend builds for production
+- Minimize bundle sizes and implement code splitting
+- Use proper asset optimization and caching strategies
+- Implement health checks for production monitoring
+
+## Code Quality Standards
+
+### Code Reviews
+- Review for TypeScript type safety and explicit typing
+- Check for consistent formatting and style
+- Verify error handling implementation
+- Ensure security best practices are followed
+
+### Maintainability
+- Keep functions and components small and focused
+- Use descriptive naming for variables and functions
+- Implement proper separation of concerns
+- Document complex business logic
+
+## Key Project Reminders
+
+- **Double quotes everywhere** in the codebase
+- **Type all function parameters and return values** explicitly
+- **Use centralized styling** from styles.ts in web directory
+- **Follow monorepo structure** with directory-specific rules
+- **Implement proper error handling** for MVP reliability
+- **Keep components modular** and focused on single responsibilities
+- **Use react-hook-form** for all form implementations
+- **Follow Express/Prisma patterns** consistently in backend

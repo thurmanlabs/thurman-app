@@ -1,5 +1,5 @@
-import React, { useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -19,7 +19,7 @@ import {
   Tooltip,
   Skeleton,
   Alert
-} from '@mui/material';
+} from "@mui/material";
 import {
   TrendingUp as TrendingUpIcon,
   AccountBalance as AccountBalanceIcon,
@@ -31,22 +31,22 @@ import {
   Schedule as ScheduleIcon,
   CheckCircle as CheckCircleIcon,
   Error as ErrorIcon
-} from '@mui/icons-material';
-import { useSnackbar } from 'notistack';
-import { usePolling } from '../hooks/usePolling';
-import useAccount from '../hooks/useAccount';
-import BackgroundContainer from '../components/BackgroundContainer';
-import ContentContainer from '../components/ContentContainer';
+} from "@mui/icons-material";
+import { useSnackbar } from "notistack";
+import { usePolling } from "../hooks/usePolling";
+import useAccount from "../hooks/useAccount";
+import BackgroundContainer from "../components/BackgroundContainer";
+import ContentContainer from "../components/ContentContainer";
 
 // Thurman brand colors
 const THURMAN_COLORS = {
-  primary: '#725aa2',
-  secondary: '#29262a',
-  background: '#eff6fd',
-  white: '#FFFFFE',
-  success: '#4caf50',
-  warning: '#ff9800',
-  error: '#f44336'
+  primary: "#725aa2",
+  secondary: "#29262a",
+  background: "#eff6fd",
+  white: "#FFFFFE",
+  success: "#4caf50",
+  warning: "#ff9800",
+  error: "#f44336"
 };
 
 // Types
@@ -86,22 +86,22 @@ interface PortfolioResponse {
 
 // Utility functions
 const formatCurrency = (value: number) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   }).format(value);
 };
 
 const formatPercentage = (value: number) => {
-  const sign = value >= 0 ? '+' : '';
+  const sign = value >= 0 ? "+" : "";
   return `${sign}${value.toFixed(2)}%`;
 };
 
 const formatShares = (shares: string) => {
   const num = parseFloat(shares);
-  if (isNaN(num)) return '0';
+  if (isNaN(num)) return "0";
   return num.toLocaleString();
 };
 
@@ -110,14 +110,14 @@ const formatRelativeTime = (timestamp: string) => {
   const time = new Date(timestamp);
   const diffInMinutes = Math.floor((now.getTime() - time.getTime()) / (1000 * 60));
   
-  if (diffInMinutes < 1) return 'Just now';
-  if (diffInMinutes < 60) return `${diffInMinutes} minute${diffInMinutes > 1 ? 's' : ''} ago`;
+  if (diffInMinutes < 1) return "Just now";
+  if (diffInMinutes < 60) return `${diffInMinutes} minute${diffInMinutes > 1 ? "s" : ""} ago`;
   
   const diffInHours = Math.floor(diffInMinutes / 60);
-  if (diffInHours < 24) return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
+  if (diffInHours < 24) return `${diffInHours} hour${diffInHours > 1 ? "s" : ""} ago`;
   
   const diffInDays = Math.floor(diffInHours / 24);
-  return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
+  return `${diffInDays} day${diffInDays > 1 ? "s" : ""} ago`;
 };
 
 // Loading skeleton components

@@ -1,8 +1,8 @@
-import { Box, Typography, Alert, Skeleton } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import { PoolCard } from './PoolCard';
-import { LendingPool } from '../../types/pools';
-import { styles } from '../../styles/styles';
+import { Box, Typography, Alert, Skeleton } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { PoolCard } from "./PoolCard";
+import { LendingPool } from "../../types/pools";
+import { styles } from "../../styles/styles";
 
 interface LendingPoolsSectionProps {
   pools: LendingPool[];

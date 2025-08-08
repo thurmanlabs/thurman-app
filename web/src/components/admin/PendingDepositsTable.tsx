@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo, useRef } from 'react';
+import React, { useState, useCallback, useMemo, useRef } from "react";
 import {
   Table,
   TableBody,
@@ -33,9 +33,9 @@ import {
   Schedule as ScheduleIcon,
   AccountBalance as AccountBalanceIcon
 } from '@mui/icons-material';
-import { useSnackbar, closeSnackbar } from 'notistack';
-import { useAdminPolling } from '../../hooks/usePolling';
-import axios from 'axios';
+import { useSnackbar, closeSnackbar } from "notistack";
+import { useAdminPolling } from "../../hooks/usePolling";
+import axios from "axios";
 
 // Types
 interface PendingDeposit {

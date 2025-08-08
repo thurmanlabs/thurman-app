@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import useAccount from './useAccount';
-import axios from 'axios';
+import { useState, useEffect, useRef, useCallback } from "react";
+import useAccount from "./useAccount";
+import axios from "axios";
 
 // Types for the polling hook
 export interface PollingOptions<T> {

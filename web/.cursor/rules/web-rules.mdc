@@ -1,0 +1,254 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Thurman App - Web Directory Cursor Rules
+
+## Core Code Standards
+
+### Quotes and Formatting
+- **ALWAYS use double quotes** for strings, imports, JSX attributes
+- 2-space indentation, semicolons required, trailing commas in multi-line structures
+- Line length: 80-100 characters
+
+### TypeScript Requirements
+- **ALWAYS define explicit interfaces for component props**
+- **ALWAYS type function parameters and return values**
+- Use PascalCase for interfaces/types, camelCase for variables/functions
+
+```typescript
+interface ComponentProps {
+  title: string;
+  count?: number;
+  onAction: (id: number) => void;
+}
+
+export default function Component({ title, count = 0, onAction }: ComponentProps): JSX.Element {
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>): void => {
+    // logic
+  };
+}
+```
+
+## Import Organization
+```typescript
+// 1. React imports
+import React, { useState, useEffect } from "react";
+// 2. Third-party libraries  
+import { Grid, Typography, Button } from "@mui/material";
+import { useForm } from "react-hook-form";
+// 3. Internal imports
+import { styles } from "../styles/styles";
+import useAccount from "../hooks/useAccount";
+```
+
+## Component Architecture
+
+### Modularity Rules
+- **Break components into small, focused pieces** - single responsibility only
+- Keep components under 150 lines when possible
+- Extract complex UI sections into separate components
+- Use composition over large monolithic components
+
+```typescript
+// Good: Focused components
+export default function UserTable({ users }: UserTableProps) {}
+export default function UserStatusChip({ status }: UserStatusChipProps) {}
+
+// Avoid: Large multi-purpose components
+export default function UserDashboard() {
+  // 200+ lines handling everything
+}
+```
+
+## Styling Standards
+
+### Material-UI Integration
+- **ALWAYS import and use styles from `../styles/styles`**
+- Never use inline styles or custom sx props when styles exist
+- Reference existing patterns in styles.ts for new components
+
+```typescript
+import { styles } from "../styles/styles";
+
+// In JSX:
+<Button sx={styles.button.primary}>
+<Paper sx={styles.containers.form}>
+<Typography sx={styles.header.logo}>
+```
+
+### Adding New Styles
+- Add to appropriate section in styles.ts following existing patterns
+- Use established colors: `#FFFFFE` (white), `#29262a` (dark), `#725aa2` (primary)
+- Border radius: `1.25em` containers, `0.75em` smaller elements
+
+## Form Handling with React Hook Form
+
+### Required Pattern
+- **ALWAYS use react-hook-form** - never useState for form data
+- Use `useForm` hook with proper TypeScript interfaces
+- Implement validation with react-hook-form rules
+
+```typescript
+interface FormData {
+  emailValue: string;
+  passwordValue: string;
+}
+
+const {
+  formState: { isValid, errors },
+  control,
+  handleSubmit,
+  reset,
+  setError
+} = useForm<FormData>({
+  mode: "onChange",
+  defaultValues: { emailValue: "", passwordValue: "" }
+});
+
+const onSubmit: SubmitHandler<FormData> = async (data) => {
+  // submission logic
+};
+```
+
+### Form Components
+- Use `TextInputField` component with `control`, `name`, `rules` props
+- Show validation errors below fields with `Typography color="error"`
+- Use `setError` for server-side validation errors
+
+## State Management
+
+### Local vs Global State
+- **Prefer local state (useState)** for component-specific data
+- Only use global state (useAccount) when shared across multiple components
+- Keep components self-contained when possible
+
+## API Integration
+
+### Service Layer Pattern
+- Use centralized api service from `../services/api.ts`
+- Type all request/response interfaces
+- Handle errors consistently with try/catch
+
+```typescript
+const handleApiCall = async (): Promise<void> => {
+  try {
+    const response = await apiService.getData();
+    // handle success
+  } catch (error) {
+    console.error("Error:", error);
+    setNotification({ type: "error", message: "Operation failed. Please try again." });
+  }
+};
+```
+
+## Error Handling (MVP Strategy)
+
+### Simple but Effective
+- Use try/catch for async operations with user-friendly messages
+- Implement notification components (Snackbar/Alert) for feedback
+- Show loading states with CircularProgress during async operations
+- Handle missing data with sensible defaults
+
+```typescript
+// Handle missing data gracefully
+const displayName = user?.firstName || "Guest";
+{loading ? <CircularProgress /> : <DataComponent data={data} />}
+```
+
+## Authentication Patterns
+
+### User State Access
+```typescript
+const { user, loading, isAdmin, login, logout } = useAccount();
+
+// Authentication checks
+if (!user && !loading) {
+  // redirect to login
+}
+
+// Role-based access
+if (user && !isAdmin) {
+  // show access denied
+}
+```
+
+## UI Patterns
+
+### Loading States
+- Show CircularProgress for async operations
+- Use skeleton components for data loading
+- Disable interactive elements during loading
+
+### Navigation
+- Use `useNavigate` hook for programmatic navigation
+- Style links with `styles.header.navLink`
+
+### Notifications
+- Use Snackbar for success/error messages
+- Auto-dismiss success (4s), manual dismiss errors
+
+## File Organization
+```
+src/
+├── components/     # Reusable UI components
+├── pages/         # Route-level components  
+├── hooks/         # Custom React hooks
+├── services/      # API integration
+├── types/         # TypeScript definitions
+├── styles/        # Centralized styling (styles.ts)
+└── context/       # React context providers
+```
+
+## Component Example Template
+```typescript
+import React, { useState } from "react";
+import { Grid, Typography, Button } from "@mui/material";
+import { useForm, SubmitHandler } from "react-hook-form";
+import { styles } from "../styles/styles";
+import useAccount from "../hooks/useAccount";
+
+interface ComponentProps {
+  title: string;
+  onSubmit: (data: FormData) => void;
+}
+
+interface FormData {
+  name: string;
+}
+
+export default function Component({ title, onSubmit }: ComponentProps): JSX.Element {
+  const { user } = useAccount();
+  const [loading, setLoading] = useState<boolean>(false);
+  
+  const { control, handleSubmit, formState: { isValid } } = useForm<FormData>();
+  
+  const onFormSubmit: SubmitHandler<FormData> = async (data) => {
+    setLoading(true);
+    try {
+      await onSubmit(data);
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Grid container spacing={2}>
+      <Typography variant="h6">{title}</Typography>
+      {/* Component content */}
+    </Grid>
+  );
+}
+```
+
+## Key Reminders
+- Double quotes everywhere
+- Types for all props, parameters, return values
+- Use styles.ts, not inline styling
+- React-hook-form for all forms
+- Break components into focused pieces
+- Handle errors gracefully with user feedback
+- Local state preferred over global state

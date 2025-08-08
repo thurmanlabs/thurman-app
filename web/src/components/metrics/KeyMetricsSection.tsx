@@ -1,6 +1,6 @@
-import { Grid, Box } from '@mui/material';
-import { MetricCard } from './MetricCard';
-import { MetricsData } from '../../types/pools';
+import { Grid, Box } from "@mui/material";
+import { MetricCard } from "./MetricCard";
+import { MetricsData } from "../../types/pools";
 
 interface KeyMetricsSectionProps {
   metrics: MetricsData | null;

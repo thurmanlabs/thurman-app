@@ -4,8 +4,8 @@ import { IEmailAuthFormInput } from "../components/EmailAuthForm";
 export interface User {
     id: number;
     email: string;
-    role: 'ADMIN' | 'USER';
-    status: 'ACTIVE' | 'PENDING' | 'SUSPENDED';
+    role: "ADMIN" | "USER";
+    status: "ACTIVE" | "PENDING" | "SUSPENDED";
     account: string;
     walletName: string | null;
     custodyType: string;
