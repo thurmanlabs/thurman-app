@@ -247,7 +247,7 @@ export default function Home() {
               <Typography variant="h4" component="h1" sx={styles.header.pageTitle}>
                 Portfolio Dashboard
               </Typography>
-              <Typography variant="body1" color="text.secondary">
+              <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
                 {userAddress ? `Welcome back, ${userAddress.slice(0, 6)}...${userAddress.slice(-4)}` : "Connect your wallet to view your portfolio"}
               </Typography>
             </Box>
@@ -296,7 +296,7 @@ export default function Home() {
           {userAddress && (
             <>
               {/* Summary Cards */}
-              <Grid container spacing={3} sx={styles.containers.alert}>
+              <Grid container spacing={3} sx={{ mb: 10 }}>
                 <Grid item xs={12} sm={6} md={3}>
                   {portfolioLoading ? (
                     <SummaryCardSkeleton />
@@ -380,7 +380,7 @@ export default function Home() {
 
               {/* Pending & Claimable Summary */}
               {(pendingTotal > 0 || claimableTotal > 0) && (
-                <Grid container spacing={3} sx={{ mb: 4 }}>
+                <Grid container spacing={3} sx={{ mb: 10 }}>
                   {pendingTotal > 0 && (
                     <Grid item xs={12} sm={6}>
                       <Card sx={{
@@ -453,8 +453,8 @@ export default function Home() {
               )}
 
               {/* Positions Table */}
-              <Box sx={{ mb: 4 }}>
-                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
+              <Box sx={{ mb: 10 }}>
+                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 5 }}>
                   <Typography variant="h6" sx={{ fontWeight: 600, color: styles.colors.secondary }}>
                     Your Positions
                   </Typography>
@@ -574,17 +574,17 @@ export default function Home() {
 
               {/* Recent Activity Section */}
               {portfolio?.positions && portfolio.positions.length > 0 && (
-                <Box sx={{ mb: 4 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 600, color: styles.colors.secondary, mb: 2 }}>
+                <Box sx={{ mb: 10 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 600, color: styles.colors.secondary, mb: 5 }}>
                     Recent Activity
                   </Typography>
-                          <Card sx={{ 
-          borderRadius: "1.25em",
-          backgroundColor: styles.metrics.card,
-          boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)"
-        }}>
-          <CardContent>
-            <Typography variant="body2" color="text.secondary" sx={{ textAlign: "center", py: 2 }}>
+                  <Card sx={{ 
+                    borderRadius: "1.25em",
+                    backgroundColor: styles.metrics.card,
+                    boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)"
+                  }}>
+                    <CardContent>
+                      <Typography variant="body2" color="text.secondary" sx={{ textAlign: "center", py: 2 }}>
                         Recent activity will be displayed here once transaction history is implemented.
                       </Typography>
                     </CardContent>
@@ -596,12 +596,12 @@ export default function Home() {
 
           {/* Welcome Section for Non-Authenticated Users */}
           {!userAddress && (
-            <Box sx={{ textAlign: "center", py: 8 }}>
-              <AccountBalanceIcon sx={{ fontSize: 64, color: styles.colors.primary, mb: 3 }} />
-              <Typography variant="h4" component="h2" sx={{ fontWeight: 600, color: styles.colors.secondary, mb: 2 }}>
+            <Box sx={{ textAlign: "center", py: 12 }}>
+              <AccountBalanceIcon sx={{ fontSize: 64, color: styles.colors.primary, mb: 4 }} />
+              <Typography variant="h4" component="h2" sx={{ fontWeight: 600, color: styles.colors.secondary, mb: 3 }}>
                 Welcome to Thurman
               </Typography>
-              <Typography variant="body1" color="text.secondary" sx={{ mb: 4, maxWidth: 600, mx: "auto" }}>
+              <Typography variant="body1" color="text.secondary" sx={{ mb: 6, maxWidth: 600, mx: "auto" }}>
                 Connect your wallet to start investing in lending pools and track your portfolio performance in real-time.
               </Typography>
               <Button

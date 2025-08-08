@@ -355,11 +355,11 @@ export default function PoolDetails() {
                 </Typography>
               )}
             </Box>
-                          <Tooltip title="Refresh">
-                <IconButton 
-                  onClick={() => window.location.reload()}
-                  sx={styles.button.iconButton}
-                >
+            <Tooltip title="Refresh">
+              <IconButton 
+                onClick={() => window.location.reload()}
+                sx={styles.button.iconButton}
+              >
                 <RefreshIcon />
               </IconButton>
             </Tooltip>
@@ -367,7 +367,7 @@ export default function PoolDetails() {
 
           {/* Pool Status */}
           {pool && (
-            <Box sx={styles.containers.chipContainer}>
+            <Box sx={{ ...styles.containers.chipContainer, mb: 8 }}>
               <Chip
                 label={pool.config?.depositsEnabled ? "Open for Deposits" : "Closed"}
                 color={pool.config?.depositsEnabled ? "success" : "default"}
@@ -382,7 +382,7 @@ export default function PoolDetails() {
           )}
 
           {/* Main Content Grid */}
-          <Grid container spacing={3}>
+          <Grid container spacing={3} sx={{ mb: 8 }}>
             {/* Pool Statistics */}
             <Grid item xs={12} lg={8} sx={{ display: "flex" }}>
               {pool && <PoolStatsCard pool={pool} loading={poolLoading} />}
@@ -397,36 +397,36 @@ export default function PoolDetails() {
                 />
               </Grid>
             )}
-
-            {/* Deposit Interface - Only show for open pools */}
-            {pool?.config?.depositsEnabled && (
-              <Grid item xs={12}>
-                <DepositInterface
-                  poolId={pool.id}
-                  poolName={pool.name}
-                  minDeposit={parseFloat(pool.config.minDepositAmount)}
-                  maxDeposit={parseFloat(pool.config.maxDepositAmount)}
-                  hideBalanceCard={true} // Hide the balance card since it's now in the main grid
-                />
-              </Grid>
-            )}
-
-            {/* Closed Pool Message */}
-            {pool && !pool.config?.depositsEnabled && (
-              <Grid item xs={12}>
-                <Card sx={styles.metrics.card}>
-                  <CardContent>
-                    <Typography variant="h6" gutterBottom sx={styles.header.cardTitle}>
-                      Pool Status
-                    </Typography>
-                    <Alert severity="info" sx={styles.containers.alert}>
-                      This pool is currently closed for new deposits.
-                    </Alert>
-                  </CardContent>
-                </Card>
-              </Grid>
-            )}
           </Grid>
+
+          {/* Deposit Interface - Only show for open pools */}
+          {pool?.config?.depositsEnabled && (
+            <Box sx={{ mb: 8 }}>
+              <DepositInterface
+                poolId={pool.id}
+                poolName={pool.name}
+                minDeposit={parseFloat(pool.config.minDepositAmount)}
+                maxDeposit={parseFloat(pool.config.maxDepositAmount)}
+                hideBalanceCard={true} // Hide the balance card since it's now in the main grid
+              />
+            </Box>
+          )}
+
+          {/* Closed Pool Message */}
+          {pool && !pool.config?.depositsEnabled && (
+            <Box sx={{ mb: 8 }}>
+              <Card sx={styles.metrics.card}>
+                <CardContent>
+                  <Typography variant="h6" gutterBottom sx={styles.header.cardTitle}>
+                    Pool Status
+                  </Typography>
+                  <Alert severity="info" sx={styles.containers.alert}>
+                    This pool is currently closed for new deposits.
+                  </Alert>
+                </CardContent>
+              </Card>
+            </Box>
+          )}
         </Box>
       </ContentContainer>
     </BackgroundContainer>

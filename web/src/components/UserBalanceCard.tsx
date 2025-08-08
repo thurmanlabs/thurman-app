@@ -116,13 +116,14 @@ export default function UserBalanceCard({
   // Loading state
   if (loading) {
     return (
-      <Card sx={{ 
-        borderRadius: "1.25em",
-        backgroundColor: "#FFFFFE",
-        boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)"
+      <Card sx={{
+        ...styles.metrics.card,
+        height: "100%",
+        display: "flex",
+        flexDirection: "column"
       }}>
-        <CardContent>
-          <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: "#29262a" }}>
+        <CardContent sx={styles.containers.cardContent}>
+          <Typography variant="h6" gutterBottom sx={styles.header.cardTitle}>
             USDC Balance
           </Typography>
           <Skeleton variant="rectangular" height={80} sx={{ borderRadius: "0.75em" }} />
@@ -134,17 +135,18 @@ export default function UserBalanceCard({
   // Error state
   if (error) {
     return (
-      <Card sx={{ 
-        borderRadius: "1.25em",
-        backgroundColor: "#FFFFFE",
-        boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)"
+      <Card sx={{
+        ...styles.metrics.card,
+        height: "100%",
+        display: "flex",
+        flexDirection: "column"
       }}>
-        <CardContent>
-          <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: "#29262a" }}>
+        <CardContent sx={styles.containers.cardContent}>
+          <Typography variant="h6" gutterBottom sx={styles.header.cardTitle}>
             USDC Balance
           </Typography>
           
-          <Alert severity="error" sx={{ mb: 2 }}>
+          <Alert severity="error" sx={styles.containers.alert}>
             {error}
           </Alert>
           
@@ -153,14 +155,7 @@ export default function UserBalanceCard({
             onClick={handleRefresh}
             disabled={isRefreshing}
             startIcon={isRefreshing ? <CircularProgress size={16} /> : <RefreshIcon />}
-            sx={{
-              borderColor: "#d32f2f",
-              color: "#d32f2f",
-              "&:hover": {
-                borderColor: "#b71c1c",
-                backgroundColor: "rgba(211, 47, 47, 0.04)"
-              }
-            }}
+            sx={styles.button.outlined}
           >
             {isRefreshing ? "Retrying..." : "Retry"}
           </Button>
@@ -172,24 +167,19 @@ export default function UserBalanceCard({
   // No user address state
   if (!userAddress) {
     return (
-      <Card sx={{ 
-        borderRadius: "1.25em",
-        backgroundColor: "#FFFFFE",
-        boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)"
+      <Card sx={{
+        ...styles.metrics.card,
+        height: "100%",
+        display: "flex",
+        flexDirection: "column"
       }}>
-        <CardContent>
-          <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: "#29262a" }}>
+        <CardContent sx={styles.containers.cardContent}>
+          <Typography variant="h6" gutterBottom sx={styles.header.cardTitle}>
             USDC Balance
           </Typography>
           
-          <Box sx={{ 
-            display: "flex", 
-            flexDirection: "column", 
-            alignItems: "center", 
-            py: 3,
-            color: "#666"
-          }}>
-            <AccountBalanceIcon sx={{ fontSize: 48, mb: 2, color: "#D3D3D3" }} />
+          <Box sx={styles.containers.emptyState}>
+            <AccountBalanceIcon sx={styles.containers.iconLarge} />
             <Typography variant="body1" sx={{ mb: 1, fontWeight: 500 }}>
               Connect Wallet
             </Typography>
@@ -206,17 +196,15 @@ export default function UserBalanceCard({
   const StatusIcon = balanceStatus?.icon || AccountBalanceIcon;
 
   return (
-    <Card sx={{ 
-      borderRadius: "1.25em",
-      backgroundColor: "#FFFFFE",
-      boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)",
+    <Card sx={{
+      ...styles.metrics.card,
       height: "100%",
       display: "flex",
       flexDirection: "column"
     }}>
-      <CardContent sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
-        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
-          <Typography variant="h6" sx={{ fontWeight: 600, color: "#29262a" }}>
+      <CardContent sx={styles.containers.cardContent}>
+        <Box sx={styles.containers.flexBetween}>
+          <Typography variant="h6" sx={styles.header.cardTitle}>
             USDC Balance
           </Typography>
           
@@ -224,10 +212,7 @@ export default function UserBalanceCard({
             <IconButton
               onClick={handleRefresh}
               disabled={isRefreshing}
-              sx={{ 
-                    color: "#725aa2",
-    "&:hover": { backgroundColor: "rgba(114, 90, 162, 0.04)" }
-              }}
+              sx={styles.button.iconButton}
             >
               {isRefreshing ? (
                 <CircularProgress size={20} />
@@ -242,18 +227,18 @@ export default function UserBalanceCard({
         <Box sx={{ 
           p: 3, 
           backgroundColor: "#f8f9fa", 
-              borderRadius: "1em",
-    border: `2px solid ${balanceStatus?.color || "#D3D3D3"}`,
-    position: "relative",
+          borderRadius: "1em",
+          border: `2px solid ${balanceStatus?.color || "#D3D3D3"}`,
+          position: "relative",
           flexGrow: 1,
-              display: "flex",
-    flexDirection: "column",
-    justifyContent: "center"
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center"
         }}>
-                      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <Box sx={{ display: "flex", alignItems: "center" }}>
-                <StatusIcon sx={{ 
-                  color: balanceStatus?.color || "#666", 
+          <Box sx={styles.containers.flexBetween}>
+            <Box sx={styles.containers.flexCenter}>
+              <StatusIcon sx={{ 
+                color: balanceStatus?.color || "#666", 
                 mr: 2,
                 fontSize: 32
               }} />
