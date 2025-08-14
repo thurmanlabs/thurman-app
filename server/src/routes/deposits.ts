@@ -243,12 +243,11 @@ depositsRouter.post("/request", requireAuth, async (req: AuthenticatedRequest, r
             });
         }
 
-        // Return success response with transaction IDs
+        // Return success response with batch transaction ID
         return res.status(200).json({
             success: true,
             data: {
-                approvalTransactionId: result.approvalTransaction.transactionId,
-                depositTransactionId: result.depositTransaction.transactionId,
+                batchTransactionId: result.batchTransaction.transactionId,
                 poolId,
                 amount,
                 userAddress: userWallet.address,

@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
+import { ethers } from "ethers";
 import { 
     executeContractTransaction, 
     THURMAN_ABI, 
@@ -268,12 +269,12 @@ export const createShareClaim = async (
 // ============================================================================
 
 /**
- * Complete two-step deposit flow: USDC approval + deposit request
+ * Complete two-step deposit flow using Circle batch operations: USDC approval + deposit request
  * @param poolId - Pool ID to deposit into
  * @param amount - USDC amount to deposit (human readable format)
  * @param userAddress - User's Ethereum address
  * @param userWalletId - User's Circle wallet ID
- * @returns Object with both transaction IDs and status
+ * @returns Object with batch transaction ID and status
  */
 export const executeFullDepositRequest = async (
     poolId: number,
@@ -281,62 +282,98 @@ export const executeFullDepositRequest = async (
     userAddress: string,
     userWalletId: string
 ): Promise<{
-    approvalTransaction: TransactionResponse;
-    depositTransaction: TransactionResponse;
+    batchTransaction: TransactionResponse;
     success: boolean;
     error?: string;
 }> => {
     try {
-        console.log(`🔄 Starting full deposit request flow for pool ${poolId}, amount: ${amount} USDC`);
+        console.log(`🔄 Starting batched deposit request flow for pool ${poolId}, amount: ${amount} USDC`);
         
-        // Step 1: Create USDC approval transaction
-        console.log("Step 1: Creating USDC approval transaction...");
-        const approvalResult = await createUSDCApproval(amount, userWalletId);
+        // Validate wallet exists and user has permissions
+        await validateWalletPermissions(userWalletId, "approve");
         
-        if (approvalResult.status === "FAILED") {
-            console.error("❌ USDC approval failed, aborting deposit request");
-            return {
-                approvalTransaction: approvalResult,
-                depositTransaction: {
-                    transactionId: "",
-                    status: "FAILED",
-                    error: "Approval failed"
-                },
-                success: false,
-                error: `USDC approval failed: ${approvalResult.error}`
-            };
+        // Get required contract addresses from environment
+        const poolManagerAddress = process.env.POOL_MANAGER_ADDRESS;
+        const usdcAddress = process.env.USDC_ADDRESS;
+        
+        if (!poolManagerAddress || !usdcAddress) {
+            throw new Error("Required contract addresses not configured");
         }
         
-        // Step 2: Create deposit request transaction
-        console.log("Step 2: Creating deposit request transaction...");
-        const depositResult = await createDepositRequest(poolId, amount, userAddress, userWalletId);
+        // Format amount for blockchain
+        const formattedAmount = parseUSDCAmount(amount);
+        const formattedPoolId = formatPoolId(poolId);
+        const formattedUserAddress = formatAddress(userAddress);
         
-        if (depositResult.status === "FAILED") {
-            console.error("❌ Deposit request failed after successful approval");
-            return {
-                approvalTransaction: approvalResult,
-                depositTransaction: depositResult,
-                success: false,
-                error: `Deposit request failed: ${depositResult.error}`
-            };
-        }
+        // Create ethers interfaces for proper function encoding (ethers v6)
+        const usdcInterface = new ethers.Interface([
+            "function approve(address spender, uint256 amount)"
+        ]);
         
-        console.log("✅ Full deposit request flow completed successfully");
-        return {
-            approvalTransaction: approvalResult,
-            depositTransaction: depositResult,
-            success: true
+        const poolManagerInterface = new ethers.Interface([
+            "function requestDeposit(uint16 poolId, uint256 amount, address user)"
+        ]);
+        
+        // Encode function calls using ethers
+        const approveData = usdcInterface.encodeFunctionData("approve", [
+            poolManagerAddress, 
+            formattedAmount
+        ]);
+        
+        const requestDepositData = poolManagerInterface.encodeFunctionData("requestDeposit", [
+            formattedPoolId,
+            formattedAmount,
+            formattedUserAddress
+        ]);
+        
+        // Create batch transaction request for executeBatch((address, uint256, bytes)[])
+        // Transaction 1: USDC approve for pool manager
+        // Transaction 2: Pool manager requestDeposit
+        
+        const batchTransactionRequest: TransactionRequest = {
+            contractAddress: userWalletId, // Execute on the user's wallet (MSCA)
+            functionSignature: "executeBatch((address, uint256, bytes)[])",
+            parameters: [
+                [
+                    // First transaction: USDC approve
+                    [
+                        usdcAddress, // USDC contract address
+                        "0", // No native token transfer
+                        approveData // Properly encoded approve function call
+                    ],
+                    // Second transaction: Pool manager requestDeposit
+                    [
+                        poolManagerAddress, // Pool manager contract address
+                        "0", // No native token transfer
+                        requestDepositData // Properly encoded requestDeposit function call
+                    ]
+                ]
+            ],
+            walletId: userWalletId
         };
         
+        console.log("🔄 Executing batched deposit transaction...");
+        const batchResult = await executeContractTransaction(batchTransactionRequest);
+        
+        if (batchResult.status === "PENDING") {
+            console.log(`✅ Batched deposit transaction created successfully: ${batchResult.transactionId}`);
+            return {
+                batchTransaction: batchResult,
+                success: true
+            };
+        } else {
+            console.error(`❌ Batched deposit transaction failed: ${batchResult.error}`);
+            return {
+                batchTransaction: batchResult,
+                success: false,
+                error: `Batched deposit failed: ${batchResult.error}`
+            };
+        }
+        
     } catch (error: any) {
-        console.error("❌ Full deposit request flow failed:", error);
+        console.error("❌ Batched deposit request flow failed:", error);
         return {
-            approvalTransaction: {
-                transactionId: "",
-                status: "FAILED",
-                error: "Flow failed"
-            },
-            depositTransaction: {
+            batchTransaction: {
                 transactionId: "",
                 status: "FAILED",
                 error: "Flow failed"
@@ -353,7 +390,7 @@ export const executeFullDepositRequest = async (
  * @param amount - USDC amount to deposit (human readable format)
  * @param userAddress - User's Ethereum address
  * @param userId - User ID from database
- * @returns Object with both transaction IDs and status
+ * @returns Object with batch transaction ID and status
  */
 export const executeFullDepositRequestByUserId = async (
     poolId: number,
@@ -361,8 +398,7 @@ export const executeFullDepositRequestByUserId = async (
     userAddress: string,
     userId: number
 ): Promise<{
-    approvalTransaction: TransactionResponse;
-    depositTransaction: TransactionResponse;
+    batchTransaction: TransactionResponse;
     success: boolean;
     error?: string;
 }> => {
@@ -376,12 +412,7 @@ export const executeFullDepositRequestByUserId = async (
     } catch (error: any) {
         console.error("❌ Full deposit request by user ID failed:", error);
         return {
-            approvalTransaction: {
-                transactionId: "",
-                status: "FAILED",
-                error: "User wallet not found"
-            },
-            depositTransaction: {
+            batchTransaction: {
                 transactionId: "",
                 status: "FAILED",
                 error: "User wallet not found"
