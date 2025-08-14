@@ -303,7 +303,7 @@ export const executeFullDepositRequest = async (
         // Format amount for blockchain
         const formattedAmount = parseUSDCAmount(amount);
         const formattedPoolId = formatPoolId(poolId);
-        const formattedUserAddress = formatAddress(userAddress);
+        // Use userAddress directly - it should already be the wallet address from database/cookie
         
         // Create ethers interfaces for proper function encoding (ethers v6)
         const usdcInterface = new ethers.Interface([
@@ -323,50 +323,108 @@ export const executeFullDepositRequest = async (
         const requestDepositData = poolManagerInterface.encodeFunctionData("requestDeposit", [
             formattedPoolId,
             formattedAmount,
-            formattedUserAddress
+            userAddress
         ]);
         
-        // Create batch transaction request for executeBatch((address, uint256, bytes)[])
+        // Create batch transaction request for executeBatch((address,uint256,bytes)[])
         // Transaction 1: USDC approve for pool manager
         // Transaction 2: Pool manager requestDeposit
         
-        const batchTransactionRequest: TransactionRequest = {
-            contractAddress: userWalletId, // Execute on the user's wallet (MSCA)
-            functionSignature: "executeBatch((address, uint256, bytes)[])",
-            parameters: [
-                [
-                    // First transaction: USDC approve
+        console.log(`🔍 Batch transaction details:`);
+        console.log(`  - Contract Address (user wallet): ${userAddress}`);
+        console.log(`  - USDC Contract: ${usdcAddress}`);
+        console.log(`  - Pool Manager: ${poolManagerAddress}`);
+        console.log(`  - User Wallet ID: ${userWalletId}`);
+        console.log(`  - Function Signature: executeBatch((address address, uint256 amount, bytes func)[])`);
+        console.log(`  - Fee Level: HIGH`);
+        console.log(`  - Approve Data: ${approveData}`);
+        console.log(`  - Request Deposit Data: ${requestDepositData}`);
+        console.log(`  - Pool ID (formatted): ${formattedPoolId}`);
+        console.log(`  - Amount (formatted): ${formattedAmount}`);
+        
+        // Try batch first, but fall back to separate transactions if it fails
+        console.log("🔄 Attempting batch transaction...");
+        
+        try {
+            const batchTransactionRequest: TransactionRequest = {
+                contractAddress: userAddress,
+                functionSignature: "executeBatch((address address, uint256 amount, bytes func)[])",
+                parameters: [
                     [
-                        usdcAddress, // USDC contract address
-                        "0", // No native token transfer
-                        approveData // Properly encoded approve function call
-                    ],
-                    // Second transaction: Pool manager requestDeposit
-                    [
-                        poolManagerAddress, // Pool manager contract address
-                        "0", // No native token transfer
-                        requestDepositData // Properly encoded requestDeposit function call
+                        [usdcAddress, "0", approveData],
+                        [poolManagerAddress, "0", requestDepositData]
                     ]
-                ]
-            ],
-            walletId: userWalletId
+                ],
+                walletId: userWalletId,
+                feeLevel: "HIGH"
+            };
+            
+            console.log(`📋 Batch parameters being sent:`, JSON.stringify(batchTransactionRequest.parameters, null, 2));
+            const batchResult = await executeContractTransaction(batchTransactionRequest);
+            
+            if (batchResult.status === "PENDING") {
+                console.log(`✅ Batched deposit transaction successful: ${batchResult.transactionId}`);
+                return {
+                    batchTransaction: batchResult,
+                    success: true
+                };
+            } else {
+                console.log(`⚠️ Batch failed: ${batchResult.error}, falling back to separate transactions`);
+            }
+        } catch (error: any) {
+            console.log(`⚠️ Batch execution error: ${error.message}, falling back to separate transactions`);
+        }
+        
+        // Fallback: Execute USDC approval first
+        console.log("🔄 Executing USDC approval transaction...");
+        const approvalRequest: TransactionRequest = {
+            contractAddress: usdcAddress,
+            functionSignature: "approve(address,uint256)",
+            parameters: [poolManagerAddress, formattedAmount],
+            walletId: userWalletId,
+            feeLevel: "HIGH"
         };
         
-        console.log("🔄 Executing batched deposit transaction...");
-        const batchResult = await executeContractTransaction(batchTransactionRequest);
+        const approvalResult = await executeContractTransaction(approvalRequest);
         
-        if (batchResult.status === "PENDING") {
-            console.log(`✅ Batched deposit transaction created successfully: ${batchResult.transactionId}`);
+        if (approvalResult.status !== "PENDING") {
+            console.error(`❌ USDC approval failed: ${approvalResult.error}`);
             return {
-                batchTransaction: batchResult,
+                batchTransaction: approvalResult,
+                success: false,
+                error: `USDC approval failed: ${approvalResult.error}`
+            };
+        }
+        
+        console.log(`✅ USDC approval successful: ${approvalResult.transactionId}`);
+        
+        // Wait a moment for approval to be processed
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Execute deposit request
+        console.log("🔄 Executing deposit request transaction...");
+        const depositRequest: TransactionRequest = {
+            contractAddress: poolManagerAddress,
+            functionSignature: "requestDeposit(uint16,uint256,address)",
+            parameters: [formattedPoolId, formattedAmount, userAddress],
+            walletId: userWalletId,
+            feeLevel: "HIGH"
+        };
+        
+        const depositResult = await executeContractTransaction(depositRequest);
+        
+        if (depositResult.status === "PENDING") {
+            console.log(`✅ Deposit request successful: ${depositResult.transactionId}`);
+            return {
+                batchTransaction: depositResult,
                 success: true
             };
         } else {
-            console.error(`❌ Batched deposit transaction failed: ${batchResult.error}`);
+            console.error(`❌ Deposit request failed: ${depositResult.error}`);
             return {
-                batchTransaction: batchResult,
+                batchTransaction: depositResult,
                 success: false,
-                error: `Batched deposit failed: ${batchResult.error}`
+                error: `Deposit request failed: ${depositResult.error}`
             };
         }
         

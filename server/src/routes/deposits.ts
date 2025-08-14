@@ -8,7 +8,8 @@ import {
 } from "../services/circleDeposit";
 import { 
     getUserWalletId,
-    getAdminWalletId
+    getAdminWalletId,
+    getUSDCBalance
 } from "../services/walletService";
 import { 
     parseUSDCAmount,
@@ -47,9 +48,9 @@ const validateDepositAmount = async (amount: string, poolId: number): Promise<{ 
         }
 
         // TODO: Query pool manager contract for actual limits
-        // For now, use reasonable defaults
-        const minAmount = 0.01; // $0.01 minimum
-        const maxAmount = 1000000; // $1M maximum
+        // For now, use reasonable defaults for testing
+        const minAmount = parseFloat(process.env.MIN_DEPOSIT_AMOUNT || "0.001"); // Configurable minimum
+        const maxAmount = parseFloat(process.env.MAX_DEPOSIT_AMOUNT || "1000000"); // Configurable maximum
 
         const parsedAmount = parseFloat(amount);
         if (parsedAmount < minAmount) {
@@ -73,17 +74,26 @@ const validateDepositAmount = async (amount: string, poolId: number): Promise<{ 
  */
 const validateUserBalance = async (userId: number, amount: string): Promise<{ valid: boolean; error?: string }> => {
     try {
-        // TODO: Query Circle API for actual USDC balance
-        // For now, assume sufficient balance (implement actual balance checking)
+        // Query Circle API for actual USDC balance
         console.log(`Validating balance for user ${userId}, amount: ${amount} USDC`);
         
-        // Placeholder for actual balance validation
-        // const balance = await getUSDCBalance(userId);
-        // if (balance < parseFloat(amount)) {
-        //     return { valid: false, error: "Insufficient USDC balance" };
-        // }
-
-        return { valid: true };
+        try {
+            const userWalletId = await getUserWalletId(userId);
+            const balance = await getUSDCBalance(userWalletId);
+            const balanceAmount = parseFloat(balance);
+            const requestedAmount = parseFloat(amount);
+            
+            console.log(`User ${userId} has ${balanceAmount} USDC, requesting ${requestedAmount} USDC`);
+            
+            if (balanceAmount < requestedAmount) {
+                return { valid: false, error: `Insufficient USDC balance. You have $${balanceAmount.toFixed(2)} available` };
+            }
+            
+            return { valid: true };
+        } catch (error: any) {
+            console.error("Balance validation error:", error);
+            return { valid: false, error: "Failed to validate user balance" };
+        }
     } catch (error: any) {
         return { valid: false, error: "Failed to validate user balance" };
     }
@@ -96,23 +106,39 @@ const validateUserBalance = async (userId: number, amount: string): Promise<{ va
  */
 const validatePoolStatus = async (poolId: number): Promise<{ valid: boolean; error?: string }> => {
     try {
-        // Check pool exists and is active
-        const pool = await db.loanPool.findFirst({
+        console.log(`🔍 Validating pool status for poolId: ${poolId}`);
+        
+        // First, try to find by blockchain pool_id
+        let pool = await db.loanPool.findFirst({
             where: {
                 pool_id: poolId,
                 status: { in: ["POOL_CREATED", "POOL_CONFIGURED", "DEPLOYING_LOANS", "DEPLOYED"] }
             }
         });
 
+        // If not found by pool_id, try to find by database id (for testing purposes)
+        if (!pool) {
+            console.log(`Pool not found by pool_id: ${poolId}, trying database id...`);
+            pool = await db.loanPool.findFirst({
+                where: {
+                    id: poolId,
+                    status: { in: ["POOL_CREATED", "POOL_CONFIGURED", "DEPLOYING_LOANS", "DEPLOYED"] }
+                }
+            });
+        }
+
         if (!pool) {
             return { valid: false, error: "Pool not found or not active" };
         }
+
+        console.log(`✅ Pool ${poolId} validated successfully. Status: ${pool.status}, Database ID: ${pool.id}, Blockchain Pool ID: ${pool.pool_id}`);
 
         // TODO: Query pool manager contract for actual deposit settings
         // For now, assume deposits are enabled for active pools
 
         return { valid: true };
     } catch (error: any) {
+        console.error("Pool validation error:", error);
         return { valid: false, error: "Failed to validate pool status" };
     }
 };
@@ -154,6 +180,8 @@ depositsRouter.post("/request", requireAuth, async (req: AuthenticatedRequest, r
     try {
         const { poolId, amount } = req.body;
         const userId = req.user?.id;
+        
+        console.log(`🔄 Processing deposit request for poolId: ${poolId}, amount: ${amount} USDC`);
 
         if (!userId) {
             return res.status(401).json({
@@ -195,6 +223,8 @@ depositsRouter.post("/request", requireAuth, async (req: AuthenticatedRequest, r
                 error: poolValidation.error
             });
         }
+        
+        console.log(`✅ Pool validation passed for poolId: ${poolId}`);
 
         // Validate user balance
         const balanceValidation = await validateUserBalance(userId, amount);

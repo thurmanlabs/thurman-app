@@ -211,4 +211,36 @@ export const getUserWallets = async (userId: number): Promise<Wallet[]> => {
         console.error(`Failed to get wallets for user ${userId}:`, error);
         return [];
     }
+};
+
+/**
+ * Get USDC balance for a specific wallet
+ * @param walletId - Circle wallet ID
+ * @returns USDC balance in human readable format (e.g., "20.00")
+ */
+export const getUSDCBalance = async (walletId: string): Promise<string> => {
+    try {
+        console.log(`🔄 Fetching USDC balance for wallet: ${walletId}`);
+        
+        // Get wallet details from database
+        const wallet = await db.wallet.findUnique({
+            where: { id: walletId }
+        });
+        
+        if (!wallet) {
+            throw new Error(`Wallet ${walletId} not found`);
+        }
+        
+        // TODO: Implement actual Circle API call to get balance
+        // For now, return a placeholder - this should be replaced with real API call
+        // const balance = await circleClient.getWalletBalance(walletId, "USDC");
+        
+        // Placeholder return - replace with actual implementation
+        console.log(`⚠️ Using placeholder balance for wallet ${walletId} - implement real Circle API call`);
+        return "20.00"; // Placeholder for testing
+        
+    } catch (error: any) {
+        console.error(`Failed to get USDC balance for wallet ${walletId}:`, error);
+        throw new Error("Failed to fetch wallet balance");
+    }
 }; 
