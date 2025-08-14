@@ -40,12 +40,16 @@ interface ValidationState {
 export default function DepositSection({
   poolId,
   poolName,
-  minDeposit = 0.01,
+  minDeposit = 0.001, // Lowered for testing with faucet limitations
   maxDeposit = 1000000,
   userBalance = 0,
   onDepositSuccess,
   onDepositError
 }: DepositSectionProps): JSX.Element {
+  
+  // Debug logging for testing
+  console.log("DepositSection - Received minDeposit:", minDeposit);
+  console.log("DepositSection - Using minDeposit:", minDeposit);
   const [validation, setValidation] = React.useState<ValidationState>({ isValid: false });
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [notification, setNotification] = React.useState<{

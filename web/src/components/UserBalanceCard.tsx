@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   Box,
   Button,
@@ -17,82 +17,30 @@ import {
   TrendingUp as TrendingUpIcon,
   Warning as WarningIcon
 } from "@mui/icons-material";
-import axios from "axios";
 import { styles } from "../styles/styles";
+import useUserBalance from "../hooks/useUserBalance";
 
 interface UserBalanceCardProps {
   userAddress?: string;
   onBalanceUpdate?: (balance: number) => void;
 }
 
-interface BalanceData {
-  balance: number;
-  lastUpdated: string;
-  currency: string;
-}
-
 export default function UserBalanceCard({
   userAddress,
   onBalanceUpdate
 }: UserBalanceCardProps) {
-  const [balanceData, setBalanceData] = useState<BalanceData | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-
-  // Fetch balance data
-  const fetchBalance = async (showLoading = true) => {
-    if (!userAddress) return;
-
-    if (showLoading) {
-      setLoading(true);
-    } else {
-      setIsRefreshing(true);
-    }
-    
-    setError(null);
-
-    try {
-      // TODO: Replace with actual balance API endpoint
-      // For now, simulate API call with mock data
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network delay
-      
-      // Mock balance data - replace with actual API call
-      const mockBalance = Math.random() * 10000; // Random balance between 0-10k
-      const newBalanceData: BalanceData = {
-        balance: mockBalance,
-        lastUpdated: new Date().toISOString(),
-        currency: "USDC"
-      };
-
-      setBalanceData(newBalanceData);
-      
-      if (onBalanceUpdate) {
-        onBalanceUpdate(newBalanceData.balance);
-      }
-
-      // Clear any previous errors
-      setError(null);
-
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.error || err.message || "Failed to fetch balance";
-      setError(errorMessage);
-    } finally {
-      setLoading(false);
-      setIsRefreshing(false);
-    }
-  };
-
-  // Initial load
-  useEffect(() => {
-    if (userAddress) {
-      fetchBalance();
-    }
-  }, [userAddress]);
+  const { balance, currency, lastUpdated, loading, error, refreshBalance } = useUserBalance();
 
   // Handle manual refresh
-  const handleRefresh = () => {
-    fetchBalance(false);
+  const handleRefresh = async () => {
+    try {
+      const newBalanceData = await refreshBalance();
+      if (onBalanceUpdate && newBalanceData) {
+        onBalanceUpdate(newBalanceData.balance);
+      }
+    } catch (error) {
+      console.error("Failed to refresh balance:", error);
+    }
   };
 
   // Format currency
@@ -153,11 +101,9 @@ export default function UserBalanceCard({
           <Button
             variant="outlined"
             onClick={handleRefresh}
-            disabled={isRefreshing}
-            startIcon={isRefreshing ? <CircularProgress size={16} /> : <RefreshIcon />}
             sx={styles.button.outlined}
           >
-            {isRefreshing ? "Retrying..." : "Retry"}
+            Retry
           </Button>
         </CardContent>
       </Card>
@@ -192,7 +138,7 @@ export default function UserBalanceCard({
     );
   }
 
-  const balanceStatus = balanceData ? getBalanceStatus(balanceData.balance) : null;
+  const balanceStatus = getBalanceStatus(balance);
   const StatusIcon = balanceStatus?.icon || AccountBalanceIcon;
 
   return (
@@ -211,14 +157,9 @@ export default function UserBalanceCard({
           <Tooltip title="Refresh balance">
             <IconButton
               onClick={handleRefresh}
-              disabled={isRefreshing}
               sx={styles.button.iconButton}
             >
-              {isRefreshing ? (
-                <CircularProgress size={20} />
-              ) : (
-                <RefreshIcon />
-              )}
+              <RefreshIcon />
             </IconButton>
           </Tooltip>
         </Box>
@@ -248,7 +189,7 @@ export default function UserBalanceCard({
                   color: "#29262a",
                   lineHeight: 1
                 }}>
-                  {formatCurrency(balanceData?.balance || 0)}
+                  {formatCurrency(balance)}
                 </Typography>
                 <Typography variant="body2" sx={{ color: "#666", mt: 0.5 }}>
                   Available for deposits
@@ -304,10 +245,10 @@ export default function UserBalanceCard({
         )}
 
         {/* Last Updated */}
-        {balanceData && (
+        {lastUpdated && (
           <Box sx={{ mt: 2, textAlign: "center" }}>
             <Typography variant="caption" sx={{ color: "#999" }}>
-              Last updated: {new Date(balanceData.lastUpdated).toLocaleString()}
+              Last updated: {new Date(lastUpdated).toLocaleString()}
             </Typography>
           </Box>
         )}

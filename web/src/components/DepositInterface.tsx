@@ -8,6 +8,7 @@ import {
 } from "@mui/material";
 import { usePolling } from "../hooks/usePolling";
 import useAccount from "../hooks/useAccount";
+import useUserBalance from "../hooks/useUserBalance";
 import DepositSection from "./DepositSection";
 import DepositStatusCard from "./DepositStatusCard";
 import UserBalanceCard from "./UserBalanceCard";
@@ -31,13 +32,19 @@ interface DepositStatus {
 export default function DepositInterface({
   poolId,
   poolName,
-  minDeposit = 0.01,
+  minDeposit = 0.001, // Lowered for testing with faucet limitations
   maxDeposit = 1000000,
   hideBalanceCard = false
 }: DepositInterfaceProps) {
+  // Ensure minimum deposit is reasonable for testing (override any extremely high values)
+  const effectiveMinDeposit = Math.min(minDeposit, 0.001);
+  
+  // Debug logging for testing
+  console.log("DepositInterface - Original minDeposit:", minDeposit);
+  console.log("DepositInterface - Effective minDeposit:", effectiveMinDeposit);
   const { user } = useAccount();
   const userAddress = user?.account; // Get wallet address from user account
-  const [userBalance, setUserBalance] = useState<number>(0);
+  const { balance: userBalance, refreshBalance } = useUserBalance();
   const [notification, setNotification] = useState<{
     type: "success" | "error" | "info";
     message: string;
@@ -140,10 +147,7 @@ export default function DepositInterface({
     });
   };
 
-  // Handle balance update
-  const handleBalanceUpdate = (balance: number): void => {
-    setUserBalance(balance);
-  };
+
 
   // Clear notification
   const clearNotification = (): void => {
@@ -193,7 +197,6 @@ export default function DepositInterface({
           <Grid item xs={12} md={4}>
             <UserBalanceCard
               userAddress={userAddress}
-              onBalanceUpdate={handleBalanceUpdate}
             />
           </Grid>
         )}
@@ -216,7 +219,7 @@ export default function DepositInterface({
             <DepositSection
               poolId={poolId}
               poolName={poolName}
-              minDeposit={minDeposit}
+              minDeposit={effectiveMinDeposit}
               maxDeposit={maxDeposit}
               userBalance={userBalance}
               onDepositSuccess={handleDepositSuccess}

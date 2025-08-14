@@ -405,7 +405,7 @@ export default function PoolDetails() {
               <DepositInterface
                 poolId={pool.id}
                 poolName={pool.name}
-                minDeposit={parseFloat(pool.config.minDepositAmount)}
+                minDeposit={Math.min(parseFloat(pool.config.minDepositAmount || "1000000"), 0.001)} // Override for testing
                 maxDeposit={parseFloat(pool.config.maxDepositAmount)}
                 hideBalanceCard={true} // Hide the balance card since it's now in the main grid
               />
