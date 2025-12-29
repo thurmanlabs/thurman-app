@@ -1,6 +1,6 @@
 # Thurman Protocol
 
-Thurman Protocol is a DeFi lending platform built on smart contracts and deployed on Base Sepolia. The protocol facilitates a two-party lending system where originators create loan pool drafts and Thurman admins deploy them to the blockchain.
+Thurman Protocol is a secondary loan marketplace platform. The protocol facilitates laon sales where originators create loan pool drafts and Thurman admins deploy them to the blockchain. Buyers purchase loans through loan pools and receive principal and interest payments from borrowers as the originator services the borrower loans.
 
 ## Architecture
 
@@ -389,4 +389,4 @@ For issues or questions:
 
 ## License
 
-[Add your license information here]
+GNU GENERAL PUBLIC LICENSE
