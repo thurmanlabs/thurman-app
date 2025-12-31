@@ -98,11 +98,18 @@ export default function EnhancedTextInputField({
                             fullWidth
                             multiline={multiline}
                             rows={multiline ? rows : undefined}
-                            inputProps={{ style: { color: "darkGray" } }}
+                            inputProps={{ style: { color: "#29262a", fontSize: "0.9375rem" } }}
                             InputProps={buildInputProps()}
-                            InputLabelProps={{ style: { color: "darkGray" } }}
+                            InputLabelProps={{ style: { color: "#666", fontSize: "0.9375rem" } }}
                             error={!!fieldState.error}
                             helperText={fieldState.error?.message || helperText}
+                            FormHelperTextProps={{
+                                sx: {
+                                    fontSize: "0.8125rem",
+                                    color: fieldState.error ? undefined : "#666",
+                                    mt: 0.5
+                                }
+                            }}
                             {...field}
                         />
                     </>

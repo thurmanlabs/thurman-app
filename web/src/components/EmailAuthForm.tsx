@@ -103,23 +103,20 @@ export default function EmailAuthForm({ authType }: EmailAuthFormProps) {
     ];
 
     return (
-        <Grid container justifyContent="center" alignItems="center" direction="column" spacing={2}>
+        <Box>
             {/* Notification Alert */}
             {notification && (
-                <Grid item xs={12} sx={{ width: "100%" }}>
-                    <Alert 
-                        severity={notification.type} 
-                        onClose={() => setNotification(null)}
-                        sx={{ mb: 2 }}
-                    >
-                        {notification.message}
-                    </Alert>
-                </Grid>
+                <Alert 
+                    severity={notification.type} 
+                    onClose={() => setNotification(null)}
+                    sx={{ mb: 3, borderRadius: "0.625rem" }}
+                >
+                    {notification.message}
+                </Alert>
             )}
             
-            <Grid item xs={12} sm={6} md={4} sx={{ width: "80%", maxWidth: "25em" }}>
-                <form onSubmit={handleSubmit(onSubmit)}>
-                    <Grid container spacing={2}>
+            <form onSubmit={handleSubmit(onSubmit)}>
+                <Grid container spacing={3}>
                         {/* Email Field */}
                         <Grid item xs={12}>
                             <TextInputField
@@ -173,18 +170,28 @@ export default function EmailAuthForm({ authType }: EmailAuthFormProps) {
                             
                             {/* Password Requirements Helper Text */}
                             {authType !== "Login" && (
-                                <Box sx={{ mt: 1 }}>
-                                    <Typography variant="caption" color="text.secondary">
+                                <Box sx={{ 
+                                    mt: 1.5, 
+                                    p: 1.5, 
+                                    backgroundColor: "#F8F9FA", 
+                                    borderRadius: "0.625rem",
+                                    border: "1px solid #E9ECEF"
+                                }}>
+                                    <Typography 
+                                        variant="body2" 
+                                        color="text.secondary" 
+                                        sx={{ fontWeight: 500, display: "block", mb: 1.5, fontSize: "0.875rem" }}
+                                    >
                                         Password requirements:
                                     </Typography>
-                                    <Box component="ul" sx={{ mt: 0.5, pl: 2 }}>
+                                    <Box component="ul" sx={{ m: 0, pl: 2 }}>
                                         {passwordRequirements.map((requirement, index) => (
                                             <Typography 
                                                 key={index} 
-                                                variant="caption" 
+                                                variant="body2"
                                                 color="text.secondary"
                                                 component="li"
-                                                sx={{ fontSize: "0.75rem" }}
+                                                sx={{ fontSize: "0.875rem", lineHeight: 1.75, mb: 0.5 }}
                                             >
                                                 {requirement}
                                             </Typography>
@@ -195,15 +202,16 @@ export default function EmailAuthForm({ authType }: EmailAuthFormProps) {
                         </Grid>
 
                         {/* Submit Button */}
-                        <Grid item xs={12}>
+                        <Grid item xs={12} sx={{ mt: 1 }}>
                             <Button
                                 type="submit"
                                 variant="contained"
                                 disabled={!isValid || loading}
+                                fullWidth
                                 sx={{
                                     ...styles.button.primary,
-                                    width: "100%",
-                                    position: "relative"
+                                    position: "relative",
+                                    minHeight: "48px"
                                 }}
                             >
                                 {loading ? (
@@ -218,7 +226,9 @@ export default function EmailAuthForm({ authType }: EmailAuthFormProps) {
                                                 transform: "translateX(-50%)"
                                             }} 
                                         />
-                                        {authType === "Login" ? "Logging In..." : "Creating Account..."}
+                                        <Box sx={{ opacity: 0 }}>
+                                            {authType === "Login" ? "Log In" : "Sign Up"}
+                                        </Box>
                                     </>
                                 ) : (
                                     authType === "Login" ? "Log In" : "Sign Up"
@@ -227,7 +237,6 @@ export default function EmailAuthForm({ authType }: EmailAuthFormProps) {
                         </Grid>
                     </Grid>
                 </form>
-            </Grid>
-        </Grid>
+        </Box>
     );
 }

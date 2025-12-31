@@ -6,7 +6,6 @@ import {
   Grid,
   Card,
   CardContent,
-  CardActionArea,
   Chip,
   Skeleton,
   Button,
@@ -22,6 +21,7 @@ import {
 } from "@mui/icons-material";
 import BackgroundContainer from "../components/BackgroundContainer";
 import ContentContainer from "../components/ContentContainer";
+import { styles } from "../styles/styles";
 import axios from "axios";
 
 // Types for pool data
@@ -64,13 +64,7 @@ interface PoolsResponse {
 
 // Loading skeleton component
 const PoolCardSkeleton = (): JSX.Element => (
-  <Card sx={{ 
-    height: "100%", 
-    transition: "transform 0.2s ease-in-out",
-    borderRadius: "1.25em",
-    backgroundColor: "#FFFFFE",
-    boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)"
-  }}>
+  <Card sx={styles.metrics.card}>
     <CardContent>
       <Skeleton variant="text" width="60%" height={32} />
       <Skeleton variant="text" width="40%" height={24} sx={{ mt: 1 }} />
@@ -126,24 +120,27 @@ const PoolCard: React.FC<PoolCardProps> = ({ pool, onClick }) => {
   return (
     <Card 
       sx={{ 
-        height: "100%", 
-        transition: "all 0.2s ease-in-out",
-        borderRadius: "1.25em",
-        backgroundColor: "#FFFFFE",
-        boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)",
+        ...styles.metrics.card,
+        cursor: "pointer",
+        transition: "background-color 0.15s ease-in-out",
         "&:hover": {
-          transform: "translateY(-4px)",
-          boxShadow: "0 0.25em 0.5em rgba(0, 0, 0, 0.12)",
+          backgroundColor: "rgba(114, 90, 162, 0.015)"
         }
       }}
     >
-      <CardActionArea 
+      <Box 
         onClick={onClick}
-        sx={{ height: "100%", display: "flex", flexDirection: "column", alignItems: "stretch" }}
+        sx={{ 
+          height: "100%", 
+          display: "flex", 
+          flexDirection: "column", 
+          alignItems: "stretch",
+          cursor: "pointer"
+        }}
       >
         <CardContent sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
           {/* Pool Name */}
-          <Typography variant="h6" component="h3" gutterBottom sx={{ fontWeight: 600 }}>
+          <Typography variant="h6" component="h3" sx={{ fontWeight: 600, fontSize: "1.125rem", mb: 1.5, color: "#29262a" }}>
             {pool.name || `Pool ${pool.id}`}
           </Typography>
 
@@ -151,31 +148,38 @@ const PoolCard: React.FC<PoolCardProps> = ({ pool, onClick }) => {
           <Box sx={{ mb: 2 }}>
             <Chip
               label={statusInfo.text}
-              color={statusInfo.color}
               size="small"
-              variant={statusInfo.color === "success" ? "filled" : "outlined"}
+              sx={{
+                backgroundColor: statusInfo.color === "success" ? "transparent" : "transparent",
+                color: statusInfo.color === "success" ? "#725aa2" : "#666",
+                border: statusInfo.color === "success" ? "1px solid #725aa2" : "1px solid #E9ECEF",
+                borderRadius: "0.5rem",
+                fontSize: "0.8125rem",
+                fontWeight: 500,
+                height: "24px"
+              }}
             />
           </Box>
 
           {/* Key Metrics */}
-          <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column", gap: 1 }}>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <TrendingUpIcon sx={{ fontSize: 16, color: "text.secondary" }} />
-              <Typography variant="body2" color="text.secondary">
-                TVL: {formatCurrency(pool.totalAssets || "0")}
+          <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column", gap: 1.75, mb: 2 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
+              <TrendingUpIcon sx={{ fontSize: 18, color: "#666", flexShrink: 0 }} />
+              <Typography variant="body2" sx={{ fontSize: "0.9375rem", color: "#29262a", fontWeight: 500 }}>
+                TVL: <Box component="span" sx={{ fontWeight: 600 }}>{formatCurrency(pool.totalAssets || "0")}</Box>
               </Typography>
             </Box>
 
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <AccountBalanceIcon sx={{ fontSize: 16, color: "text.secondary" }} />
-              <Typography variant="body2" color="text.secondary">
-                Min: {formatMinDeposit(pool.config?.minDepositAmount || "0")}
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
+              <AccountBalanceIcon sx={{ fontSize: 18, color: "#666", flexShrink: 0 }} />
+              <Typography variant="body2" sx={{ fontSize: "0.9375rem", color: "#29262a", fontWeight: 500 }}>
+                Min: <Box component="span" sx={{ fontWeight: 600 }}>{formatMinDeposit(pool.config?.minDepositAmount || "0")}</Box>
               </Typography>
             </Box>
 
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <ScheduleIcon sx={{ fontSize: 16, color: "text.secondary" }} />
-              <Typography variant="body2" color="text.secondary">
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
+              <ScheduleIcon sx={{ fontSize: 18, color: "#666", flexShrink: 0 }} />
+              <Typography variant="body2" sx={{ fontSize: "0.9375rem", color: "#666" }}>
                 Updated: {pool.lastUpdated ? new Date(pool.lastUpdated).toLocaleDateString() : "Unknown"}
               </Typography>
             </Box>
@@ -183,17 +187,17 @@ const PoolCard: React.FC<PoolCardProps> = ({ pool, onClick }) => {
 
           {/* Available Capacity */}
           {pool.config?.depositsEnabled && (
-            <Box sx={{ mt: 2, pt: 2, borderTop: "1px solid", borderColor: "divider" }}>
-              <Typography variant="caption" color="text.secondary" display="block">
+            <Box sx={{ mt: 2.5, pt: 2.5, borderTop: "1px solid #E9ECEF" }}>
+              <Typography variant="caption" display="block" sx={{ fontSize: "0.75rem", mb: 0.75, color: "#666", textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 500 }}>
                 Available Capacity
               </Typography>
-              <Typography variant="body2" fontWeight={500}>
+              <Typography variant="body2" sx={{ fontSize: "1rem", color: "#29262a", fontWeight: 600 }}>
                 {formatCurrency(pool.availableCapacity || "0")}
               </Typography>
             </Box>
           )}
         </CardContent>
-      </CardActionArea>
+      </Box>
     </Card>
   );
 };
@@ -265,7 +269,7 @@ export default function Pools() {
           <Box sx={{ py: 4 }}>
             {/* Header */}
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 4 }}>
-              <Typography variant="h4" component="h1" sx={{ fontWeight: 600 }}>
+              <Typography variant="h5" component="h1" sx={{ fontWeight: 600, fontSize: "1.5rem", color: "#29262a" }}>
                 Available Lending Pools
               </Typography>
               <Skeleton variant="rectangular" width={120} height={40} />
@@ -291,17 +295,14 @@ export default function Pools() {
         <Box sx={{ py: 4 }}>
           {/* Header */}
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 4 }}>
-            <Typography variant="h4" component="h1" sx={{ fontWeight: 600 }}>
+            <Typography variant="h5" component="h1" sx={{ fontWeight: 600, fontSize: "1.5rem", color: "#29262a" }}>
               Available Lending Pools
             </Typography>
             <Tooltip title="Refresh pools">
               <IconButton 
                 onClick={handleRefresh} 
                 disabled={refreshing}
-                sx={{ 
-                  color: "primary.main",
-                  "&:hover": { backgroundColor: "primary.light", color: "white" }
-                }}
+                sx={styles.button.iconButton}
               >
                 <RefreshIcon sx={{ transform: refreshing ? "rotate(360deg)" : "none", transition: "transform 0.5s" }} />
               </IconButton>
@@ -326,16 +327,18 @@ export default function Pools() {
           {/* Empty state */}
           {!loading && !error && pools.length === 0 && (
             <Box sx={{ textAlign: "center", py: 8 }}>
-              <Typography variant="h6" color="text.secondary" gutterBottom>
+              <AccountBalanceIcon sx={{ fontSize: 64, color: "#D3D3D3", mb: 3 }} />
+              <Typography variant="h6" sx={{ fontWeight: 600, color: "#29262a", mb: 1, fontSize: "1.125rem" }}>
                 No pools available
               </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 3, fontSize: "0.9375rem" }}>
                 There are currently no lending pools available for investment.
               </Typography>
               <Button 
                 variant="outlined" 
                 onClick={handleRefresh}
                 startIcon={<RefreshIcon />}
+                sx={styles.button.outlined}
               >
                 Refresh
               </Button>
@@ -346,28 +349,49 @@ export default function Pools() {
           {!loading && !error && pools.length > 0 && (
             <>
               {/* Summary stats */}
-              <Box sx={{ mb: 3, display: "flex", gap: 2, flexWrap: "wrap" }}>
+              <Box sx={{ mb: 4, display: "flex", gap: 1.5, flexWrap: "wrap" }}>
                 <Chip 
                   label={`${pools.length} Total Pools`} 
-                  color="primary" 
                   variant="outlined"
+                  sx={{ 
+                    borderRadius: "0.5rem", 
+                    fontSize: "0.8125rem",
+                    fontWeight: 500,
+                    borderColor: "#E9ECEF",
+                    color: "#29262a",
+                    height: "28px"
+                  }}
                 />
                 <Chip 
                   label={`${pools.filter(p => p.config?.depositsEnabled).length} Open for Deposits`} 
-                  color="success" 
-                  variant="outlined"
+                  sx={{ 
+                    borderRadius: "0.5rem", 
+                    fontSize: "0.8125rem",
+                    fontWeight: 500,
+                    backgroundColor: "transparent",
+                    color: "#725aa2",
+                    border: "1px solid #725aa2",
+                    height: "28px"
+                  }}
                 />
                 <Chip 
                   label={`${pools.filter(p => !p.config?.depositsEnabled).length} Closed`} 
-                  color="default" 
                   variant="outlined"
+                  sx={{ 
+                    borderRadius: "0.5rem", 
+                    fontSize: "0.8125rem",
+                    fontWeight: 500,
+                    borderColor: "#E9ECEF",
+                    color: "#666",
+                    height: "28px"
+                  }}
                 />
               </Box>
 
               {/* Pools grid */}
-              <Grid container spacing={3}>
+              <Grid container spacing={3} sx={{ mb: 4 }}>
                 {pools.map((pool) => (
-                  <Grid item xs={12} sm={6} md={4} key={pool.id}>
+                  <Grid item xs={12} sm={6} md={4} key={pool.id} sx={{ mb: 5 }}>
                     <PoolCard 
                       pool={pool} 
                       onClick={() => handlePoolClick(pool.id)}
@@ -378,8 +402,8 @@ export default function Pools() {
 
               {/* Last updated info */}
               {pools.length > 0 && (
-                <Box sx={{ mt: 4, textAlign: "center" }}>
-                  <Typography variant="caption" color="text.secondary">
+                <Box sx={{ mt: 5, textAlign: "center" }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.8125rem" }}>
                     Last updated: {new Date().toLocaleString()}
                   </Typography>
                 </Box>

@@ -123,9 +123,9 @@ const SummaryCardSkeleton = (): JSX.Element => (
 );
 
 const TableSkeleton = (): JSX.Element => (
-  <TableContainer component={Paper} sx={{ borderRadius: "1.25em", overflow: "hidden" }}>
+  <TableContainer component={Paper} sx={styles.table.container}>
     <Table>
-      <TableHead>
+      <TableHead sx={styles.table.header}>
         <TableRow>
           <TableCell>Pool Name</TableCell>
           <TableCell>Shares Owned</TableCell>
@@ -136,7 +136,7 @@ const TableSkeleton = (): JSX.Element => (
       </TableHead>
       <TableBody>
         {[1, 2, 3].map((i) => (
-          <TableRow key={i}>
+          <TableRow key={i} sx={styles.table.row}>
             <TableCell><Skeleton width={120} /></TableCell>
             <TableCell><Skeleton width={80} /></TableCell>
             <TableCell><Skeleton width={100} /></TableCell>
@@ -242,12 +242,12 @@ export default function Home() {
       <ContentContainer>
         <Box sx={styles.containers.pageContainer}>
           {/* Header */}
-          <Box sx={styles.containers.flexBetween}>
+          <Box sx={{ ...styles.containers.flexBetween, mb: 4 }}>
             <Box>
-              <Typography variant="h4" component="h1" sx={styles.header.pageTitle}>
+              <Typography variant="h5" component="h1" sx={{ ...styles.header.pageTitle, mb: 1, fontSize: "1.5rem", fontWeight: 600 }}>
                 Portfolio Dashboard
               </Typography>
-              <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.9375rem" }}>
                 {userAddress ? `Welcome back, ${userAddress.slice(0, 6)}...${userAddress.slice(-4)}` : "Connect your wallet to view your portfolio"}
               </Typography>
             </Box>
@@ -296,22 +296,24 @@ export default function Home() {
           {userAddress && (
             <>
               {/* Summary Cards */}
-              <Grid container spacing={3} sx={{ mb: 10 }}>
+              <Grid container spacing={3} sx={{ mb: 6 }}>
                 <Grid item xs={12} sm={6} md={3}>
                   {portfolioLoading ? (
                     <SummaryCardSkeleton />
                   ) : (
                     <Card sx={styles.metrics.card}>
-                      <CardContent>
-                        <Box sx={styles.containers.iconContainer}>
-                          <MoneyIcon sx={styles.containers.iconMedium} />
-                          <Typography variant="body2" color="text.secondary">
-                            Total Invested
+                      <CardContent sx={{ p: 0, "&:last-child": { pb: 0 } }}>
+                        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                            <MoneyIcon sx={styles.metrics.icon} />
+                            <Typography sx={styles.metrics.label}>
+                              Total Invested
+                            </Typography>
+                          </Box>
+                          <Typography sx={styles.metrics.value}>
+                            {portfolio ? formatCurrency(portfolio.totalInvested) : "$0"}
                           </Typography>
                         </Box>
-                        <Typography variant="h5" fontWeight={600}>
-                          {portfolio ? formatCurrency(portfolio.totalInvested) : "$0"}
-                        </Typography>
                       </CardContent>
                     </Card>
                   )}
@@ -322,16 +324,18 @@ export default function Home() {
                     <SummaryCardSkeleton />
                   ) : (
                     <Card sx={styles.metrics.card}>
-                      <CardContent>
-                        <Box sx={styles.containers.iconContainer}>
-                          <AccountBalanceIcon sx={styles.containers.iconMedium} />
-                          <Typography variant="body2" color="text.secondary">
-                            Current Value
+                      <CardContent sx={{ p: 0, "&:last-child": { pb: 0 } }}>
+                        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                            <AccountBalanceIcon sx={styles.metrics.icon} />
+                            <Typography sx={styles.metrics.label}>
+                              Current Value
+                            </Typography>
+                          </Box>
+                          <Typography sx={styles.metrics.value}>
+                            {portfolio ? formatCurrency(portfolio.currentValue) : "$0"}
                           </Typography>
                         </Box>
-                        <Typography variant="h5" fontWeight={600}>
-                          {portfolio ? formatCurrency(portfolio.currentValue) : "$0"}
-                        </Typography>
                       </CardContent>
                     </Card>
                   )}
@@ -342,16 +346,18 @@ export default function Home() {
                     <SummaryCardSkeleton />
                   ) : (
                     <Card sx={styles.metrics.card}>
-                      <CardContent>
-                        <Box sx={styles.containers.iconContainer}>
-                          <TrendingUpIcon sx={styles.containers.iconMedium} />
-                          <Typography variant="body2" color="text.secondary">
-                            Total Return
+                      <CardContent sx={{ p: 0, "&:last-child": { pb: 0 } }}>
+                        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                            <TrendingUpIcon sx={styles.metrics.icon} />
+                            <Typography sx={styles.metrics.label}>
+                              Total Return
+                            </Typography>
+                          </Box>
+                          <Typography sx={{ ...styles.metrics.value, color: (portfolio?.returnPercentage ?? 0) >= 0 ? styles.colors.success : styles.colors.error }}>
+                            {portfolio ? formatPercentage(portfolio.returnPercentage ?? 0) : "0%"}
                           </Typography>
                         </Box>
-                        <Typography variant="h5" fontWeight={600} color={(portfolio?.returnPercentage ?? 0) >= 0 ? styles.colors.success : styles.colors.error}>
-                          {portfolio ? formatPercentage(portfolio.returnPercentage ?? 0) : "0%"}
-                        </Typography>
                       </CardContent>
                     </Card>
                   )}
@@ -362,16 +368,18 @@ export default function Home() {
                     <SummaryCardSkeleton />
                   ) : (
                     <Card sx={styles.metrics.card}>
-                      <CardContent>
-                        <Box sx={styles.containers.iconContainer}>
-                          <ChartIcon sx={styles.containers.iconMedium} />
-                          <Typography variant="body2" color="text.secondary">
-                            Active Positions
+                      <CardContent sx={{ p: 0, "&:last-child": { pb: 0 } }}>
+                        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                            <ChartIcon sx={styles.metrics.icon} />
+                            <Typography sx={styles.metrics.label}>
+                              Active Positions
+                            </Typography>
+                          </Box>
+                          <Typography sx={styles.metrics.value}>
+                            {portfolio ? portfolio.activePositions : 0}
                           </Typography>
                         </Box>
-                        <Typography variant="h5" fontWeight={600}>
-                          {portfolio ? portfolio.activePositions : 0}
-                        </Typography>
                       </CardContent>
                     </Card>
                   )}
@@ -380,12 +388,12 @@ export default function Home() {
 
               {/* Pending & Claimable Summary */}
               {(pendingTotal > 0 || claimableTotal > 0) && (
-                <Grid container spacing={3} sx={{ mb: 10 }}>
+                <Grid container spacing={3} sx={{ mb: 6 }}>
                   {pendingTotal > 0 && (
                     <Grid item xs={12} sm={6}>
                       <Card sx={{
                         ...styles.metrics.card,
-                        border: `2px solid ${styles.colors.warning}`
+                        border: `1.5px solid ${styles.colors.warning}`
                       }}>
                         <CardContent>
                           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -418,10 +426,8 @@ export default function Home() {
                   {claimableTotal > 0 && (
                     <Grid item xs={12} sm={6}>
                       <Card sx={{ 
-                        borderRadius: "1.25em",
-                        backgroundColor: styles.metrics.card,
-                        boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)",
-                        border: `2px solid ${styles.colors.success}`
+                        ...styles.metrics.card,
+                        border: `1.5px solid ${styles.colors.success}`
                       }}>
                         <CardContent>
                           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -452,10 +458,13 @@ export default function Home() {
                 </Grid>
               )}
 
+              {/* Spacer to ensure separation */}
+              <Box sx={{ height: "3rem" }} />
+
               {/* Positions Table */}
-              <Box sx={{ mb: 10 }}>
-                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 5 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 600, color: styles.colors.secondary }}>
+              <Box sx={{ mb: 5 }}>
+                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 3 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 600, color: styles.colors.secondary, fontSize: "1.125rem" }}>
                     Your Positions
                   </Typography>
                   <Button
@@ -470,20 +479,20 @@ export default function Home() {
                 {portfolioLoading ? (
                   <TableSkeleton />
                 ) : portfolio?.positions && portfolio.positions.length > 0 ? (
-                  <TableContainer component={Paper} sx={{ borderRadius: "1.25em", overflow: "hidden" }}>
+                  <TableContainer component={Paper} sx={styles.table.container}>
                     <Table>
-                      <TableHead>
-                        <TableRow sx={{ backgroundColor: "#f8f9fa" }}>
-                          <TableCell sx={{ fontWeight: 600 }}>Pool Name</TableCell>
-                          <TableCell sx={{ fontWeight: 600 }}>Shares Owned</TableCell>
-                          <TableCell sx={{ fontWeight: 600 }}>Current Value</TableCell>
-                          <TableCell sx={{ fontWeight: 600 }}>Performance</TableCell>
-                          <TableCell sx={{ fontWeight: 600 }}>Actions</TableCell>
+                      <TableHead sx={styles.table.header}>
+                        <TableRow>
+                          <TableCell>Pool Name</TableCell>
+                          <TableCell>Shares Owned</TableCell>
+                          <TableCell>Current Value</TableCell>
+                          <TableCell>Performance</TableCell>
+                          <TableCell>Actions</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
                         {portfolio.positions.map((position) => (
-                          <TableRow key={position.poolId} hover>
+                          <TableRow key={position.poolId} hover sx={styles.table.row}>
                             <TableCell>
                               <Button
                                 variant="text"
@@ -546,17 +555,13 @@ export default function Home() {
                     </Table>
                   </TableContainer>
                 ) : (
-                          <Card sx={{ 
-          borderRadius: "1.25em",
-          backgroundColor: styles.metrics.card,
-          boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)"
-        }}>
-          <CardContent sx={{ textAlign: "center", py: 4 }}>
-            <AccountBalanceIcon sx={{ fontSize: 48, color: "text.secondary", mb: 2 }} />
-                      <Typography variant="h6" color="text.secondary" gutterBottom>
+                          <Card sx={styles.metrics.card}>
+          <CardContent sx={{ textAlign: "center", py: 6 }}>
+            <AccountBalanceIcon sx={{ fontSize: 48, color: "#D3D3D3", mb: 2 }} />
+                      <Typography variant="h6" sx={{ fontWeight: 600, color: "#29262a", mb: 1, fontSize: "1.125rem" }}>
                         No Positions Yet
                       </Typography>
-                      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                      <Typography variant="body2" color="text.secondary" sx={{ mb: 3, fontSize: "0.9375rem" }}>
                         Start investing in lending pools to build your portfolio
                       </Typography>
                       <Button
@@ -574,17 +579,13 @@ export default function Home() {
 
               {/* Recent Activity Section */}
               {portfolio?.positions && portfolio.positions.length > 0 && (
-                <Box sx={{ mb: 10 }}>
-                  <Typography variant="h6" sx={{ fontWeight: 600, color: styles.colors.secondary, mb: 5 }}>
+                <Box sx={{ mb: 5 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 600, color: styles.colors.secondary, mb: 3, fontSize: "1.125rem" }}>
                     Recent Activity
                   </Typography>
-                  <Card sx={{ 
-                    borderRadius: "1.25em",
-                    backgroundColor: styles.metrics.card,
-                    boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)"
-                  }}>
+                  <Card sx={styles.metrics.card}>
                     <CardContent>
-                      <Typography variant="body2" color="text.secondary" sx={{ textAlign: "center", py: 2 }}>
+                      <Typography variant="body2" color="text.secondary" sx={{ textAlign: "center", py: 2, fontSize: "0.9375rem" }}>
                         Recent activity will be displayed here once transaction history is implemented.
                       </Typography>
                     </CardContent>
@@ -596,12 +597,12 @@ export default function Home() {
 
           {/* Welcome Section for Non-Authenticated Users */}
           {!userAddress && (
-            <Box sx={{ textAlign: "center", py: 12 }}>
-              <AccountBalanceIcon sx={{ fontSize: 64, color: styles.colors.primary, mb: 4 }} />
-              <Typography variant="h4" component="h2" sx={{ fontWeight: 600, color: styles.colors.secondary, mb: 3 }}>
+            <Box sx={{ textAlign: "center", py: 8 }}>
+              <AccountBalanceIcon sx={{ fontSize: 64, color: styles.colors.primary, mb: 3 }} />
+              <Typography variant="h5" component="h2" sx={{ fontWeight: 600, color: styles.colors.secondary, mb: 2, fontSize: "1.5rem" }}>
                 Welcome to Thurman
               </Typography>
-              <Typography variant="body1" color="text.secondary" sx={{ mb: 6, maxWidth: 600, mx: "auto" }}>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 4, maxWidth: 600, mx: "auto", fontSize: "0.9375rem" }}>
                 Connect your wallet to start investing in lending pools and track your portfolio performance in real-time.
               </Typography>
               <Button

@@ -69,7 +69,7 @@ export default function Header(): JSX.Element {
                 <NavigateButton 
                   variant="contained"
                   to="/signup"
-                  sx={styles.button.primary}
+                  sx={styles.button.compact}
                 >
                   Sign up
                 </NavigateButton>

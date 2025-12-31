@@ -70,10 +70,11 @@ export default function BasicInfoStep({ formMethods, onNext }: StepProps): JSX.E
             <Grid item xs={12}>
                 <Typography variant="h6" sx={{ 
                     color: "#29262a", 
-                    fontWeight: 600, 
-                    marginBottom: "1em",
-                    borderBottom: "2px solid #725aa2",
-                    paddingBottom: "0.5em"
+                    fontWeight: 600,
+                    fontSize: "1rem",
+                    marginBottom: "1.5rem",
+                    borderBottom: "1px solid #E9ECEF",
+                    paddingBottom: "0.75rem"
                 }}>
                     Required Information
                 </Typography>
@@ -116,17 +117,24 @@ export default function BasicInfoStep({ formMethods, onNext }: StepProps): JSX.E
                     onChange={() => setOptionalExpanded(!optionalExpanded)}
                     sx={{ 
                         boxShadow: "none",
-                        border: "1px solid #D3D3D3",
-                        "&:before": { display: "none" }
+                        border: "1px solid #E9ECEF",
+                        borderRadius: "0.625rem",
+                        "&:before": { display: "none" },
+                        "&.Mui-expanded": {
+                            margin: 0
+                        }
                     }}
                 >
                     <AccordionSummary 
-                        expandIcon={<ExpandMoreIcon />}
+                        expandIcon={<ExpandMoreIcon sx={{ color: "#666" }} />}
                         sx={{ 
-                            backgroundColor: "#F2F1F0",
+                            backgroundColor: "#FAFAFA",
+                            "&:hover": {
+                                backgroundColor: "#F5F5F5"
+                            }
                         }}
                     >
-                        <Typography variant="h6" sx={{ color: "#29262a", fontWeight: 600 }}>
+                        <Typography variant="body1" sx={{ color: "#29262a", fontWeight: 600, fontSize: "0.9375rem" }}>
                             Optional Settings
                         </Typography>
                     </AccordionSummary>
@@ -172,17 +180,24 @@ export default function BasicInfoStep({ formMethods, onNext }: StepProps): JSX.E
                     onChange={() => setCharacteristicsExpanded(!characteristicsExpanded)}
                     sx={{ 
                         boxShadow: "none",
-                        border: "1px solid #D3D3D3",
-                        "&:before": { display: "none" }
+                        border: "1px solid #E9ECEF",
+                        borderRadius: "0.625rem",
+                        "&:before": { display: "none" },
+                        "&.Mui-expanded": {
+                            margin: 0
+                        }
                     }}
                 >
                     <AccordionSummary 
-                        expandIcon={<ExpandMoreIcon />}
+                        expandIcon={<ExpandMoreIcon sx={{ color: "#666" }} />}
                         sx={{ 
-                            backgroundColor: "#F2F1F0",
+                            backgroundColor: "#FAFAFA",
+                            "&:hover": {
+                                backgroundColor: "#F5F5F5"
+                            }
                         }}
                     >
-                        <Typography variant="h6" sx={{ color: "#29262a", fontWeight: 600 }}>
+                        <Typography variant="body1" sx={{ color: "#29262a", fontWeight: 600, fontSize: "0.9375rem" }}>
                             Loan Characteristics
                         </Typography>
                     </AccordionSummary>
@@ -247,11 +262,15 @@ export default function BasicInfoStep({ formMethods, onNext }: StepProps): JSX.E
             </Grid>
 
             {/* Continue Button */}
-            <Grid item xs={12} sx={{ marginTop: "2em", textAlign: "center" }}>
+            <Grid item xs={12} sx={{ marginTop: "3rem", textAlign: "center" }}>
                 <Button
                     variant="contained"
                     onClick={handleContinue}
-                    sx={styles.button.primary}
+                    sx={{
+                        ...styles.button.primary,
+                        minWidth: "200px",
+                        maxWidth: "300px"
+                    }}
                     size="large"
                 >
                     Continue to File Upload

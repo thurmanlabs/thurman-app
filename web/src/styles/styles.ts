@@ -16,6 +16,13 @@ let theme: Theme = createTheme({
                     backgroundColor: "#FFFFFE",
                 }
             }
+        },
+        MuiOutlinedInput: {
+            styleOverrides: {
+                root: {
+                    borderRadius: "0.625rem"
+                }
+            }
         }
     },
 });
@@ -28,7 +35,7 @@ const containers: StyleSet = {
         textAlign: "center"
     },
     backgroundContainer: {
-        backgroundColor: "#eff6fd",
+        backgroundColor: "#FAFAFA",
         minHeight: "100vh",
         padding: "2em 0 2em 0",
     },
@@ -44,6 +51,43 @@ const containers: StyleSet = {
         padding: "2em 2em 3em 2em",
         margin: "2em 0 2em 0",
         borderRadius: "1.25em",
+    },
+    authCard: {
+        padding: "3rem 2.5rem",
+        borderRadius: "0.625rem",
+        border: "1px solid #E9ECEF",
+        boxShadow: "0 1px 3px rgba(0, 0, 0, 0.04)",
+    },
+    authFormHeader: {
+        textAlign: "center",
+        mb: 3
+    },
+    authTitle: {
+        fontSize: "1.5rem",
+        fontWeight: 600,
+        color: "#29262a",
+        mb: 1,
+        lineHeight: 1.3
+    },
+    authSubtitle: {
+        fontSize: "0.9375rem",
+        color: "#666",
+        fontWeight: 400,
+        lineHeight: 1.5
+    },
+    authLink: {
+        fontSize: "0.9375rem",
+        fontWeight: 500,
+        color: "#725aa2",
+        textDecoration: "none",
+        "&:hover": {
+            textDecoration: "underline"
+        }
+    },
+    authFooterText: {
+        fontSize: "0.9375rem",
+        color: "#666",
+        fontWeight: 400
     },
     pageContainer: {
         py: 4
@@ -235,7 +279,7 @@ const containers: StyleSet = {
     dialogField: {
         mt: 2,
         "& .MuiOutlinedInput-root": {
-            borderRadius: "1.25em"
+            borderRadius: "0.625rem"
         }
     },
     formHelperText: {
@@ -278,10 +322,13 @@ const header: StyleSet = {
     appBar: {
         backgroundColor: "#FFFFFE",
         boxShadow: "none",
+        borderBottom: "1px solid #E9ECEF",
     },
     toolbar: {
         display: "flex",
         justifyContent: "space-between",
+        minHeight: "64px",
+        padding: "0 1rem",
     },
     logo: {
         color: "#29262a",
@@ -292,19 +339,25 @@ const header: StyleSet = {
     authSection: {
         display: "flex",
         alignItems: "center",
-        gap: 1,
+        gap: 1.5,
     },
     navLinksContainer: {
         display: "flex",
-        gap: "2rem",
-        marginLeft: "2rem"
+        alignItems: "center",
+        gap: 2,
+        marginLeft: 0,
     },
     navLink: {
-        color: "#725aa2",
+        color: "#29262a",
         textDecoration: "none",
         fontWeight: 500,
+        fontSize: "0.9375rem",
+        padding: "0.5rem 0.75rem",
+        borderRadius: "0.625rem",
+        transition: "all 0.15s ease-in-out",
         "&:hover": {
-            color: "#29262a"
+            color: "#725aa2",
+            backgroundColor: "rgba(114, 90, 162, 0.08)",
         }
     },
     pageTitle: {
@@ -349,12 +402,14 @@ const avatar: StyleSet = {
         borderRadius: "0.25em",
     },
     header: {
-        width: "2em",
-        height: "2em",
+        width: "2.5em",
+        height: "2.5em",
         cursor: "pointer",
-        transition: "opacity 0.2s ease-in-out",
+        transition: "all 0.15s ease-in-out",
+        marginRight: "1rem",
         "&:hover": {
-            opacity: 0.9
+            opacity: 0.8,
+            transform: "scale(1.05)"
         }
     },
     large: {
@@ -367,36 +422,64 @@ const forms: StyleSet = {
     textField: {
         margin: "0.5em 0",
         "& .MuiOutlinedInput-root": {
-            borderRadius: "1.25em", 
+            borderRadius: "0.625rem", 
         }
     },
 }
 
 const button: StyleSet = {
     primary: {
-        background: "linear-gradient(90deg, #725aa2 0%, #29262a 100%)",
+        backgroundColor: "#29262a",
         color: "#FFFFFE",
-        borderRadius: "1.25em",
+        borderRadius: "0.625rem",
         textTransform: "none",
-        fontWeight: 700,
-        padding: "0.325em 2.5em 0.325em 2.5em",
+        fontWeight: 600,
+        padding: "0.75rem 1.5rem",
+        minHeight: "44px",
         "&:hover": {
-            background: "linear-gradient(90deg, #725aa2 20%, #29262a 100%)", // Slight shift on hover
+            backgroundColor: "#1a181b",
         },
         "&:disabled": {
-            background: "#E0E0E0",
+            backgroundColor: "#E0E0E0",
             color: "#A0A0A0"
-        }
+        },
+        transition: "background-color 0.15s ease-in-out"
     },
     text: {
-        color: "#725aa2",
+        color: "#29262a",
         textTransform: "none",
-        fontWeight: 700,
+        fontWeight: 500,
+        fontSize: "0.9375rem",
+        padding: "0.5rem 0.75rem",
+        borderRadius: "0.625rem",
+        transition: "all 0.15s ease-in-out",
+        "&:hover": {
+            color: "#725aa2",
+            backgroundColor: "rgba(114, 90, 162, 0.08)",
+        }
+    },
+    compact: {
+        backgroundColor: "#29262a",
+        color: "#FFFFFE",
+        borderRadius: "0.625rem",
+        textTransform: "none",
+        fontWeight: 600,
+        padding: "0.5rem 2rem",
+        minHeight: "36px",
+        fontSize: "0.9375rem",
+        "&:hover": {
+            backgroundColor: "#1a181b",
+        },
+        "&:disabled": {
+            backgroundColor: "#E0E0E0",
+            color: "#A0A0A0"
+        },
+        transition: "background-color 0.15s ease-in-out"
     },
     authOption: {
         backgroundColor: "#FFFFFE",
         borderColor: "#D3D3D3",
-        borderRadius: "1.25em",
+        borderRadius: "0.625rem",
         justifyContent: "flex-start",
         textAlign: "left",
         textTransform: "none",
@@ -404,10 +487,12 @@ const button: StyleSet = {
         fontWeight: 500,
         padding: "0.9em 1em 0.9em 1em", 
         margin: "0em 0 0.75em 0",
+        minHeight: "44px",
         "&:hover": {
-            borderColor: "#D3D3D3",
-            backgroundColor: "#F2F1F0"
-        }
+            borderColor: "#29262a",
+            backgroundColor: "#F8F8F8"
+        },
+        transition: "all 0.15s ease-in-out"
     },
     iconButton: {
         color: "#725aa2"
@@ -422,48 +507,59 @@ const button: StyleSet = {
         fontSize: "0.75rem"
     },
     rejectButton: {
-        background: "linear-gradient(90deg, #d32f2f 0%, #b71c1c 100%)"
+        backgroundColor: "#d32f2f",
+        color: "#FFFFFE",
+        borderRadius: "0.625rem",
+        textTransform: "none",
+        fontWeight: 600,
+        padding: "0.75rem 1.5rem",
+        minHeight: "44px",
+        "&:hover": {
+            backgroundColor: "#b71c1c",
+        },
+        "&:disabled": {
+            backgroundColor: "#E0E0E0",
+            color: "#A0A0A0"
+        },
+        transition: "background-color 0.15s ease-in-out"
     },
     large: {
-        background: "linear-gradient(90deg, #725aa2 0%, #29262a 100%)",
+        backgroundColor: "#29262a",
         color: "#FFFFFE",
-        borderRadius: "1.25em",
+        borderRadius: "0.625rem",
         textTransform: "none",
-        fontWeight: 700,
-        padding: "0.75em 3em",
+        fontWeight: 600,
+        padding: "1rem 2rem",
+        minHeight: "48px",
+        fontSize: "1rem",
         "&:hover": {
-            background: "linear-gradient(90deg, #725aa2 20%, #29262a 100%)",
-            transform: "translateY(-1px)",
-            boxShadow: "0 4px 12px rgba(114, 90, 162, 0.3)",
+            backgroundColor: "#1a181b",
         },
         "&:disabled": {
-            background: "#E0E0E0",
-            color: "#A0A0A0",
-            transform: "none",
-            boxShadow: "none"
+            backgroundColor: "#E0E0E0",
+            color: "#A0A0A0"
         },
-        transition: "all 0.2s ease-in-out"
+        transition: "background-color 0.15s ease-in-out"
     },
     outlined: {
-        background: "transparent",
-        color: "#725aa2",
-        borderRadius: "1.25em",
+        backgroundColor: "transparent",
+        color: "#29262a",
+        borderRadius: "0.625rem",
         textTransform: "none",
-        fontWeight: 700,
-        padding: "0.325em 2.5em",
-        border: "2px solid #725aa2",
+        fontWeight: 600,
+        padding: "0.75rem 1.5rem",
+        minHeight: "44px",
+        border: "1.5px solid #29262a",
         "&:hover": {
-            background: "rgba(114, 90, 162, 0.1)",
-            transform: "translateY(-1px)",
-            boxShadow: "0 4px 12px rgba(114, 90, 162, 0.3)",
+            backgroundColor: "rgba(41, 38, 42, 0.08)",
+            borderColor: "#29262a",
         },
         "&:disabled": {
-            background: "#E0E0E0",
-            color: "#A0A0A0",
-            transform: "none",
-            boxShadow: "none"
+            backgroundColor: "transparent",
+            borderColor: "#E0E0E0",
+            color: "#A0A0A0"
         },
-        transition: "all 0.2s ease-in-out"
+        transition: "background-color 0.15s ease-in-out"
     }
 }
 
@@ -586,7 +682,7 @@ export const styles = {
     colors: {
         primary: "#725aa2",
         secondary: "#29262a",
-        background: "#eff6fd",
+        background: "#FAFAFA",
         white: "#FFFFFE",
         success: "#4caf50",
         warning: "#ff9800",
@@ -594,58 +690,84 @@ export const styles = {
     },
     table: {
         container: {
-            borderRadius: "1.25em",
+            borderRadius: "0.625rem",
             backgroundColor: "#FFFFFE",
-            boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)",
+            border: "1px solid #E9ECEF",
+            boxShadow: "none",
             overflow: "hidden"
         },
         header: {
-            backgroundColor: "#f8f9fa",
+            backgroundColor: "#F8F9FA",
             "& .MuiTableCell-head": {
                 fontWeight: 600,
                 color: "#29262a",
-                borderBottom: "2px solid #e9ecef"
+                fontSize: "0.875rem",
+                textTransform: "uppercase",
+                letterSpacing: "0.5px",
+                borderBottom: "2px solid #E9ECEF",
+                padding: "1rem 1.25rem"
             }
         },
         row: {
             "&:hover": {
-                backgroundColor: "#f8f9fa"
+                backgroundColor: "#F8F9FA"
             },
             "& .MuiTableCell-body": {
-                borderBottom: "1px solid #e9ecef",
-                padding: "1rem"
+                borderBottom: "1px solid #E9ECEF",
+                padding: "1rem 1.25rem",
+                fontSize: "0.9375rem"
             }
         },
         cell: {
-            padding: "1rem",
-            borderBottom: "1px solid #e9ecef"
+            padding: "1rem 1.25rem",
+            borderBottom: "1px solid #E9ECEF",
+            fontSize: "0.9375rem"
         },
         statusChip: {
-            borderRadius: "0.5em",
+            borderRadius: "0.5rem",
             fontWeight: 500,
-            fontSize: "0.75rem"
+            fontSize: "0.8125rem"
         }
     },
     metrics: {
         card: {
             padding: "1.5rem",
-            borderRadius: "1.25em",
+            borderRadius: "0.625rem",
             backgroundColor: "#FFFFFE",
-            boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)",
+            border: "1px solid #E9ECEF",
+            boxShadow: "none",
             height: "100%",
-            transition: "transform 0.2s ease-in-out",
+            transition: "none"
+        },
+        reviewCard: {
+            padding: 0,
+            borderRadius: "0.625rem",
+            backgroundColor: "#F8F9FA",
+            border: "1px solid #E9ECEF",
+            boxShadow: "none",
+            transition: "border-color 0.15s ease-in-out",
             "&:hover": {
-                transform: "translateY(-2px)"
+                borderColor: "#D3D3D3"
             }
         },
         value: {
-            color: "#725aa2",
-            fontWeight: 700,
-            marginTop: "0.5em"
+            color: "#29262a",
+            fontWeight: 600,
+            fontSize: "1.5rem",
+            lineHeight: 1.2,
+            marginTop: "0.5rem"
         },
         label: {
-            color: "#29262a",
-            fontWeight: 500
+            color: "#666",
+            fontWeight: 500,
+            fontSize: "0.875rem",
+            textTransform: "uppercase",
+            letterSpacing: "0.5px"
+        },
+        icon: {
+            fontSize: 20,
+            color: "#666",
+            mb: 0.5
         }
     },
     pools: {

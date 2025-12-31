@@ -121,19 +121,28 @@ export default function ReviewStep({
 
     if (submitSuccess) {
         return (
-            <Grid container spacing={3}>
+            <Grid container spacing={3.5}>
                 <Grid item xs={12}>
-                    <Card sx={{ 
-                        backgroundColor: "#eff6fd",
-                        borderRadius: "1.25em",
-                        textAlign: "center",
-                        padding: "3em"
-                    }}>
-                        <CardContent>
-                            <Typography variant="h4" sx={{ color: "#725aa2", fontWeight: "bold", mb: 2 }}>
-                                ✅ Loan Pool Created Successfully!
+                    <Card sx={styles.metrics.reviewCard}>
+                        <CardContent sx={{ 
+                            textAlign: "center",
+                            py: 6,
+                            px: 4
+                        }}>
+                            <Typography variant="h5" sx={{ 
+                                color: "#29262a", 
+                                fontWeight: 600,
+                                fontSize: "1.5rem",
+                                mb: 1.5
+                            }}>
+                                Loan Pool Created Successfully
                             </Typography>
-                            <Typography variant="body1" color="text.secondary">
+                            <Typography variant="body2" sx={{ 
+                                fontSize: "0.9375rem",
+                                color: "#666",
+                                maxWidth: "600px",
+                                mx: "auto"
+                            }}>
                                 Your loan pool "{formData.name}" has been created and is ready for investor review.
                             </Typography>
                         </CardContent>
@@ -146,7 +155,10 @@ export default function ReviewStep({
                     anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
                     aria-label="Success notification"
                 >
-                    <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ borderRadius: "1.25em" }}>
+                    <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ 
+                        borderRadius: "0.625rem",
+                        fontSize: "0.9375rem"
+                    }}>
                         {snackbarMsg}
                     </Alert>
                 </Snackbar>
@@ -155,57 +167,99 @@ export default function ReviewStep({
     }
 
     return (
-        <Grid container spacing={3}>
+        <Grid container spacing={3.5}>
             {/* Header */}
             <Grid item xs={12}>
                 <Typography variant="h6" sx={{ 
                     color: "#29262a", 
-                    fontWeight: 600, 
-                    marginBottom: "0.5em",
-                    borderBottom: "2px solid #725aa2",
-                    paddingBottom: "0.5em"
+                    fontWeight: 600,
+                    fontSize: "1rem",
+                    marginBottom: "1.5rem",
+                    borderBottom: "1px solid #E9ECEF",
+                    paddingBottom: "0.75rem"
                 }}>
                     Review & Submit
                 </Typography>
-                <Typography variant="body1" color="text.secondary" sx={{ marginBottom: "2em" }}>
+                <Typography variant="body2" sx={{ 
+                    fontSize: "0.9375rem",
+                    color: "#666",
+                    marginBottom: "2.5rem"
+                }}>
                     Please review all information before submitting your loan pool
                 </Typography>
             </Grid>
 
             {/* Basic Information */}
             <Grid item xs={12}>
-                <Card sx={{ borderRadius: "1.25em" }}>
-                    <CardContent>
-                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-                            <Typography variant="h6" sx={{ color: "#29262a", fontWeight: 600 }}>
+                <Card sx={styles.metrics.reviewCard}>
+                    <CardContent sx={{ p: "2rem" }}>
+                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2.5 }}>
+                            <Typography variant="h6" sx={{ 
+                                color: "#29262a", 
+                                fontWeight: 600,
+                                fontSize: "1rem"
+                            }}>
                                 Basic Information
                             </Typography>
                             <Button
-                                startIcon={<EditIcon />}
+                                startIcon={<EditIcon sx={{ fontSize: "1rem" }} />}
                                 onClick={() => goToStep(0)}
                                 sx={styles.button.text}
                             >
                                 Edit
                             </Button>
                         </Box>
-                        <Divider sx={{ mb: 2 }} />
+                        <Divider sx={{ mb: 2.5, borderColor: "#E9ECEF" }} />
                         
-                        <Grid container spacing={2}>
+                        <Grid container spacing={2.5}>
                             <Grid item xs={12} md={6}>
-                                <Typography variant="subtitle2" color="text.secondary">Pool Name</Typography>
-                                <Typography variant="body2" sx={{ color: "#29262a", mb: 1 }}>
+                                <Typography variant="body2" sx={{ 
+                                    fontSize: "0.875rem",
+                                    color: "#666",
+                                    fontWeight: 500,
+                                    mb: 0.75
+                                }}>
+                                    Pool Name
+                                </Typography>
+                                <Typography variant="body2" sx={{ 
+                                    fontSize: "0.9375rem",
+                                    color: "#29262a",
+                                    fontWeight: 500
+                                }}>
                                     {formData.name}
                                 </Typography>
                             </Grid>
                             <Grid item xs={12} md={6}>
-                                <Typography variant="subtitle2" color="text.secondary">Target Amount</Typography>
-                                <Typography variant="body2" sx={{ color: "#29262a", mb: 1 }}>
+                                <Typography variant="body2" sx={{ 
+                                    fontSize: "0.875rem",
+                                    color: "#666",
+                                    fontWeight: 500,
+                                    mb: 0.75
+                                }}>
+                                    Target Amount
+                                </Typography>
+                                <Typography variant="body2" sx={{ 
+                                    fontSize: "0.9375rem",
+                                    color: "#29262a",
+                                    fontWeight: 600
+                                }}>
                                     {formatCurrency(formData.targetAmount)}
                                 </Typography>
                             </Grid>
                             <Grid item xs={12}>
-                                <Typography variant="subtitle2" color="text.secondary">Description</Typography>
-                                <Typography variant="body2" sx={{ color: "#29262a" }}>
+                                <Typography variant="body2" sx={{ 
+                                    fontSize: "0.875rem",
+                                    color: "#666",
+                                    fontWeight: 500,
+                                    mb: 0.75
+                                }}>
+                                    Description
+                                </Typography>
+                                <Typography variant="body2" sx={{ 
+                                    fontSize: "0.9375rem",
+                                    color: "#29262a",
+                                    lineHeight: 1.6
+                                }}>
                                     {formData.description}
                                 </Typography>
                             </Grid>
@@ -216,38 +270,75 @@ export default function ReviewStep({
 
             {/* Financial Terms */}
             <Grid item xs={12}>
-                <Card sx={{ borderRadius: "1.25em" }}>
-                    <CardContent>
-                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-                            <Typography variant="h6" sx={{ color: "#29262a", fontWeight: 600 }}>
+                <Card sx={styles.metrics.reviewCard}>
+                    <CardContent sx={{ p: "2rem" }}>
+                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2.5 }}>
+                            <Typography variant="h6" sx={{ 
+                                color: "#29262a", 
+                                fontWeight: 600,
+                                fontSize: "1rem"
+                            }}>
                                 Financial Terms
                             </Typography>
                             <Button
-                                startIcon={<EditIcon />}
+                                startIcon={<EditIcon sx={{ fontSize: "1rem" }} />}
                                 onClick={() => goToStep(0)}
                                 sx={styles.button.text}
                             >
                                 Edit
                             </Button>
                         </Box>
-                        <Divider sx={{ mb: 2 }} />
+                        <Divider sx={{ mb: 2.5, borderColor: "#E9ECEF" }} />
                         
-                        <Grid container spacing={2}>
+                        <Grid container spacing={2.5}>
                             <Grid item xs={12} md={4}>
-                                <Typography variant="subtitle2" color="text.secondary">Minimum Investment</Typography>
-                                <Typography variant="body2" sx={{ color: "#29262a", mb: 1 }}>
+                                <Typography variant="body2" sx={{ 
+                                    fontSize: "0.875rem",
+                                    color: "#666",
+                                    fontWeight: 500,
+                                    mb: 0.75
+                                }}>
+                                    Minimum Investment
+                                </Typography>
+                                <Typography variant="body2" sx={{ 
+                                    fontSize: "0.9375rem",
+                                    color: "#29262a",
+                                    fontWeight: 500
+                                }}>
                                     {getDisplayValue(formData.minimumInvestment, formatCurrency)}
                                 </Typography>
                             </Grid>
                             <Grid item xs={12} md={4}>
-                                <Typography variant="subtitle2" color="text.secondary">Expected Return</Typography>
-                                <Typography variant="body2" sx={{ color: "#29262a", mb: 1 }}>
+                                <Typography variant="body2" sx={{ 
+                                    fontSize: "0.875rem",
+                                    color: "#666",
+                                    fontWeight: 500,
+                                    mb: 0.75
+                                }}>
+                                    Expected Return
+                                </Typography>
+                                <Typography variant="body2" sx={{ 
+                                    fontSize: "0.9375rem",
+                                    color: "#29262a",
+                                    fontWeight: 500
+                                }}>
                                     {getDisplayValue(formData.expectedReturn, formatPercentage)}
                                 </Typography>
                             </Grid>
                             <Grid item xs={12} md={4}>
-                                <Typography variant="subtitle2" color="text.secondary">Maturity Date</Typography>
-                                <Typography variant="body2" sx={{ color: "#29262a", mb: 1 }}>
+                                <Typography variant="body2" sx={{ 
+                                    fontSize: "0.875rem",
+                                    color: "#666",
+                                    fontWeight: 500,
+                                    mb: 0.75
+                                }}>
+                                    Maturity Date
+                                </Typography>
+                                <Typography variant="body2" sx={{ 
+                                    fontSize: "0.9375rem",
+                                    color: "#29262a",
+                                    fontWeight: 500
+                                }}>
                                     {getDisplayValue(formData.maturityDate, formatDate)}
                                 </Typography>
                             </Grid>
@@ -258,56 +349,126 @@ export default function ReviewStep({
 
             {/* Loan Characteristics */}
             <Grid item xs={12}>
-                <Card sx={{ borderRadius: "1.25em" }}>
-                    <CardContent>
-                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-                            <Typography variant="h6" sx={{ color: "#29262a", fontWeight: 600 }}>
+                <Card sx={styles.metrics.reviewCard}>
+                    <CardContent sx={{ p: "2rem" }}>
+                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2.5 }}>
+                            <Typography variant="h6" sx={{ 
+                                color: "#29262a", 
+                                fontWeight: 600,
+                                fontSize: "1rem"
+                            }}>
                                 Loan Characteristics
                             </Typography>
                             <Button
-                                startIcon={<EditIcon />}
+                                startIcon={<EditIcon sx={{ fontSize: "1rem" }} />}
                                 onClick={() => goToStep(0)}
                                 sx={styles.button.text}
                             >
                                 Edit
                             </Button>
                         </Box>
-                        <Divider sx={{ mb: 2 }} />
+                        <Divider sx={{ mb: 2.5, borderColor: "#E9ECEF" }} />
                         
-                        <Grid container spacing={2}>
+                        <Grid container spacing={2.5}>
                             <Grid item xs={12} md={6}>
-                                <Typography variant="subtitle2" color="text.secondary">Purpose</Typography>
-                                <Typography variant="body2" sx={{ color: "#29262a", mb: 1 }}>
+                                <Typography variant="body2" sx={{ 
+                                    fontSize: "0.875rem",
+                                    color: "#666",
+                                    fontWeight: 500,
+                                    mb: 0.75
+                                }}>
+                                    Purpose
+                                </Typography>
+                                <Typography variant="body2" sx={{ 
+                                    fontSize: "0.9375rem",
+                                    color: "#29262a",
+                                    fontWeight: 500
+                                }}>
                                     {getDisplayValue(formData.purpose)}
                                 </Typography>
                             </Grid>
                             <Grid item xs={12} md={6}>
-                                <Typography variant="subtitle2" color="text.secondary">Geographic Focus</Typography>
-                                <Typography variant="body2" sx={{ color: "#29262a", mb: 1 }}>
+                                <Typography variant="body2" sx={{ 
+                                    fontSize: "0.875rem",
+                                    color: "#666",
+                                    fontWeight: 500,
+                                    mb: 0.75
+                                }}>
+                                    Geographic Focus
+                                </Typography>
+                                <Typography variant="body2" sx={{ 
+                                    fontSize: "0.9375rem",
+                                    color: "#29262a",
+                                    fontWeight: 500
+                                }}>
                                     {getDisplayValue(formData.geographicFocus)}
                                 </Typography>
                             </Grid>
                             <Grid item xs={12} md={6}>
-                                <Typography variant="subtitle2" color="text.secondary">Borrower Profile</Typography>
-                                <Typography variant="body2" sx={{ color: "#29262a", mb: 1 }}>
+                                <Typography variant="body2" sx={{ 
+                                    fontSize: "0.875rem",
+                                    color: "#666",
+                                    fontWeight: 500,
+                                    mb: 0.75
+                                }}>
+                                    Borrower Profile
+                                </Typography>
+                                <Typography variant="body2" sx={{ 
+                                    fontSize: "0.9375rem",
+                                    color: "#29262a",
+                                    fontWeight: 500
+                                }}>
                                     {getDisplayValue(formData.borrowerProfile)}
                                 </Typography>
                             </Grid>
                             <Grid item xs={12} md={6}>
-                                <Typography variant="subtitle2" color="text.secondary">Collateral Type</Typography>
-                                <Typography variant="body2" sx={{ color: "#29262a", mb: 1 }}>
+                                <Typography variant="body2" sx={{ 
+                                    fontSize: "0.875rem",
+                                    color: "#666",
+                                    fontWeight: 500,
+                                    mb: 0.75
+                                }}>
+                                    Collateral Type
+                                </Typography>
+                                <Typography variant="body2" sx={{ 
+                                    fontSize: "0.9375rem",
+                                    color: "#29262a",
+                                    fontWeight: 500
+                                }}>
                                     {getDisplayValue(formData.collateralType)}
                                 </Typography>
                             </Grid>
                             <Grid item xs={12} md={6}>
-                                <Typography variant="subtitle2" color="text.secondary">Loan Term Range</Typography>
-                                <Typography variant="body2" sx={{ color: "#29262a", mb: 1 }}>
+                                <Typography variant="body2" sx={{ 
+                                    fontSize: "0.875rem",
+                                    color: "#666",
+                                    fontWeight: 500,
+                                    mb: 0.75
+                                }}>
+                                    Loan Term Range
+                                </Typography>
+                                <Typography variant="body2" sx={{ 
+                                    fontSize: "0.9375rem",
+                                    color: "#29262a",
+                                    fontWeight: 500
+                                }}>
                                     {getDisplayValue(formData.loanTermRange)}
                                 </Typography>
                             </Grid>
                             <Grid item xs={12} md={6}>
-                                <Typography variant="subtitle2" color="text.secondary">Interest Rate Range</Typography>
-                                <Typography variant="body2" sx={{ color: "#29262a", mb: 1 }}>
+                                <Typography variant="body2" sx={{ 
+                                    fontSize: "0.875rem",
+                                    color: "#666",
+                                    fontWeight: 500,
+                                    mb: 0.75
+                                }}>
+                                    Interest Rate Range
+                                </Typography>
+                                <Typography variant="body2" sx={{ 
+                                    fontSize: "0.9375rem",
+                                    color: "#29262a",
+                                    fontWeight: 500
+                                }}>
                                     {getDisplayValue(formData.interestRateRange)}
                                 </Typography>
                             </Grid>
@@ -318,34 +479,60 @@ export default function ReviewStep({
 
             {/* File Summary */}
             <Grid item xs={12}>
-                <Card sx={{ borderRadius: "1.25em" }}>
-                    <CardContent>
-                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-                            <Typography variant="h6" sx={{ color: "#29262a", fontWeight: 600 }}>
+                <Card sx={styles.metrics.reviewCard}>
+                    <CardContent sx={{ p: "2rem" }}>
+                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2.5 }}>
+                            <Typography variant="h6" sx={{ 
+                                color: "#29262a", 
+                                fontWeight: 600,
+                                fontSize: "1rem"
+                            }}>
                                 Loan Data File
                             </Typography>
                             <Button
-                                startIcon={<EditIcon />}
+                                startIcon={<EditIcon sx={{ fontSize: "1rem" }} />}
                                 onClick={() => goToStep(1)}
                                 sx={styles.button.text}
                             >
                                 Edit
                             </Button>
                         </Box>
-                        <Divider sx={{ mb: 2 }} />
+                        <Divider sx={{ mb: 2.5, borderColor: "#E9ECEF" }} />
                         
                         {fileState?.file ? (
                             <>
-                                <Grid container spacing={2} sx={{ mb: 2 }}>
+                                <Grid container spacing={2.5} sx={{ mb: 3 }}>
                                     <Grid item xs={12} md={6}>
-                                        <Typography variant="subtitle2" color="text.secondary">File Name</Typography>
-                                        <Typography variant="body2" sx={{ color: "#29262a", mb: 1 }}>
+                                        <Typography variant="body2" sx={{ 
+                                            fontSize: "0.875rem",
+                                            color: "#666",
+                                            fontWeight: 500,
+                                            mb: 0.75
+                                        }}>
+                                            File Name
+                                        </Typography>
+                                        <Typography variant="body2" sx={{ 
+                                            fontSize: "0.9375rem",
+                                            color: "#29262a",
+                                            fontWeight: 500
+                                        }}>
                                             {fileState.file.name}
                                         </Typography>
                                     </Grid>
                                     <Grid item xs={12} md={6}>
-                                        <Typography variant="subtitle2" color="text.secondary">File Size</Typography>
-                                        <Typography variant="body2" sx={{ color: "#29262a", mb: 1 }}>
+                                        <Typography variant="body2" sx={{ 
+                                            fontSize: "0.875rem",
+                                            color: "#666",
+                                            fontWeight: 500,
+                                            mb: 0.75
+                                        }}>
+                                            File Size
+                                        </Typography>
+                                        <Typography variant="body2" sx={{ 
+                                            fontSize: "0.9375rem",
+                                            color: "#29262a",
+                                            fontWeight: 500
+                                        }}>
                                             {formatFileSize(fileState.file.size)}
                                         </Typography>
                                     </Grid>
@@ -353,74 +540,105 @@ export default function ReviewStep({
 
                                 {fileState.previewData && (
                                     <>
-                                        <Typography variant="subtitle2" sx={{ color: "#29262a", mb: 1 }}>
-                                            File Statistics:
-                                        </Typography>
-                                        <Grid container spacing={2} sx={{ mb: 2 }}>
-                                            <Grid item xs={12} sm={6} md={3}>
-                                                <Box sx={{ textAlign: "center" }}>
-                                                    <Typography variant="h6" sx={{ color: "#725aa2", fontWeight: "bold" }}>
-                                                        {fileState.previewData.totalLoans}
-                                                    </Typography>
-                                                    <Typography variant="body2" color="text.secondary">
-                                                        Total Loans
-                                                    </Typography>
-                                                </Box>
+                                        <Box sx={{ 
+                                            borderTop: "1px solid #E9ECEF",
+                                            pt: 3,
+                                            mb: 3
+                                        }}>
+                                            <Typography variant="body2" sx={{ 
+                                                color: "#29262a", 
+                                                fontWeight: 600,
+                                                fontSize: "0.9375rem",
+                                                mb: 2.5
+                                            }}>
+                                                File Statistics
+                                            </Typography>
+                                            <Grid container spacing={3} sx={{ mb: 3 }}>
+                                                <Grid item xs={12} sm={6} md={3}>
+                                                    <Box sx={{ textAlign: "center" }}>
+                                                        <Typography sx={styles.metrics.value}>
+                                                            {fileState.previewData.totalLoans}
+                                                        </Typography>
+                                                        <Typography sx={styles.metrics.label}>
+                                                            Total Loans
+                                                        </Typography>
+                                                    </Box>
+                                                </Grid>
+                                                <Grid item xs={12} sm={6} md={3}>
+                                                    <Box sx={{ textAlign: "center" }}>
+                                                        <Typography sx={styles.metrics.value}>
+                                                            {formatCurrency(fileState.previewData.totalAmount)}
+                                                        </Typography>
+                                                        <Typography sx={styles.metrics.label}>
+                                                            Total Amount
+                                                        </Typography>
+                                                    </Box>
+                                                </Grid>
+                                                <Grid item xs={12} sm={6} md={3}>
+                                                    <Box sx={{ textAlign: "center" }}>
+                                                        <Typography sx={styles.metrics.value}>
+                                                            {formatCurrency(fileState.previewData.avgLoanSize)}
+                                                        </Typography>
+                                                        <Typography sx={styles.metrics.label}>
+                                                            Avg Loan Size
+                                                        </Typography>
+                                                    </Box>
+                                                </Grid>
+                                                <Grid item xs={12} sm={6} md={3}>
+                                                    <Box sx={{ textAlign: "center" }}>
+                                                        <Typography sx={styles.metrics.value}>
+                                                            {formatPercentage(fileState.previewData.avgInterestRate)}
+                                                        </Typography>
+                                                        <Typography sx={styles.metrics.label}>
+                                                            Avg Interest Rate
+                                                        </Typography>
+                                                    </Box>
+                                                </Grid>
                                             </Grid>
-                                            <Grid item xs={12} sm={6} md={3}>
-                                                <Box sx={{ textAlign: "center" }}>
-                                                    <Typography variant="h6" sx={{ color: "#725aa2", fontWeight: "bold" }}>
-                                                        {formatCurrency(fileState.previewData.totalAmount)}
-                                                    </Typography>
-                                                    <Typography variant="body2" color="text.secondary">
-                                                        Total Amount
-                                                    </Typography>
-                                                </Box>
-                                            </Grid>
-                                            <Grid item xs={12} sm={6} md={3}>
-                                                <Box sx={{ textAlign: "center" }}>
-                                                    <Typography variant="h6" sx={{ color: "#725aa2", fontWeight: "bold" }}>
-                                                        {formatCurrency(fileState.previewData.avgLoanSize)}
-                                                    </Typography>
-                                                    <Typography variant="body2" color="text.secondary">
-                                                        Avg Loan Size
-                                                    </Typography>
-                                                </Box>
-                                            </Grid>
-                                            <Grid item xs={12} sm={6} md={3}>
-                                                <Box sx={{ textAlign: "center" }}>
-                                                    <Typography variant="h6" sx={{ color: "#725aa2", fontWeight: "bold" }}>
-                                                        {formatPercentage(fileState.previewData.avgInterestRate)}
-                                                    </Typography>
-                                                    <Typography variant="body2" color="text.secondary">
-                                                        Avg Interest Rate
-                                                    </Typography>
-                                                </Box>
-                                            </Grid>
-                                        </Grid>
+                                        </Box>
 
-                                        <Typography variant="subtitle2" sx={{ color: "#29262a", mb: 1 }}>
-                                            Detected Columns:
-                                        </Typography>
-                                        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                                            {fileState.previewData.detectedColumns.map((column, index) => (
-                                                <Chip
-                                                    key={index}
-                                                    label={column}
-                                                    size="small"
-                                                    sx={{
-                                                        backgroundColor: "#eff6fd",
-                                                        border: "1px solid #D3D3D3",
-                                                        color: "#29262a"
-                                                    }}
-                                                />
-                                            ))}
+                                        <Box sx={{ 
+                                            borderTop: "1px solid #E9ECEF",
+                                            pt: 2.5
+                                        }}>
+                                            <Typography variant="body2" sx={{ 
+                                                color: "#29262a", 
+                                                fontWeight: 600,
+                                                fontSize: "0.9375rem",
+                                                mb: 1.5
+                                            }}>
+                                                Detected Columns
+                                            </Typography>
+                                            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                                                {fileState.previewData.detectedColumns.map((column, index) => (
+                                                    <Chip
+                                                        key={index}
+                                                        label={column}
+                                                        size="small"
+                                                        sx={{
+                                                            backgroundColor: "transparent",
+                                                            border: "1px solid #E9ECEF",
+                                                            color: "#29262a",
+                                                            borderRadius: "0.5rem",
+                                                            fontSize: "0.8125rem",
+                                                            fontWeight: 500,
+                                                            height: "24px",
+                                                            "& .MuiChip-label": {
+                                                                padding: "0 0.5rem"
+                                                            }
+                                                        }}
+                                                    />
+                                                ))}
+                                            </Box>
                                         </Box>
                                     </>
                                 )}
                             </>
                         ) : (
-                            <Typography variant="body2" color="text.secondary">
+                            <Typography variant="body2" sx={{ 
+                                fontSize: "0.9375rem",
+                                color: "#666"
+                            }}>
                                 No file uploaded
                             </Typography>
                         )}
@@ -433,7 +651,10 @@ export default function ReviewStep({
                 <Grid item xs={12}>
                     <Alert 
                         severity="error" 
-                        sx={{ borderRadius: "1.25em" }}
+                        sx={{ 
+                            borderRadius: "0.625rem",
+                            fontSize: "0.9375rem"
+                        }}
                         aria-live="assertive"
                     >
                         {submitError}
@@ -443,21 +664,37 @@ export default function ReviewStep({
 
             {/* Terms and Conditions */}
             <Grid item xs={12}>
-                <FormControlLabel
-                    control={
-                        <Checkbox
-                            checked={termsAccepted}
-                            onChange={(e) => setTermsAccepted(e.target.checked)}
-                            sx={{ color: "#725aa2" }}
-                            inputProps={{ "aria-label": "Accept terms and conditions" }}
-                        />
-                    }
-                    label={
-                        <Typography variant="body2" sx={{ color: "#29262a" }}>
-                            I agree to the terms and conditions for creating this loan pool
-                        </Typography>
-                    }
-                />
+                <Box sx={{ 
+                    mt: 2,
+                    p: 2,
+                    backgroundColor: "#FAFAFA",
+                    border: "1px solid #E9ECEF",
+                    borderRadius: "0.625rem"
+                }}>
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={termsAccepted}
+                                onChange={(e) => setTermsAccepted(e.target.checked)}
+                                sx={{ 
+                                    color: "#725aa2",
+                                    "&.Mui-checked": {
+                                        color: "#725aa2"
+                                    }
+                                }}
+                                inputProps={{ "aria-label": "Accept terms and conditions" }}
+                            />
+                        }
+                        label={
+                            <Typography variant="body2" sx={{ 
+                                fontSize: "0.9375rem",
+                                color: "#29262a"
+                            }}>
+                                I agree to the terms and conditions for creating this loan pool
+                            </Typography>
+                        }
+                    />
+                </Box>
             </Grid>
 
             {/* Navigation Buttons */}
@@ -466,7 +703,7 @@ export default function ReviewStep({
                     display: "flex", 
                     justifyContent: "space-between",
                     alignItems: "center",
-                    marginTop: "2em",
+                    marginTop: "3rem",
                     gap: 2
                 }}>
                     <Button
@@ -474,14 +711,16 @@ export default function ReviewStep({
                         onClick={onBack}
                         disabled={isSubmitting}
                         sx={{
-                            ...styles.button.text,
+                            ...styles.button.outlined,
                             borderColor: "#725aa2",
+                            color: "#725aa2",
                             "&:hover": {
-                                borderColor: "#29262a",
-                                backgroundColor: "#eff6fd"
+                                borderColor: "#725aa2",
+                                backgroundColor: "rgba(114, 90, 162, 0.08)",
+                                color: "#725aa2"
                             },
                             "&:disabled": {
-                                borderColor: "#D3D3D3",
+                                borderColor: "#E0E0E0",
                                 color: "#A0A0A0"
                             }
                         }}
@@ -493,7 +732,11 @@ export default function ReviewStep({
                         variant="contained"
                         onClick={handleSubmit}
                         disabled={!termsAccepted || isSubmitting}
-                        sx={styles.button.primary}
+                        sx={{
+                            ...styles.button.primary,
+                            minWidth: "200px",
+                            maxWidth: "300px"
+                        }}
                         aria-busy={isSubmitting}
                         aria-label={isSubmitting ? "Creating loan pool, please wait" : "Create loan pool"}
                         endIcon={isSubmitting ? <CircularProgress size={20} color="inherit" aria-label="Loading" /> : null}
@@ -509,7 +752,10 @@ export default function ReviewStep({
                                     anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
                     aria-label={snackbarSeverity === "success" ? "Success notification" : "Error notification"}
             >
-                <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ borderRadius: "1.25em" }}>
+                <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ 
+                    borderRadius: "0.625rem",
+                    fontSize: "0.9375rem"
+                }}>
                     {snackbarMsg}
                 </Alert>
             </Snackbar>

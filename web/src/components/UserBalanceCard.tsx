@@ -6,7 +6,6 @@ import {
   CardContent,
   Typography,
   Alert,
-  CircularProgress,
   IconButton,
   Tooltip,
   Skeleton
@@ -29,7 +28,7 @@ export default function UserBalanceCard({
   userAddress,
   onBalanceUpdate
 }: UserBalanceCardProps) {
-  const { balance, currency, lastUpdated, loading, error, refreshBalance } = useUserBalance();
+  const { balance, lastUpdated, loading, error, refreshBalance } = useUserBalance();
 
   // Handle manual refresh
   const handleRefresh = async () => {
@@ -70,12 +69,16 @@ export default function UserBalanceCard({
         display: "flex",
         flexDirection: "column"
       }}>
-        <CardContent sx={styles.containers.cardContent}>
-          <Typography variant="h6" gutterBottom sx={styles.header.cardTitle}>
-            USDC Balance
-          </Typography>
-          <Skeleton variant="rectangular" height={80} sx={{ borderRadius: "0.75em" }} />
-        </CardContent>
+      <CardContent sx={{ p: "2rem" }}>
+        <Typography variant="h6" sx={{
+          ...styles.header.cardTitle,
+          fontSize: "1rem",
+          mb: 2.5
+        }}>
+          USDC Balance
+        </Typography>
+        <Skeleton variant="rectangular" height={80} sx={{ borderRadius: "0.625rem" }} />
+      </CardContent>
       </Card>
     );
   }
@@ -89,12 +92,19 @@ export default function UserBalanceCard({
         display: "flex",
         flexDirection: "column"
       }}>
-        <CardContent sx={styles.containers.cardContent}>
-          <Typography variant="h6" gutterBottom sx={styles.header.cardTitle}>
+        <CardContent sx={{ p: "2rem" }}>
+          <Typography variant="h6" sx={{
+            ...styles.header.cardTitle,
+            fontSize: "1rem",
+            mb: 2
+          }}>
             USDC Balance
           </Typography>
           
-          <Alert severity="error" sx={styles.containers.alert}>
+          <Alert severity="error" sx={{
+            borderRadius: "0.625rem",
+            fontSize: "0.9375rem"
+          }}>
             {error}
           </Alert>
           
@@ -119,17 +129,30 @@ export default function UserBalanceCard({
         display: "flex",
         flexDirection: "column"
       }}>
-        <CardContent sx={styles.containers.cardContent}>
-          <Typography variant="h6" gutterBottom sx={styles.header.cardTitle}>
+        <CardContent sx={{ p: "2rem" }}>
+          <Typography variant="h6" sx={{
+            ...styles.header.cardTitle,
+            fontSize: "1rem",
+            mb: 2.5
+          }}>
             USDC Balance
           </Typography>
           
           <Box sx={styles.containers.emptyState}>
             <AccountBalanceIcon sx={styles.containers.iconLarge} />
-            <Typography variant="body1" sx={{ mb: 1, fontWeight: 500 }}>
+            <Typography variant="body1" sx={{ 
+              mb: 1, 
+              fontWeight: 500,
+              fontSize: "0.9375rem",
+              color: "#29262a"
+            }}>
               Connect Wallet
             </Typography>
-            <Typography variant="body2" sx={{ textAlign: "center" }}>
+            <Typography variant="body2" sx={{ 
+              textAlign: "center",
+              fontSize: "0.9375rem",
+              color: "#666"
+            }}>
               Connect your wallet to view your USDC balance
             </Typography>
           </Box>
@@ -148,16 +171,24 @@ export default function UserBalanceCard({
       display: "flex",
       flexDirection: "column"
     }}>
-      <CardContent sx={styles.containers.cardContent}>
+      <CardContent sx={{ p: "2rem" }}>
         <Box sx={styles.containers.flexBetween}>
-          <Typography variant="h6" sx={styles.header.cardTitle}>
+          <Typography variant="h6" sx={{
+            ...styles.header.cardTitle,
+            fontSize: "1rem"
+          }}>
             USDC Balance
           </Typography>
           
           <Tooltip title="Refresh balance">
             <IconButton
               onClick={handleRefresh}
-              sx={styles.button.iconButton}
+              sx={{
+                color: "#29262a",
+                "&:hover": {
+                  backgroundColor: "rgba(41, 38, 42, 0.08)"
+                }
+              }}
             >
               <RefreshIcon />
             </IconButton>
@@ -167,14 +198,15 @@ export default function UserBalanceCard({
         {/* Balance Display */}
         <Box sx={{ 
           p: 3, 
-          backgroundColor: "#f8f9fa", 
-          borderRadius: "1em",
-          border: `2px solid ${balanceStatus?.color || "#D3D3D3"}`,
+          backgroundColor: "#FAFAFA", 
+          borderRadius: "0.625rem",
+          border: `1px solid #E9ECEF`,
           position: "relative",
           flexGrow: 1,
           display: "flex",
           flexDirection: "column",
-          justifyContent: "center"
+          justifyContent: "center",
+          mt: 2.5
         }}>
           <Box sx={styles.containers.flexBetween}>
             <Box sx={styles.containers.flexCenter}>
@@ -184,14 +216,14 @@ export default function UserBalanceCard({
                 fontSize: 32
               }} />
               <Box>
-                <Typography variant="h4" sx={{ 
-                  fontWeight: 700, 
-                  color: "#29262a",
-                  lineHeight: 1
-                }}>
+                <Typography sx={styles.metrics.value}>
                   {formatCurrency(balance)}
                 </Typography>
-                <Typography variant="body2" sx={{ color: "#666", mt: 0.5 }}>
+                <Typography variant="body2" sx={{ 
+                  fontSize: "0.875rem",
+                  color: "#666", 
+                  mt: 0.5 
+                }}>
                   Available for deposits
                 </Typography>
               </Box>
@@ -206,9 +238,10 @@ export default function UserBalanceCard({
               right: 8,
               px: 1.5,
               py: 0.5,
-              backgroundColor: balanceStatus.color,
-              color: "white",
-              borderRadius: "0.5em",
+              backgroundColor: "transparent",
+              color: balanceStatus.color,
+              border: `1px solid ${balanceStatus.color}`,
+              borderRadius: "0.5rem",
               fontSize: "0.75rem",
               fontWeight: 600,
               textTransform: "uppercase"
@@ -220,24 +253,36 @@ export default function UserBalanceCard({
 
         {/* Balance Status Message */}
         {balanceStatus && (
-          <Box sx={{ mt: 2 }}>
+          <Box sx={{ mt: 2.5 }}>
             {balanceStatus.status === "empty" && (
-              <Alert severity="warning" sx={{ borderRadius: "0.75em" }}>
+              <Alert severity="warning" sx={{ 
+                borderRadius: "0.625rem",
+                fontSize: "0.9375rem"
+              }}>
                 Your USDC balance is empty. Add funds to start investing.
               </Alert>
             )}
             {balanceStatus.status === "low" && (
-              <Alert severity="info" sx={{ borderRadius: "0.75em" }}>
+              <Alert severity="info" sx={{ 
+                borderRadius: "0.625rem",
+                fontSize: "0.9375rem"
+              }}>
                 Your balance is low. Consider adding more USDC for better investment opportunities.
               </Alert>
             )}
             {balanceStatus.status === "moderate" && (
-              <Alert severity="success" sx={{ borderRadius: "0.75em" }}>
+              <Alert severity="success" sx={{ 
+                borderRadius: "0.625rem",
+                fontSize: "0.9375rem"
+              }}>
                 Good balance! You're ready to make deposits.
               </Alert>
             )}
             {balanceStatus.status === "good" && (
-              <Alert severity="success" sx={{ borderRadius: "0.75em" }}>
+              <Alert severity="success" sx={{ 
+                borderRadius: "0.625rem",
+                fontSize: "0.9375rem"
+              }}>
                 Excellent balance! You have plenty of USDC for investments.
               </Alert>
             )}
@@ -246,8 +291,11 @@ export default function UserBalanceCard({
 
         {/* Last Updated */}
         {lastUpdated && (
-          <Box sx={{ mt: 2, textAlign: "center" }}>
-            <Typography variant="caption" sx={{ color: "#999" }}>
+          <Box sx={{ mt: 2.5, textAlign: "center" }}>
+            <Typography variant="body2" sx={{ 
+              fontSize: "0.875rem",
+              color: "#666" 
+            }}>
               Last updated: {new Date(lastUpdated).toLocaleString()}
             </Typography>
           </Box>

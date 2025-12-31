@@ -14,6 +14,7 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useDropzone } from "react-dropzone";
 import { FileUploadProps } from "../../types/loan-pool";
+import { styles } from "../../styles/styles";
 
 export default function FileUploadZone({
     onFileAccepted,
@@ -81,9 +82,9 @@ export default function FileUploadZone({
     const renderUploadZone = (): JSX.Element => {
         if (isProcessing) {
             return (
-                <Box sx={{ textAlign: "center", py: 4 }}>
+                <Box sx={{ textAlign: "center", py: 5 }}>
                     <CircularProgress size={40} sx={{ color: "#725aa2", mb: 2 }} />
-                    <Typography variant="body1" color="text.secondary">
+                    <Typography variant="body2" sx={{ fontSize: "0.9375rem", color: "#666" }}>
                         Processing {uploadedFile?.name}...
                     </Typography>
                 </Box>
@@ -92,18 +93,30 @@ export default function FileUploadZone({
 
         if (uploadedFile && !isProcessing) {
             return (
-                <Box sx={{ textAlign: "center", py: 3 }}>
-                    <Typography variant="h6" sx={{ color: "#29262a", mb: 1 }}>
+                <Box sx={{ textAlign: "center", py: 4 }}>
+                    <Typography variant="h6" sx={{ 
+                        color: "#29262a", 
+                        fontWeight: 600,
+                        fontSize: "1rem",
+                        mb: 1.5 
+                    }}>
                         File Uploaded Successfully
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                    <Typography variant="body2" sx={{ 
+                        fontSize: "0.9375rem",
+                        color: "#666", 
+                        mb: 2.5 
+                    }}>
                         {uploadedFile.name} ({formatFileSize(uploadedFile.size)})
                     </Typography>
                     <IconButton
                         onClick={onRemoveFile}
                         sx={{
-                            color: "#725aa2",
-                            "&:hover": { backgroundColor: "#eff6fd" }
+                            color: "#666",
+                            "&:hover": { 
+                                backgroundColor: "rgba(114, 90, 162, 0.08)",
+                                color: "#725aa2"
+                            }
                         }}
                     >
                         <DeleteIcon />
@@ -113,18 +126,26 @@ export default function FileUploadZone({
         }
 
         return (
-            <Box sx={{ textAlign: "center", py: 4 }}>
+            <Box sx={{ textAlign: "center", py: 5 }}>
                 <CloudUploadIcon 
                     sx={{ 
                         fontSize: 48, 
-                        color: isDragActive ? "#725aa2" : "#D3D3D3",
+                        color: isDragActive ? "#725aa2" : "#666",
                         mb: 2 
                     }} 
                 />
-                <Typography variant="h6" sx={{ color: "#29262a", mb: 1 }}>
+                <Typography variant="h6" sx={{ 
+                    color: "#29262a", 
+                    fontWeight: 600,
+                    fontSize: "1rem",
+                    mb: 1 
+                }}>
                     {isDragActive ? "Drop your file here" : "Drag & drop or click to browse"}
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
+                <Typography variant="body2" sx={{ 
+                    fontSize: "0.9375rem",
+                    color: "#666"
+                }}>
                     Supports CSV, XLSX, and XLS files up to 10MB
                 </Typography>
             </Box>
@@ -137,73 +158,97 @@ export default function FileUploadZone({
         return (
             <Card sx={{ 
                 mt: 3, 
-                backgroundColor: "#eff6fd",
-                borderRadius: "1.25em"
+                backgroundColor: "#FFFFFE",
+                border: "1px solid #E9ECEF",
+                borderRadius: "0.625rem",
+                boxShadow: "none"
             }}>
-                <CardContent>
-                    <Typography variant="h6" sx={{ color: "#29262a", mb: 2 }}>
+                <CardContent sx={{ p: "1.5rem" }}>
+                    <Typography variant="h6" sx={{ 
+                        color: "#29262a", 
+                        fontWeight: 600,
+                        fontSize: "1rem",
+                        mb: 3 
+                    }}>
                         File Preview
                     </Typography>
                     
-                    <Grid container spacing={1} sx={{ mb: 3 }}>
+                    <Grid container spacing={3} sx={{ mb: 4 }}>
                         <Grid item xs={12} sm={6} md={3}>
                             <Box sx={{ textAlign: "center" }}>
-                                <Typography variant="body1" sx={{ color: "#725aa2", fontWeight: "bold", fontSize: "1.1rem" }}>
+                                <Typography sx={styles.metrics.value}>
                                     {previewData.totalLoans}
                                 </Typography>
-                                <Typography variant="body2" color="text.secondary">
+                                <Typography sx={styles.metrics.label}>
                                     Total Loans
                                 </Typography>
                             </Box>
                         </Grid>
                         <Grid item xs={12} sm={6} md={3}>
                             <Box sx={{ textAlign: "center" }}>
-                                <Typography variant="body1" sx={{ color: "#725aa2", fontWeight: "bold", fontSize: "1.1rem" }}>
+                                <Typography sx={styles.metrics.value}>
                                     {formatCurrency(previewData.totalAmount)}
                                 </Typography>
-                                <Typography variant="body2" color="text.secondary">
+                                <Typography sx={styles.metrics.label}>
                                     Total Amount
                                 </Typography>
                             </Box>
                         </Grid>
                         <Grid item xs={12} sm={6} md={3}>
                             <Box sx={{ textAlign: "center" }}>
-                                <Typography variant="body1" sx={{ color: "#725aa2", fontWeight: "bold", fontSize: "1.1rem" }}>
+                                <Typography sx={styles.metrics.value}>
                                     {formatCurrency(previewData.avgLoanSize)}
                                 </Typography>
-                                <Typography variant="body2" color="text.secondary">
+                                <Typography sx={styles.metrics.label}>
                                     Avg Loan Size
                                 </Typography>
                             </Box>
                         </Grid>
                         <Grid item xs={12} sm={6} md={3}>
                             <Box sx={{ textAlign: "center" }}>
-                                <Typography variant="body1" sx={{ color: "#725aa2", fontWeight: "bold", fontSize: "1.1rem" }}>
+                                <Typography sx={styles.metrics.value}>
                                     {formatPercentage(previewData.avgInterestRate)}
                                 </Typography>
-                                <Typography variant="body2" color="text.secondary">
+                                <Typography sx={styles.metrics.label}>
                                     Avg Interest Rate
                                 </Typography>
                             </Box>
                         </Grid>
                     </Grid>
 
-                    <Typography variant="subtitle2" sx={{ color: "#29262a", mb: 1 }}>
-                        Detected Columns:
-                    </Typography>
-                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                        {previewData.detectedColumns.map((column, index) => (
-                            <Chip
-                                key={index}
-                                label={column}
-                                size="small"
-                                sx={{
-                                    backgroundColor: "#FFFFFE",
-                                    border: "1px solid #D3D3D3",
-                                    color: "#29262a"
-                                }}
-                            />
-                        ))}
+                    <Box sx={{ 
+                        borderTop: "1px solid #E9ECEF",
+                        pt: 2.5
+                    }}>
+                        <Typography variant="body2" sx={{ 
+                            color: "#29262a", 
+                            fontWeight: 600,
+                            fontSize: "0.9375rem",
+                            mb: 1.5 
+                        }}>
+                            Detected Columns
+                        </Typography>
+                        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                            {previewData.detectedColumns.map((column, index) => (
+                                <Chip
+                                    key={index}
+                                    label={column}
+                                    size="small"
+                                    sx={{
+                                        backgroundColor: "transparent",
+                                        border: "1px solid #E9ECEF",
+                                        color: "#29262a",
+                                        borderRadius: "0.5rem",
+                                        fontSize: "0.8125rem",
+                                        fontWeight: 500,
+                                        height: "24px",
+                                        "& .MuiChip-label": {
+                                            padding: "0 0.5rem"
+                                        }
+                                    }}
+                                />
+                            ))}
+                        </Box>
                     </Box>
                 </CardContent>
             </Card>
@@ -214,15 +259,16 @@ export default function FileUploadZone({
         <Box>
             <Paper
                 {...getRootProps()}
+                elevation={0}
                 sx={{
-                    border: `2px dashed ${isDragReject ? "#f44336" : isDragActive ? "#725aa2" : "#D3D3D3"}`,
-                    borderRadius: "1.25em",
-                    backgroundColor: isDragActive ? "#eff6fd" : "#FFFFFE",
+                    border: `2px dashed ${isDragReject ? "#d32f2f" : isDragActive ? "#725aa2" : "#E9ECEF"}`,
+                    borderRadius: "0.625rem",
+                    backgroundColor: isDragActive ? "rgba(114, 90, 162, 0.02)" : "#FFFFFE",
                     cursor: isProcessing ? "not-allowed" : "pointer",
-                    transition: "all 0.2s ease-in-out",
+                    transition: "all 0.15s ease-in-out",
                     "&:hover": {
-                        borderColor: isProcessing ? "#D3D3D3" : "#725aa2",
-                        backgroundColor: isProcessing ? "#FFFFFE" : "#eff6fd"
+                        borderColor: isProcessing ? "#E9ECEF" : "#725aa2",
+                        backgroundColor: isProcessing ? "#FFFFFE" : "rgba(114, 90, 162, 0.02)"
                     }
                 }}
             >

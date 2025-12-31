@@ -2,8 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 import {
   Box,
   Button,
-  Card,
-  Container,
   Typography,
   Table,
   TableBody,
@@ -21,29 +19,14 @@ import {
   TextField,
   Alert,
   CircularProgress,
-  Skeleton,
-  Stack,
   LinearProgress,
-  Tooltip,
-  Menu,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Select,
-  SelectChangeEvent
+  Tooltip
 } from "@mui/material";
 import {
   CheckCircle as CheckCircleIcon,
-  Error as ErrorIcon,
-  HourglassTop as HourglassIcon,
   Visibility as VisibilityIcon,
-  ThumbUp as ThumbUpIcon,
-  ThumbDown as ThumbDownIcon,
-  Refresh as RefreshIcon,
-  MoreVert as MoreVertIcon,
-  PlayArrow as PlayArrowIcon
+  ThumbDown as ThumbDownIcon
 } from "@mui/icons-material";
-import { useSnackbar } from "notistack";
 import axios from "axios";
 import { styles } from "../../styles/styles";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
@@ -128,6 +111,7 @@ export default function PendingApprovalsTable(): JSX.Element {
     return () => {
       cleanupSSEConnection();
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchPendingPools = async (): Promise<void> => {
@@ -154,7 +138,6 @@ export default function PendingApprovalsTable(): JSX.Element {
         setError("Failed to fetch pending pools");
       }
     } catch (err: any) {
-      console.error("Error fetching pending pools:", err);
       setError(err.response?.data?.message || "Failed to fetch pending pools");
     } finally {
       setLoading(false);
@@ -170,12 +153,12 @@ export default function PendingApprovalsTable(): JSX.Element {
           const webhookEvent: WebhookEvent = JSON.parse(event.data);
           handleWebhookEvent(webhookEvent);
         } catch (parseError) {
-          console.error("Error parsing webhook event:", parseError);
+          // Error parsing webhook event
         }
       };
 
       eventSourceRef.current.onerror = (error) => {
-        console.error("SSE connection error:", error);
+        // SSE connection error
         // Attempt to reconnect after a delay
         setTimeout(() => {
           if (eventSourceRef.current) {
@@ -185,7 +168,7 @@ export default function PendingApprovalsTable(): JSX.Element {
         }, 5000);
       };
     } catch (error) {
-      console.error("Error setting up SSE connection:", error);
+      // Error setting up SSE connection
     }
   };
 
@@ -266,7 +249,6 @@ export default function PendingApprovalsTable(): JSX.Element {
         fetchPendingPools(); // Refresh the list
       }
     } catch (err: any) {
-      console.error("Error approving pool:", err);
       setError(err.response?.data?.message || "Failed to approve pool");
     }
   };
@@ -284,34 +266,10 @@ export default function PendingApprovalsTable(): JSX.Element {
         fetchPendingPools(); // Refresh the list
       }
     } catch (err: any) {
-      console.error(`Error retrying ${step}:`, err);
       setError(err.response?.data?.message || `Failed to retry ${step}`);
     }
   };
 
-  const handleReject = async (): Promise<void> => {
-    if (!selectedPool) {
-      return;
-    }
-
-    try {
-      const response = await axios.patch(
-        `/api/loan-pools/${selectedPool.id}/reject`,
-        { reason: "" }, // Will be updated with form data
-        { withCredentials: true }
-      );
-
-      if (response.data.success) {
-        setRejectionDialog(false);
-        reset(); // Reset form
-        setSelectedPool(null);
-        fetchPendingPools(); // Refresh the list
-      }
-    } catch (err: any) {
-      console.error("Error rejecting pool:", err);
-      setError(err.response?.data?.message || "Failed to reject pool");
-    }
-  };
 
   const onSubmitRejection: SubmitHandler<RejectionFormData> = async (data): Promise<void> => {
     if (!selectedPool) {
@@ -332,7 +290,6 @@ export default function PendingApprovalsTable(): JSX.Element {
         fetchPendingPools(); // Refresh the list
       }
     } catch (err: any) {
-      console.error("Error rejecting pool:", err);
       setError(err.response?.data?.message || "Failed to reject pool");
     }
   };
@@ -340,29 +297,6 @@ export default function PendingApprovalsTable(): JSX.Element {
   const handleViewDetails = (pool: PendingPool): void => {
     setSelectedPool(pool);
     setDetailsDialog(true);
-  };
-
-  const getStatusColor = (status: string): "warning" | "success" | "error" | "info" | "default" => {
-    switch (status) {
-      case "PENDING":
-        return "warning";
-      case "APPROVED":
-        return "success";
-      case "REJECTED":
-        return "error";
-      case "DEPLOYING_POOL":
-      case "POOL_CREATED":
-      case "CONFIGURING_POOL":
-      case "POOL_CONFIGURED":
-      case "DEPLOYING_LOANS":
-        return "info";
-      case "DEPLOYED":
-        return "success";
-      case "FAILED":
-        return "error";
-      default:
-        return "default";
-    }
   };
 
   const getStatusCategory = (status: string): "pending" | "deploying" | "completed" | "failed" | "rejected" | "other" => {
@@ -386,22 +320,6 @@ export default function PendingApprovalsTable(): JSX.Element {
     }
   };
 
-  const getStatusIcon = (status: string): JSX.Element | undefined => {
-    switch (status) {
-      case "DEPLOYING_POOL":
-      case "POOL_CREATED":
-      case "CONFIGURING_POOL":
-      case "POOL_CONFIGURED":
-      case "DEPLOYING_LOANS":
-        return <HourglassIcon />;
-      case "FAILED":
-        return <ErrorIcon />;
-      case "DEPLOYED":
-        return <CheckCircleIcon />;
-      default:
-        return undefined;
-    }
-  };
 
   const formatCurrency = (amount: number): string => {
     return new Intl.NumberFormat("en-US", {
@@ -556,37 +474,6 @@ export default function PendingApprovalsTable(): JSX.Element {
     }
   };
 
-  // Helper function to get deployment summary
-  const getDeploymentSummary = (pool: PendingPool): string => {
-    const currentStatus = deploymentStatus[pool.id] || pool.status;
-    
-    if (currentStatus === "DEPLOYED") {
-      return "✓ Fully Deployed";
-    }
-    
-    if (currentStatus === "FAILED") {
-      const completedSteps = [
-        pool.pool_creation_tx_id ? 1 : 0,
-        pool.pool_config_tx_id ? 1 : 0,
-        pool.loans_creation_tx_id ? 1 : 0
-      ].reduce((sum, step) => sum + step, 0);
-      
-      return `✗ Failed at step ${completedSteps + 1}/3`;
-    }
-    
-    if (currentStatus === "PENDING") {
-      return "⏳ Awaiting Approval";
-    }
-    
-    // For in-progress deployments
-    const completedSteps = [
-      pool.pool_creation_tx_id ? 1 : 0,
-      pool.pool_config_tx_id ? 1 : 0,
-      pool.loans_creation_tx_id ? 1 : 0
-    ].reduce((sum, step) => sum + step, 0);
-    
-    return `⟳ Step ${completedSteps + 1}/3`;
-  };
 
   const getDeploymentProgress = (status: string): { progress: number; message: string; color: string } => {
     switch (status) {
@@ -613,11 +500,13 @@ export default function PendingApprovalsTable(): JSX.Element {
 
   if (loading) {
     return (
-      <Paper sx={{
-        ...styles.containers.form,
-        backgroundColor: "#FFFFFE",
-        boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)",
-      }}>
+      <Paper 
+        elevation={0} 
+        sx={{
+          ...styles.table.container,
+          boxShadow: "none !important"
+        }}
+      >
         <Box sx={styles.containers.loadingState}>
           <CircularProgress sx={styles.containers.circularProgressLarge} />
           <Typography variant="body2" color="#29262a">
@@ -630,11 +519,13 @@ export default function PendingApprovalsTable(): JSX.Element {
 
   if (error) {
     return (
-      <Paper sx={{
-        ...styles.containers.form,
-        backgroundColor: "#FFFFFE",
-        boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)",
-      }}>
+      <Paper 
+        elevation={0} 
+        sx={{
+          ...styles.table.container,
+          boxShadow: "none !important"
+        }}
+      >
         <Box sx={styles.containers.errorState}>
           <Alert severity="error" sx={styles.containers.alertRounded}>
             {error}
@@ -671,82 +562,110 @@ export default function PendingApprovalsTable(): JSX.Element {
 
   return (
     <>
-      <Paper sx={{
-        ...styles.containers.form,
-        backgroundColor: "#FFFFFE",
-        boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)",
-      }}>
+      <Paper 
+        elevation={0} 
+        sx={{
+          ...styles.table.container,
+          boxShadow: "none !important"
+        }}
+      >
         {/* Status Filter */}
-        <Box sx={styles.containers.filterContainer}>
-          <Typography variant="h6" sx={styles.header.sectionTitle}>
+        <Box sx={{ ...styles.containers.filterContainer, borderBottom: "1px solid #E9ECEF" }}>
+          <Typography variant="h6" sx={{ ...styles.header.sectionTitle, fontSize: "1.125rem", fontWeight: 600, mb: 2 }}>
             Pool Approvals & Deployments
           </Typography>
           <Box sx={styles.containers.filterChips}>
             <Chip
               label={`All (${pools.length})`}
-              color={statusFilter === "all" ? "primary" : "default"}
               onClick={() => setStatusFilter("all")}
-              clickable
+              sx={{
+                borderRadius: "0.5rem",
+                fontSize: "0.8125rem",
+                fontWeight: 500,
+                height: "28px",
+                backgroundColor: statusFilter === "all" ? "rgba(114, 90, 162, 0.08)" : "transparent",
+                color: statusFilter === "all" ? "#725aa2" : "#666",
+                border: statusFilter === "all" ? "1px solid #725aa2" : "1px solid #E9ECEF",
+                cursor: "pointer"
+              }}
             />
             <Chip
               label={`Pending (${pools.filter(p => getStatusCategory(deploymentStatus[p.id] || p.status) === "pending").length})`}
-              color={statusFilter === "pending" ? "warning" : "default"}
               onClick={() => setStatusFilter("pending")}
-              clickable
+              sx={{
+                borderRadius: "0.5rem",
+                fontSize: "0.8125rem",
+                fontWeight: 500,
+                height: "28px",
+                backgroundColor: statusFilter === "pending" ? "#FFF3E0" : "transparent",
+                color: statusFilter === "pending" ? "#F57C00" : "#666",
+                border: statusFilter === "pending" ? "1px solid #FFE0B2" : "1px solid #E9ECEF",
+                cursor: "pointer"
+              }}
             />
             <Chip
               label={`Deploying (${pools.filter(p => getStatusCategory(deploymentStatus[p.id] || p.status) === "deploying").length})`}
-              color={statusFilter === "deploying" ? "info" : "default"}
               onClick={() => setStatusFilter("deploying")}
-              clickable
+              sx={{
+                borderRadius: "0.5rem",
+                fontSize: "0.8125rem",
+                fontWeight: 500,
+                height: "28px",
+                backgroundColor: statusFilter === "deploying" ? "#E3F2FD" : "transparent",
+                color: statusFilter === "deploying" ? "#1976D2" : "#666",
+                border: statusFilter === "deploying" ? "1px solid #BBDEFB" : "1px solid #E9ECEF",
+                cursor: "pointer"
+              }}
             />
             <Chip
               label={`Failed (${pools.filter(p => getStatusCategory(deploymentStatus[p.id] || p.status) === "failed").length})`}
-              color={statusFilter === "failed" ? "error" : "default"}
               onClick={() => setStatusFilter("failed")}
-              clickable
+              sx={{
+                borderRadius: "0.5rem",
+                fontSize: "0.8125rem",
+                fontWeight: 500,
+                height: "28px",
+                backgroundColor: statusFilter === "failed" ? "#FFEBEE" : "transparent",
+                color: statusFilter === "failed" ? "#C62828" : "#666",
+                border: statusFilter === "failed" ? "1px solid #FFCDD2" : "1px solid #E9ECEF",
+                cursor: "pointer"
+              }}
             />
             <Chip
               label={`Completed (${pools.filter(p => getStatusCategory(deploymentStatus[p.id] || p.status) === "completed").length})`}
-              color={statusFilter === "completed" ? "success" : "default"}
               onClick={() => setStatusFilter("completed")}
-              clickable
+              sx={{
+                borderRadius: "0.5rem",
+                fontSize: "0.8125rem",
+                fontWeight: 500,
+                height: "28px",
+                backgroundColor: statusFilter === "completed" ? "#E8F5E9" : "transparent",
+                color: statusFilter === "completed" ? "#2E7D32" : "#666",
+                border: statusFilter === "completed" ? "1px solid #C8E6C9" : "1px solid #E9ECEF",
+                cursor: "pointer"
+              }}
             />
           </Box>
         </Box>
         
-        <TableContainer>
+        <TableContainer sx={{ boxShadow: "none" }}>
           <Table>
-            <TableHead>
+            <TableHead sx={styles.table.header}>
               <TableRow>
-                <TableCell sx={styles.header.tableHeader}>
-                  Pool Name
-                </TableCell>
-                <TableCell sx={styles.header.tableHeader}>
-                  Creator
-                </TableCell>
-                <TableCell sx={styles.header.tableHeader}>
-                  Total Loans
-                </TableCell>
-                <TableCell sx={styles.header.tableHeader}>
-                  Total Amount
-                </TableCell>
-                <TableCell sx={styles.header.tableHeader}>
-                  Created
-                </TableCell>
-                <TableCell sx={styles.header.tableHeader}>
-                  Status
-                </TableCell>
-                <TableCell sx={styles.header.tableHeader}>
-                  Actions
-                </TableCell>
+                <TableCell>Pool Name</TableCell>
+                <TableCell>Creator</TableCell>
+                <TableCell>Total Loans</TableCell>
+                <TableCell>Total Amount</TableCell>
+                <TableCell>Created</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {filteredPools.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} sx={styles.containers.textCenter}>
-                    <Typography variant="body2" color="#29262a">
+                  <TableCell colSpan={7} sx={{ ...styles.containers.textCenter, py: 4 }}>
+                    <Typography variant="body2" sx={{ fontSize: "0.9375rem", color: "#666" }}>
                       {statusFilter === "all" ? "No pools found" : 
                        `No ${statusFilter} pools found`}
                     </Typography>
@@ -755,25 +674,25 @@ export default function PendingApprovalsTable(): JSX.Element {
               ) : (
                 filteredPools.map((pool) => {
                   return (
-                    <TableRow key={pool.id}>
+                    <TableRow key={pool.id} sx={styles.table.row}>
                       <TableCell>
-                        <Typography variant="subtitle2" fontWeight="medium" color="#29262a">
+                        <Typography variant="subtitle2" sx={{ fontWeight: 600, color: "#29262a", fontSize: "0.9375rem", mb: 0.5 }}>
                           {pool.name}
                         </Typography>
-                        <Typography variant="caption" color="#29262a">
+                        <Typography variant="caption" sx={{ fontSize: "0.8125rem", color: "#666" }}>
                           {pool.description.substring(0, 50)}...
                         </Typography>
                       </TableCell>
-                      <TableCell sx={styles.header.tableCell}>
+                      <TableCell sx={{ fontSize: "0.9375rem", color: "#29262a" }}>
                         {pool.creator?.email}
                       </TableCell>
-                      <TableCell sx={styles.header.tableCell}>
+                      <TableCell sx={{ fontSize: "0.9375rem", color: "#29262a" }}>
                         {pool.total_loans}
                       </TableCell>
-                      <TableCell sx={styles.header.tableCell}>
+                      <TableCell sx={{ fontSize: "0.9375rem", color: "#29262a", fontWeight: 500 }}>
                         {formatCurrency(pool.total_principal)}
                       </TableCell>
-                      <TableCell sx={styles.header.tableCell}>
+                      <TableCell sx={{ fontSize: "0.9375rem", color: "#666" }}>
                         {new Date(pool.created_at).toLocaleDateString()}
                       </TableCell>
                       <TableCell>
@@ -890,75 +809,77 @@ export default function PendingApprovalsTable(): JSX.Element {
         fullWidth
         PaperProps={{
           sx: {
-            borderRadius: "1.25em",
-            backgroundColor: "#FFFFFE"
+            borderRadius: "0.625rem",
+            backgroundColor: "#FFFFFE",
+            border: "1px solid #E9ECEF",
+            boxShadow: "none"
           }
         }}
       >
-        <DialogTitle sx={styles.header.dialogTitle}>
+        <DialogTitle sx={{ ...styles.header.dialogTitle, fontSize: "1.125rem", fontWeight: 600 }}>
           Pool Details: {selectedPool?.name}
         </DialogTitle>
         <DialogContent>
           {selectedPool && (
             <Box sx={styles.containers.dialogContent}>
-              <Typography variant="h6" sx={styles.header.sectionTitle}>
+              <Typography variant="h6" sx={{ ...styles.header.sectionTitle, fontSize: "1rem", fontWeight: 600, mb: 2 }}>
                 Pool Information
               </Typography>
               <Box sx={styles.containers.dialogGrid}>
                 <Box>
-                  <Typography variant="body2" sx={styles.header.cardTitle}>
+                  <Typography variant="body2" sx={{ ...styles.header.cardTitle, fontSize: "0.875rem", mb: 0.5 }}>
                     Creator
                   </Typography>
-                  <Typography variant="body1" sx={styles.header.tableCell}>
+                  <Typography variant="body1" sx={{ fontSize: "0.9375rem", color: "#29262a" }}>
                     {selectedPool.creator?.email}
                   </Typography>
                 </Box>
                 <Box>
-                  <Typography variant="body2" color="#29262a" fontWeight={600}>
+                  <Typography variant="body2" sx={{ fontSize: "0.875rem", fontWeight: 600, color: "#29262a", mb: 0.5 }}>
                     Total Loans
                   </Typography>
-                  <Typography variant="body1" color="#29262a">
+                  <Typography variant="body1" sx={{ fontSize: "0.9375rem", color: "#29262a" }}>
                     {selectedPool.total_loans}
                   </Typography>
                 </Box>
                 <Box>
-                  <Typography variant="body2" color="#29262a" fontWeight={600}>
+                  <Typography variant="body2" sx={{ fontSize: "0.875rem", fontWeight: 600, color: "#29262a", mb: 0.5 }}>
                     Total Amount
                   </Typography>
-                  <Typography variant="body1" color="#29262a">
+                  <Typography variant="body1" sx={{ fontSize: "0.9375rem", color: "#29262a", fontWeight: 500 }}>
                     {formatCurrency(selectedPool.total_principal)}
                   </Typography>
                 </Box>
                 <Box>
-                  <Typography variant="body2" color="#29262a" fontWeight={600}>
+                  <Typography variant="body2" sx={{ fontSize: "0.875rem", fontWeight: 600, color: "#29262a", mb: 0.5 }}>
                     Average Interest Rate
                   </Typography>
-                  <Typography variant="body1" color="#29262a">
+                  <Typography variant="body1" sx={{ fontSize: "0.9375rem", color: "#29262a" }}>
                     {formatPercentage(selectedPool.avg_interest_rate)}
                   </Typography>
                 </Box>
                 <Box>
-                  <Typography variant="body2" color="#29262a" fontWeight={600}>
+                  <Typography variant="body2" sx={{ fontSize: "0.875rem", fontWeight: 600, color: "#29262a", mb: 0.5 }}>
                     Average Term
                   </Typography>
-                  <Typography variant="body1" color="#29262a">
+                  <Typography variant="body1" sx={{ fontSize: "0.9375rem", color: "#29262a" }}>
                     {selectedPool.avg_term_months} months
                   </Typography>
                 </Box>
                 <Box>
-                  <Typography variant="body2" color="#29262a" fontWeight={600}>
+                  <Typography variant="body2" sx={{ fontSize: "0.875rem", fontWeight: 600, color: "#29262a", mb: 0.5 }}>
                     Created Date
                   </Typography>
-                  <Typography variant="body1" color="#29262a">
+                  <Typography variant="body1" sx={{ fontSize: "0.9375rem", color: "#29262a" }}>
                     {new Date(selectedPool.created_at).toLocaleDateString()}
                   </Typography>
                 </Box>
               </Box>
               
-              <Typography variant="h6" sx={{ mb: 2, color: "#29262a" }}>
+              <Typography variant="h6" sx={{ mb: 1.5, color: "#29262a", fontSize: "1rem", fontWeight: 600, mt: 3 }}>
                 Description
               </Typography>
-              <Typography variant="body1" color="#29262a" sx={{ mb: 3 }}>
+              <Typography variant="body1" sx={{ fontSize: "0.9375rem", color: "#29262a", mb: 3 }}>
                 {selectedPool.description}
               </Typography>
             </Box>
@@ -980,19 +901,21 @@ export default function PendingApprovalsTable(): JSX.Element {
         onClose={() => setApprovalDialog(false)}
         PaperProps={{
           sx: {
-            borderRadius: "1.25em",
-            backgroundColor: "#FFFFFE"
+            borderRadius: "0.625rem",
+            backgroundColor: "#FFFFFE",
+            border: "1px solid #E9ECEF",
+            boxShadow: "none"
           }
         }}
       >
-        <DialogTitle sx={{ color: "#29262a" }}>
+        <DialogTitle sx={{ color: "#29262a", fontSize: "1.125rem", fontWeight: 600 }}>
           Approve Loan Pool
         </DialogTitle>
         <DialogContent>
-          <Typography sx={{ mb: 2, color: "#29262a" }}>
+          <Typography sx={{ mb: 2, color: "#29262a", fontSize: "0.9375rem" }}>
             Are you sure you want to approve "{selectedPool?.name}"?
           </Typography>
-          <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
+          <Typography variant="body2" sx={{ mb: 2, fontSize: "0.9375rem", color: "#666" }}>
             This will deploy the pool using your authenticated Circle wallet.
           </Typography>
         </DialogContent>
@@ -1018,16 +941,18 @@ export default function PendingApprovalsTable(): JSX.Element {
         onClose={() => setRejectionDialog(false)}
         PaperProps={{
           sx: {
-            borderRadius: "1.25em",
-            backgroundColor: "#FFFFFE"
+            borderRadius: "0.625rem",
+            backgroundColor: "#FFFFFE",
+            border: "1px solid #E9ECEF",
+            boxShadow: "none"
           }
         }}
       >
-        <DialogTitle sx={{ color: "#29262a" }}>
+        <DialogTitle sx={{ color: "#29262a", fontSize: "1.125rem", fontWeight: 600 }}>
           Reject Loan Pool
         </DialogTitle>
         <DialogContent>
-          <Typography sx={{ mb: 2, color: "#29262a" }}>
+          <Typography sx={{ mb: 2, color: "#29262a", fontSize: "0.9375rem" }}>
             Are you sure you want to reject "{selectedPool?.name}"?
           </Typography>
           <Controller
@@ -1049,7 +974,7 @@ export default function PendingApprovalsTable(): JSX.Element {
                 sx={{ 
                   mt: 2,
                   "& .MuiOutlinedInput-root": {
-                    borderRadius: "1.25em"
+                    borderRadius: "0.625rem"
                   }
                 }}
               />
@@ -1065,10 +990,7 @@ export default function PendingApprovalsTable(): JSX.Element {
           </Button>
           <Button 
             onClick={handleSubmit(onSubmitRejection)} 
-            sx={{
-              ...styles.button.primary,
-              background: "linear-gradient(90deg, #d32f2f 0%, #b71c1c 100%)"
-            }}
+            sx={styles.button.rejectButton}
             disabled={!control._formState.isValid}
           >
             Reject

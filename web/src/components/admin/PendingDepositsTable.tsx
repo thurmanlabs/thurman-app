@@ -21,9 +21,7 @@ import {
   Tooltip,
   Stack,
   Card,
-  CardContent,
-  Divider,
-  Grid
+  CardContent
 } from "@mui/material";
 import {
   CheckCircle as CheckCircleIcon,
@@ -34,7 +32,7 @@ import {
   AccountBalance as AccountBalanceIcon
 } from "@mui/icons-material";
 import { useSnackbar, closeSnackbar } from "notistack";
-import { useAdminPolling } from "../../hooks/usePolling";
+import { styles } from "../../styles/styles";
 import axios from "axios";
 
 // Types
@@ -106,7 +104,7 @@ const copyToClipboard = async (text: string): Promise<boolean> => {
 
 // Loading skeleton component
 const TableSkeleton = (): JSX.Element => (
-  <TableContainer component={Paper} sx={{ borderRadius: "1.25em", overflow: "hidden" }}>
+  <TableContainer component={Paper} elevation={0} sx={styles.table.container}>
     <Table>
       <TableHead>
         <TableRow>
@@ -155,57 +153,51 @@ const SummaryStats: React.FC<SummaryStatsProps> = React.memo(({ summary, loading
 
   return (
     <Stack spacing={2} sx={{ mb: 3 }}>
-            <Card sx={{ 
-        borderRadius: "1em",
-        backgroundColor: "#FFFFFE",
-        boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)"
-      }}>
-        <CardContent>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-            <ScheduleIcon sx={{ fontSize: 20, color: "warning.main" }} />
-            <Typography variant="body2" color="text.secondary">
-              Pending Requests
+            <Card sx={styles.metrics.card}>
+        <CardContent sx={{ p: 0, "&:last-child": { pb: 0 } }}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <ScheduleIcon sx={styles.metrics.icon} />
+              <Typography sx={styles.metrics.label}>
+                Pending Requests
+              </Typography>
+            </Box>
+            <Typography sx={styles.metrics.value}>
+              {summary.count}
             </Typography>
           </Box>
-          <Typography variant="h5" fontWeight={600}>
-            {summary.count}
-          </Typography>
         </CardContent>
       </Card>
       
-            <Card sx={{ 
-        borderRadius: "1em",
-        backgroundColor: "#FFFFFE",
-        boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)"
-      }}>
-        <CardContent>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-            <AccountBalanceIcon sx={{ fontSize: 20, color: "primary.main" }} />
-            <Typography variant="body2" color="text.secondary">
-              Total Amount
+            <Card sx={styles.metrics.card}>
+        <CardContent sx={{ p: 0, "&:last-child": { pb: 0 } }}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <AccountBalanceIcon sx={styles.metrics.icon} />
+              <Typography sx={styles.metrics.label}>
+                Total Amount
+              </Typography>
+            </Box>
+            <Typography sx={styles.metrics.value}>
+              {formatCurrency(summary.totalAmount)}
             </Typography>
           </Box>
-          <Typography variant="h5" fontWeight={600}>
-            {formatCurrency(summary.totalAmount)}
-          </Typography>
         </CardContent>
       </Card>
       
-            <Card sx={{ 
-        borderRadius: "1em",
-        backgroundColor: "#FFFFFE",
-        boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)"
-      }}>
-        <CardContent>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-            <CheckCircleIcon sx={{ fontSize: 20, color: "success.main" }} />
-            <Typography variant="body2" color="text.secondary">
-              Average Amount
+            <Card sx={styles.metrics.card}>
+        <CardContent sx={{ p: 0, "&:last-child": { pb: 0 } }}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <CheckCircleIcon sx={styles.metrics.icon} />
+              <Typography sx={styles.metrics.label}>
+                Average Amount
+              </Typography>
+            </Box>
+            <Typography sx={styles.metrics.value}>
+              {summary.count > 0 ? formatCurrency(summary.totalAmount / summary.count) : "$0"}
             </Typography>
           </Box>
-          <Typography variant="h5" fontWeight={600}>
-            {summary.count > 0 ? formatCurrency(summary.totalAmount / summary.count) : "$0"}
-          </Typography>
         </CardContent>
       </Card>
     </Stack>
@@ -318,15 +310,15 @@ const PendingDepositsTable: React.FC<PendingDepositsTableProps> = ({ onDataChang
     };
   }, [fetchPendingDeposits]);
 
-  const deposits = depositsData?.data?.deposits || [];
   const summary = depositsData?.data?.summary || { totalPending: 0, totalAmount: 0, count: 0 };
 
   // Sort deposits by timestamp (newest first)
   const sortedDeposits = useMemo(() => {
+    const deposits = depositsData?.data?.deposits || [];
     return [...deposits].sort((a, b) => 
       new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
     );
-  }, [deposits]);
+  }, [depositsData?.data?.deposits]);
 
   // Handle fulfill deposit
   const handleFulfill = useCallback(async (deposit: PendingDeposit): Promise<void> => {
@@ -431,15 +423,15 @@ const PendingDepositsTable: React.FC<PendingDepositsTableProps> = ({ onDataChang
       <SummaryStats summary={summary} loading={loading} />
 
       {/* Header */}
-      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
-        <Typography variant="h6" sx={{ fontWeight: 600, color: "#29262a" }}>
+      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 3 }}>
+        <Typography variant="h6" sx={{ fontWeight: 600, color: "#29262a", fontSize: "1.125rem" }}>
           Pending Deposits
         </Typography>
         <Tooltip title="Refresh">
           <IconButton 
             onClick={refetch}
             disabled={loading}
-            sx={{ color: "primary.main" }}
+            sx={styles.button.iconButton}
           >
             <RefreshIcon />
           </IconButton>
@@ -462,34 +454,30 @@ const PendingDepositsTable: React.FC<PendingDepositsTableProps> = ({ onDataChang
       )}
 
       {/* Table */}
-      {loading && !deposits.length ? (
+      {loading && !depositsData?.data?.deposits?.length ? (
         <TableSkeleton />
       ) : sortedDeposits.length === 0 ? (
-        <Card sx={{ 
-          borderRadius: "1.25em",
-          backgroundColor: "#FFFFFE",
-          boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)"
-        }}>
-          <CardContent sx={{ textAlign: "center", py: 4 }}>
-            <CheckCircleIcon sx={{ fontSize: 48, color: "success.main", mb: 2 }} />
-            <Typography variant="h6" color="text.secondary" gutterBottom>
+        <Card sx={styles.metrics.card}>
+          <CardContent sx={{ textAlign: "center", py: 6 }}>
+            <CheckCircleIcon sx={{ fontSize: 48, color: "#D3D3D3", mb: 2 }} />
+            <Typography variant="h6" sx={{ fontWeight: 600, color: "#29262a", mb: 1, fontSize: "1.125rem" }}>
               No Pending Deposits
             </Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" sx={{ fontSize: "0.9375rem", color: "#666" }}>
               All deposit requests have been processed
             </Typography>
           </CardContent>
         </Card>
       ) : (
-        <TableContainer component={Paper} sx={{ borderRadius: "1.25em", overflow: "hidden" }}>
+        <TableContainer component={Paper} elevation={0} sx={styles.table.container}>
           <Table>
-            <TableHead>
-              <TableRow sx={{ backgroundColor: "#f8f9fa" }}>
-                <TableCell sx={{ fontWeight: 600 }}>User Address</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Pool</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Amount</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Time</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Actions</TableCell>
+            <TableHead sx={styles.table.header}>
+              <TableRow>
+                <TableCell>User Address</TableCell>
+                <TableCell>Pool</TableCell>
+                <TableCell>Amount</TableCell>
+                <TableCell>Time</TableCell>
+                <TableCell>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -497,17 +485,17 @@ const PendingDepositsTable: React.FC<PendingDepositsTableProps> = ({ onDataChang
                 const isFulfilling = fulfillingDeposits.has(deposit.id);
                 
                 return (
-                  <TableRow key={deposit.id} hover>
+                  <TableRow key={deposit.id} sx={styles.table.row}>
                     <TableCell>
                       <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                        <Typography variant="body2" sx={{ fontFamily: "monospace" }}>
+                        <Typography variant="body2" sx={{ fontFamily: "monospace", fontSize: "0.9375rem", color: "#29262a" }}>
                           {formatAddress(deposit.userAddress)}
                         </Typography>
                         <Tooltip title="Copy address">
                           <IconButton
                             size="small"
                             onClick={() => handleCopyAddress(deposit.userAddress)}
-                            sx={{ p: 0.5 }}
+                            sx={{ p: 0.5, color: "#666" }}
                           >
                             <CopyIcon sx={{ fontSize: 16 }} />
                           </IconButton>
@@ -519,15 +507,23 @@ const PendingDepositsTable: React.FC<PendingDepositsTableProps> = ({ onDataChang
                         label={deposit.poolName || `Pool ${deposit.poolId}`}
                         size="small"
                         variant="outlined"
+                        sx={{
+                          borderRadius: "0.5rem",
+                          fontSize: "0.8125rem",
+                          fontWeight: 500,
+                          borderColor: "#E9ECEF",
+                          color: "#29262a",
+                          height: "24px"
+                        }}
                       />
                     </TableCell>
                     <TableCell>
-                      <Typography variant="body2" fontWeight={600}>
+                      <Typography variant="body2" sx={{ fontSize: "0.9375rem", fontWeight: 600, color: "#29262a" }}>
                         {formatCurrency(deposit.amount)}
                       </Typography>
                     </TableCell>
                     <TableCell>
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography variant="body2" sx={{ fontSize: "0.9375rem", color: "#666" }}>
                         {formatRelativeTime(deposit.timestamp)}
                       </Typography>
                     </TableCell>
@@ -538,13 +534,7 @@ const PendingDepositsTable: React.FC<PendingDepositsTableProps> = ({ onDataChang
                         startIcon={<CheckCircleIcon />}
                         disabled={isFulfilling}
                         onClick={() => setConfirmDialog({ open: true, deposit })}
-                        sx={{ 
-                          minWidth: 100,
-                          backgroundColor: isFulfilling ? "grey.400" : "success.main",
-                          "&:hover": {
-                            backgroundColor: isFulfilling ? "grey.400" : "success.dark"
-                          }
-                        }}
+                        sx={styles.button.primary}
                       >
                         {isFulfilling ? "Fulfilling..." : "Fulfill"}
                       </Button>
@@ -563,8 +553,16 @@ const PendingDepositsTable: React.FC<PendingDepositsTableProps> = ({ onDataChang
         onClose={() => setConfirmDialog({ open: false, deposit: null })}
         maxWidth="sm"
         fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: "0.625rem",
+            backgroundColor: "#FFFFFE",
+            border: "1px solid #E9ECEF",
+            boxShadow: "none"
+          }
+        }}
       >
-        <DialogTitle sx={{ fontWeight: 600 }}>
+        <DialogTitle sx={{ fontWeight: 600, color: "#29262a", fontSize: "1.125rem" }}>
           Confirm Deposit Fulfillment
         </DialogTitle>
         <DialogContent>

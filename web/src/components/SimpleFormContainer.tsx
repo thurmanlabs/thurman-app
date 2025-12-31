@@ -8,12 +8,11 @@ interface SimpleFormContainerProps {
 
 export default function SimpleFormContainer({ children }: SimpleFormContainerProps) {
     return (
-        <Grid container justifyContent="center" sx={styles.containers.form}>
-            <Grid item xs={12} md={6}>
+        <Grid container justifyContent="center" sx={{ py: 4 }}>
+            <Grid item xs={12} sm={10} md={6} lg={5} xl={4}>
                 <Paper sx={{
-                    ...styles.containers.form,
+                    ...styles.containers.authCard,
                     backgroundColor: "#FFFFFE",
-                    boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)",
                 }}>
                     {children}
                 </Paper>

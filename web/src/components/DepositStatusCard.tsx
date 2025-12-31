@@ -7,7 +7,6 @@ import {
   Typography,
   Alert,
   CircularProgress,
-  Chip,
   Divider,
   Stack,
   Skeleton
@@ -110,28 +109,22 @@ export default function DepositStatusCard({
     }).format(amount);
   };
 
-  // Get status color
-  const getStatusColor = (amount: number): string => {
-    if (amount > 0) return "#2e7d32"; // Green
-    return "#666"; // Gray
-  };
-
   // Loading state
   if (loading) {
     return (
-      <Card sx={{ 
-        borderRadius: "1.25em",
-        backgroundColor: "#FFFFFE",
-        boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)"
-      }}>
-        <CardContent>
-          <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: "#29262a" }}>
+      <Card sx={styles.metrics.card}>
+        <CardContent sx={{ p: "2rem" }}>
+          <Typography variant="h6" sx={{
+            ...styles.header.cardTitle,
+            fontSize: "1rem",
+            mb: 2.5
+          }}>
             Your Deposit Status
           </Typography>
           <Stack spacing={2}>
-            <Skeleton variant="rectangular" height={60} sx={{ borderRadius: "0.75em" }} />
-            <Skeleton variant="rectangular" height={60} sx={{ borderRadius: "0.75em" }} />
-            <Skeleton variant="rectangular" height={60} sx={{ borderRadius: "0.75em" }} />
+            <Skeleton variant="rectangular" height={60} sx={{ borderRadius: "0.625rem" }} />
+            <Skeleton variant="rectangular" height={60} sx={{ borderRadius: "0.625rem" }} />
+            <Skeleton variant="rectangular" height={60} sx={{ borderRadius: "0.625rem" }} />
           </Stack>
         </CardContent>
       </Card>
@@ -141,13 +134,13 @@ export default function DepositStatusCard({
   // No activity state
   if (!depositStatus || !depositStatus.hasActivity) {
     return (
-      <Card sx={{ 
-        borderRadius: "1.25em",
-        backgroundColor: "#FFFFFE",
-        boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)"
-      }}>
-        <CardContent>
-          <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: "#29262a" }}>
+      <Card sx={styles.metrics.card}>
+        <CardContent sx={{ p: "2rem" }}>
+          <Typography variant="h6" sx={{
+            ...styles.header.cardTitle,
+            fontSize: "1rem",
+            mb: 2.5
+          }}>
             Your Deposit Status
           </Typography>
           
@@ -159,10 +152,19 @@ export default function DepositStatusCard({
             color: "#666"
           }}>
             <AccountBalanceIcon sx={{ fontSize: 48, mb: 2, color: "#D3D3D3" }} />
-            <Typography variant="body1" sx={{ mb: 1, fontWeight: 500 }}>
+            <Typography variant="body1" sx={{ 
+              mb: 1, 
+              fontWeight: 500,
+              fontSize: "0.9375rem",
+              color: "#29262a"
+            }}>
               No deposits yet
             </Typography>
-            <Typography variant="body2" sx={{ textAlign: "center" }}>
+            <Typography variant="body2" sx={{ 
+              textAlign: "center",
+              fontSize: "0.9375rem",
+              color: "#666"
+            }}>
               Make your first deposit to see your status here
             </Typography>
           </Box>
@@ -172,17 +174,21 @@ export default function DepositStatusCard({
   }
 
   return (
-    <Card sx={{ 
-      borderRadius: "1.25em",
-      backgroundColor: "#FFFFFE",
-      boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)"
-    }}>
-      <CardContent>
-        <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: "#29262a" }}>
+    <Card sx={styles.metrics.card}>
+      <CardContent sx={{ p: "2rem" }}>
+        <Typography variant="h6" sx={{
+          ...styles.header.cardTitle,
+          fontSize: "1rem",
+          mb: 1.5
+        }}>
           Your Deposit Status
         </Typography>
         
-        <Typography variant="body2" sx={{ mb: 3, color: "#666" }}>
+        <Typography variant="body2" sx={{ 
+          mb: 3, 
+          fontSize: "0.9375rem",
+          color: "#666"
+        }}>
           Track your deposits in {poolName}
         </Typography>
 
@@ -191,36 +197,45 @@ export default function DepositStatusCard({
           <Alert 
             severity={notification.type} 
             onClose={clearNotification}
-            sx={{ mb: 3 }}
+            sx={{ 
+              mb: 3,
+              borderRadius: "0.625rem",
+              fontSize: "0.9375rem"
+            }}
           >
             {notification.message}
           </Alert>
         )}
 
         {/* Status Items */}
-        <Stack spacing={2} sx={{ mb: 3 }}>
+        <Stack spacing={2.5} sx={{ mb: 3 }}>
           {/* Pending Deposits */}
           <Box sx={{ 
             p: 2, 
-            backgroundColor: "#fff3e0", 
-            borderRadius: "0.75em",
-            border: "1px solid #ffcc02"
+            backgroundColor: "#FAFAFA", 
+            borderRadius: "0.625rem",
+            border: "1px solid #E9ECEF"
           }}>
             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <Box sx={{ display: "flex", alignItems: "center" }}>
-                <PendingIcon sx={{ color: "#f57c00", mr: 1 }} />
-                <Typography variant="body1" sx={{ fontWeight: 500, color: "#29262a" }}>
+                <PendingIcon sx={{ color: "#666", mr: 1, fontSize: "1.25rem" }} />
+                <Typography variant="body2" sx={{ 
+                  fontWeight: 500, 
+                  fontSize: "0.9375rem",
+                  color: "#29262a" 
+                }}>
                   Pending
                 </Typography>
               </Box>
-              <Typography variant="h6" sx={{ 
-                fontWeight: 600, 
-                color: getStatusColor(depositStatus.pending)
-              }}>
+              <Typography sx={styles.metrics.value}>
                 {formatCurrency(depositStatus.pending)}
               </Typography>
             </Box>
-            <Typography variant="body2" sx={{ mt: 1, color: "#666" }}>
+            <Typography variant="body2" sx={{ 
+              mt: 1, 
+              fontSize: "0.875rem",
+              color: "#666" 
+            }}>
               Awaiting fulfillment by admin
             </Typography>
           </Box>
@@ -228,25 +243,30 @@ export default function DepositStatusCard({
           {/* Claimable Shares */}
           <Box sx={{ 
             p: 2, 
-            backgroundColor: "#e8f5e8", 
-            borderRadius: "0.75em",
-            border: "1px solid #4caf50"
+            backgroundColor: "#FAFAFA", 
+            borderRadius: "0.625rem",
+            border: "1px solid #E9ECEF"
           }}>
             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <Box sx={{ display: "flex", alignItems: "center" }}>
-                <TrendingUpIcon sx={{ color: "#2e7d32", mr: 1 }} />
-                <Typography variant="body1" sx={{ fontWeight: 500, color: "#29262a" }}>
+                <TrendingUpIcon sx={{ color: "#666", mr: 1, fontSize: "1.25rem" }} />
+                <Typography variant="body2" sx={{ 
+                  fontWeight: 500, 
+                  fontSize: "0.9375rem",
+                  color: "#29262a" 
+                }}>
                   Claimable
                 </Typography>
               </Box>
-              <Typography variant="h6" sx={{ 
-                fontWeight: 600, 
-                color: getStatusColor(depositStatus.claimable)
-              }}>
+              <Typography sx={styles.metrics.value}>
                 {formatCurrency(depositStatus.claimable)}
               </Typography>
             </Box>
-            <Typography variant="body2" sx={{ mt: 1, color: "#666" }}>
+            <Typography variant="body2" sx={{ 
+              mt: 1, 
+              fontSize: "0.875rem",
+              color: "#666" 
+            }}>
               Ready to claim your shares
             </Typography>
           </Box>
@@ -254,25 +274,30 @@ export default function DepositStatusCard({
           {/* Claimed Shares */}
           <Box sx={{ 
             p: 2, 
-            backgroundColor: "#f3e5f5", 
-            borderRadius: "0.75em",
-            border: "1px solid #9c27b0"
+            backgroundColor: "#FAFAFA", 
+            borderRadius: "0.625rem",
+            border: "1px solid #E9ECEF"
           }}>
             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <Box sx={{ display: "flex", alignItems: "center" }}>
-                <CheckCircleIcon sx={{ color: "#7b1fa2", mr: 1 }} />
-                <Typography variant="body1" sx={{ fontWeight: 500, color: "#29262a" }}>
+                <CheckCircleIcon sx={{ color: "#666", mr: 1, fontSize: "1.25rem" }} />
+                <Typography variant="body2" sx={{ 
+                  fontWeight: 500, 
+                  fontSize: "0.9375rem",
+                  color: "#29262a" 
+                }}>
                   Claimed
                 </Typography>
               </Box>
-              <Typography variant="h6" sx={{ 
-                fontWeight: 600, 
-                color: getStatusColor(depositStatus.claimed)
-              }}>
+              <Typography sx={styles.metrics.value}>
                 {formatCurrency(depositStatus.claimed)}
               </Typography>
             </Box>
-            <Typography variant="body2" sx={{ mt: 1, color: "#666" }}>
+            <Typography variant="body2" sx={{ 
+              mt: 1, 
+              fontSize: "0.875rem",
+              color: "#666" 
+            }}>
               Successfully claimed shares
             </Typography>
           </Box>
@@ -281,22 +306,16 @@ export default function DepositStatusCard({
         {/* Claim Button */}
         {depositStatus.claimable > 0 && (
           <>
-            <Divider sx={{ my: 2 }} />
+            <Divider sx={{ 
+              my: 2.5,
+              borderColor: "#E9ECEF"
+            }} />
             <Button
               fullWidth
               variant="contained"
               onClick={handleClaimShares}
               disabled={isClaiming}
-              sx={{
-                ...styles.button.primary,
-                height: "48px",
-                fontSize: "1rem",
-                fontWeight: 600,
-                background: "linear-gradient(90deg, #4caf50 0%, #2e7d32 100%)",
-                "&:hover": {
-                  background: "linear-gradient(90deg, #4caf50 20%, #2e7d32 100%)"
-                }
-              }}
+              sx={styles.button.primary}
             >
               {isClaiming ? (
                 <>
@@ -311,8 +330,11 @@ export default function DepositStatusCard({
         )}
 
         {/* Last Updated */}
-        <Box sx={{ mt: 2, textAlign: "center" }}>
-          <Typography variant="caption" sx={{ color: "#999" }}>
+        <Box sx={{ mt: 2.5, textAlign: "center" }}>
+          <Typography variant="body2" sx={{ 
+            fontSize: "0.875rem",
+            color: "#666" 
+          }}>
             Last updated: {new Date(depositStatus.lastUpdated).toLocaleString()}
           </Typography>
         </Box>

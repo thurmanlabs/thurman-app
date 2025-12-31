@@ -181,17 +181,21 @@ export default function DepositSection({
   };
 
   return (
-    <Card sx={{ 
-      borderRadius: "1.25em",
-      backgroundColor: "#FFFFFE",
-      boxShadow: "0 0.125em 0.25em rgba(0, 0, 0, 0.08)"
-    }}>
-      <CardContent>
-        <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: "#29262a" }}>
+    <Card sx={styles.metrics.card}>
+      <CardContent sx={{ p: "2rem" }}>
+        <Typography variant="h6" sx={{
+          ...styles.header.cardTitle,
+          fontSize: "1rem",
+          mb: 1.5
+        }}>
           Make a Deposit
         </Typography>
         
-        <Typography variant="body2" sx={{ mb: 3, color: "#666" }}>
+        <Typography variant="body2" sx={{ 
+          mb: 3, 
+          fontSize: "0.9375rem",
+          color: "#666" 
+        }}>
           Deposit USDC into {poolName} to earn interest on your investment.
         </Typography>
 
@@ -200,7 +204,11 @@ export default function DepositSection({
           <Alert 
             severity={notification.type} 
             onClose={clearNotification}
-            sx={{ mb: 3 }}
+            sx={{ 
+              mb: 3,
+              borderRadius: "0.625rem",
+              fontSize: "0.9375rem"
+            }}
           >
             {notification.message}
           </Alert>
@@ -251,7 +259,7 @@ export default function DepositSection({
                     </InputAdornment>
                   ),
                   sx: {
-                    borderRadius: "1.25em",
+                    borderRadius: "0.625rem",
                     "& .MuiOutlinedInput-notchedOutline": {
                       borderColor: (validation.error || errors.amount) ? "#d32f2f" : "#D3D3D3"
                     }
@@ -279,24 +287,47 @@ export default function DepositSection({
         </Box>
 
         {/* Deposit Limits Info */}
-        <Box sx={{ mb: 3, p: 2, backgroundColor: "#f8f9fa", borderRadius: "0.75em" }}>
-          <Typography variant="body2" sx={{ color: "#666", mb: 1 }}>
+        <Box sx={{ 
+          mb: 3, 
+          p: 2, 
+          backgroundColor: "#FAFAFA", 
+          borderRadius: "0.625rem",
+          border: "1px solid #E9ECEF"
+        }}>
+          <Typography variant="body2" sx={{ 
+            fontSize: "0.875rem",
+            color: "#666", 
+            fontWeight: 500,
+            mb: 1 
+          }}>
             Deposit Limits:
           </Typography>
           <Box sx={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 1 }}>
-            <Typography variant="body2" sx={{ color: "#666" }}>
+            <Typography variant="body2" sx={{ 
+              fontSize: "0.875rem",
+              color: "#666" 
+            }}>
               Min: ${minDeposit.toLocaleString()}
             </Typography>
-            <Typography variant="body2" sx={{ color: "#666" }}>
+            <Typography variant="body2" sx={{ 
+              fontSize: "0.875rem",
+              color: "#666" 
+            }}>
               Max: ${maxDeposit.toLocaleString()}
             </Typography>
-            <Typography variant="body2" sx={{ color: "#666" }}>
+            <Typography variant="body2" sx={{ 
+              fontSize: "0.875rem",
+              color: "#666" 
+            }}>
               Your Balance: ${userBalance.toLocaleString()}
             </Typography>
           </Box>
         </Box>
 
-        <Divider sx={{ my: 2 }} />
+        <Divider sx={{ 
+          my: 2.5,
+          borderColor: "#E9ECEF"
+        }} />
 
         {/* Submit Button */}
         <Button
@@ -323,7 +354,12 @@ export default function DepositSection({
 
         {/* Processing Info */}
         {isSubmitting && (
-          <Typography variant="body2" sx={{ mt: 2, textAlign: "center", color: "#666" }}>
+          <Typography variant="body2" sx={{ 
+            mt: 2, 
+            textAlign: "center", 
+            fontSize: "0.875rem",
+            color: "#666" 
+          }}>
             This may take 5-10 minutes to process. You'll receive a notification when complete.
           </Typography>
         )}

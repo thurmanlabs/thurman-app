@@ -7,12 +7,12 @@ import {
 } from "@mui/material";
 import BackgroundContainer from "../BackgroundContainer";
 import ContentContainer from "../ContentContainer";
-import SimpleFormContainer from "../SimpleFormContainer";
 import StepIndicator from "./StepIndicator";
 import BasicInfoStep from "./BasicInfoStep";
 import FileUploadStep from "./FileUploadStep";
 import ReviewStep from "./ReviewStep";
 import useLoanPoolCreation from "../../hooks/useLoanPoolCreation";
+import { styles } from "../../styles/styles";
 
 const STEP_LABELS = ["Basic Information", "Upload Data", "Review & Submit"];
 
@@ -95,27 +95,40 @@ export default function LoanPoolCreator(): JSX.Element {
     return (
         <BackgroundContainer>
             <ContentContainer>
-                <SimpleFormContainer>
-                    {/* Page Header */}
-                    <Box sx={{ textAlign: "center", mb: 4 }}>
-                        <Typography 
-                            variant="h4" 
-                            sx={{ 
-                                color: "#29262a", 
-                                fontWeight: 700,
-                                marginBottom: "0.5em"
-                            }}
-                        >
-                            Create Loan Pool
-                        </Typography>
-                        <Typography 
-                            variant="body1" 
-                            color="text.secondary"
-                            sx={{ maxWidth: "600px", margin: "0 auto" }}
-                        >
-                            Set up a new investment pool for your approved loans. Complete all steps to create your loan pool.
-                        </Typography>
-                    </Box>
+                <Box sx={{ py: 4 }}>
+                    <Box
+                        sx={{
+                            maxWidth: "800px",
+                            mx: "auto",
+                            ...styles.containers.authCard,
+                            backgroundColor: "#FFFFFE"
+                        }}
+                    >
+                        {/* Page Header */}
+                        <Box sx={{ textAlign: "center", mb: 5 }}>
+                            <Typography 
+                                variant="h5" 
+                                sx={{ 
+                                    ...styles.typography.authTitle,
+                                    fontSize: "1.5rem",
+                                    fontWeight: 600,
+                                    mb: 1.5
+                                }}
+                            >
+                                Create Loan Pool
+                            </Typography>
+                            <Typography 
+                                variant="body2" 
+                                sx={{ 
+                                    ...styles.typography.authSubtitle,
+                                    fontSize: "0.9375rem",
+                                    maxWidth: "600px",
+                                    mx: "auto"
+                                }}
+                            >
+                                Set up a new investment pool for your approved loans. Complete all steps to create your loan pool.
+                            </Typography>
+                        </Box>
 
                     {/* Step Indicator */}
                     <StepIndicator 
@@ -129,18 +142,22 @@ export default function LoanPoolCreator(): JSX.Element {
                             <Alert 
                                 severity="error" 
                                 onClose={() => setSubmitError(null)}
-                                sx={{ borderRadius: "1.25em" }}
+                                sx={{ 
+                                    borderRadius: "0.625rem",
+                                    fontSize: "0.9375rem"
+                                }}
                             >
                                 {submitError}
                             </Alert>
                         </Box>
                     )}
 
-                    {/* Current Step Component */}
-                    <Box sx={{ mt: 2 }}>
-                        {renderCurrentStep()}
+                        {/* Current Step Component */}
+                        <Box sx={{ mt: 4 }}>
+                            {renderCurrentStep()}
+                        </Box>
                     </Box>
-                </SimpleFormContainer>
+                </Box>
             </ContentContainer>
         </BackgroundContainer>
     );

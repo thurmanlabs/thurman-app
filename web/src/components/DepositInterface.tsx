@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Box,
   Grid,
@@ -44,7 +44,7 @@ export default function DepositInterface({
   console.log("DepositInterface - Effective minDeposit:", effectiveMinDeposit);
   const { user } = useAccount();
   const userAddress = user?.account; // Get wallet address from user account
-  const { balance: userBalance, refreshBalance } = useUserBalance();
+  const { balance: userBalance } = useUserBalance();
   const [notification, setNotification] = useState<{
     type: "success" | "error" | "info";
     message: string;
@@ -158,14 +158,29 @@ export default function DepositInterface({
   if (depositError && userAddress) {
     return (
       <Box sx={{ p: 3 }}>
-        <Alert severity="error" sx={{ borderRadius: "1.25em" }}>
-          <Typography variant="h6" gutterBottom>
+        <Alert severity="error" sx={{ 
+          borderRadius: "0.625rem",
+          fontSize: "0.9375rem"
+        }}>
+          <Typography variant="h6" sx={{
+            fontSize: "1rem",
+            fontWeight: 600,
+            color: "#29262a",
+            mb: 1
+          }}>
             Connection Error
           </Typography>
-          <Typography variant="body2" sx={{ mb: 2 }}>
+          <Typography variant="body2" sx={{ 
+            mb: 2,
+            fontSize: "0.9375rem",
+            color: "#29262a"
+          }}>
             Unable to load deposit information. Please check your connection and try again.
           </Typography>
-          <Typography variant="caption" sx={{ color: "#666" }}>
+          <Typography variant="body2" sx={{ 
+            fontSize: "0.875rem",
+            color: "#666" 
+          }}>
             Error: {depositError.message}
           </Typography>
         </Alert>
@@ -180,18 +195,18 @@ export default function DepositInterface({
         open={!!notification}
         autoHideDuration={6000}
         onClose={clearNotification}
-                  anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
       >
         <Alert 
           onClose={clearNotification} 
           severity={notification?.type} 
-                      sx={{ width: "100%" }}
+          sx={{ width: "100%" }}
         >
           {notification?.message}
         </Alert>
       </Snackbar>
 
-      <Grid container spacing={3}>
+      <Grid container spacing={3.5}>
         {/* User Balance Card - Only show if not hidden */}
         {!hideBalanceCard && (
           <Grid item xs={12} md={4}>
@@ -215,7 +230,7 @@ export default function DepositInterface({
 
         {/* Deposit Section - Only show for authenticated users */}
         {user && (
-          <Grid item xs={12}>
+          <Grid item xs={12} sx={{ mt: 5 }}>
             <DepositSection
               poolId={poolId}
               poolName={poolName}
@@ -230,12 +245,23 @@ export default function DepositInterface({
 
         {/* Unauthenticated User Message */}
         {!user && (
-          <Grid item xs={12}>
-            <Alert severity="info" sx={{ borderRadius: "1.25em" }}>
-              <Typography variant="h6" gutterBottom>
+          <Grid item xs={12} sx={{ mt: 5 }}>
+            <Alert severity="info" sx={{ 
+              borderRadius: "0.625rem",
+              fontSize: "0.9375rem"
+            }}>
+              <Typography variant="h6" sx={{
+                fontSize: "1rem",
+                fontWeight: 600,
+                color: "#29262a",
+                mb: 1
+              }}>
                 Sign in to Deposit
               </Typography>
-              <Typography variant="body2">
+              <Typography variant="body2" sx={{
+                fontSize: "0.9375rem",
+                color: "#29262a"
+              }}>
                 Please sign in to your account to make deposits and track your investment status.
               </Typography>
             </Alert>

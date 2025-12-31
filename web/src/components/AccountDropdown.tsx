@@ -44,7 +44,11 @@ export default function AccountDropdown(): JSX.Element | null {
     <Box>
       <Button
         onClick={handleClick}
-        endIcon={<KeyboardArrowDown />}
+        endIcon={<KeyboardArrowDown sx={{ 
+          fontSize: "1rem",
+          transition: "transform 0.15s ease-in-out",
+          transform: open ? "rotate(180deg)" : "rotate(0deg)"
+        }} />}
         aria-controls={open ? "account-menu" : undefined}
         aria-haspopup="true"
         aria-expanded={open ? "true" : undefined}
@@ -54,9 +58,10 @@ export default function AccountDropdown(): JSX.Element | null {
           alignItems: "center",
           gap: 1,
           textTransform: "none",
-          color: "white",
+          color: "#29262a",
           "&:hover": {
-            backgroundColor: "rgba(255, 255, 255, 0.1)"
+            backgroundColor: "rgba(114, 90, 162, 0.08)",
+            color: "#725aa2"
           }
         }}
       >
@@ -64,12 +69,17 @@ export default function AccountDropdown(): JSX.Element | null {
           width: 32,
           height: 32,
           bgcolor: "#725aa2",
-          fontSize: "0.875rem"
+          fontSize: "0.875rem",
+          fontWeight: 500
         }}>
           {user.email.charAt(0).toUpperCase()}
         </Avatar>
         <Box sx={{ display: { xs: "none", sm: "block" } }}>
-          <Typography variant="body2" sx={{ fontWeight: 500 }}>
+          <Typography variant="body2" sx={{ 
+            fontWeight: 500,
+            fontSize: "0.9375rem",
+            color: "#29262a"
+          }}>
             {user.email}
           </Typography>
         </Box>
@@ -90,56 +100,146 @@ export default function AccountDropdown(): JSX.Element | null {
         }}
         PaperProps={{
           sx: {
-            mt: 1,
-            minWidth: 200,
-            boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
-            borderRadius: 2
+            mt: 1.5,
+            minWidth: 240,
+            maxWidth: 320,
+            boxShadow: "none",
+            border: "1px solid #E9ECEF",
+            borderRadius: "0.625rem",
+            backgroundColor: "#FFFFFE",
+            overflow: "hidden"
           }
         }}
       >
-        <Box sx={{ p: 2, pb: 1 }}>
-          <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
+        <Box sx={{ p: 2, pb: 1.5 }}>
+          <Typography variant="body2" sx={{ 
+            fontWeight: 600, 
+            fontSize: "0.875rem",
+            color: "#29262a",
+            mb: 1,
+            textTransform: "uppercase",
+            letterSpacing: "0.5px"
+          }}>
             Account
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+          <Typography variant="body2" sx={{ 
+            fontSize: "0.9375rem",
+            color: "#666",
+            mb: 1.5,
+            wordBreak: "break-word"
+          }}>
             {user.email}
           </Typography>
           <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
             <Chip 
               label={user.role} 
               size="small"
-              color={user.role === "ADMIN" ? "primary" : "default"}
-              variant="outlined"
+              sx={{
+                backgroundColor: user.role === "ADMIN" ? "transparent" : "transparent",
+                color: user.role === "ADMIN" ? "#725aa2" : "#666",
+                border: user.role === "ADMIN" ? "1px solid #725aa2" : "1px solid #E9ECEF",
+                borderRadius: "0.5rem",
+                fontSize: "0.75rem",
+                fontWeight: 500,
+                height: "22px",
+                "& .MuiChip-label": {
+                  padding: "0 0.5rem"
+                }
+              }}
             />
             <Chip 
               label={user.status} 
               size="small"
-              color={
-                user.status === "ACTIVE" ? "success" : 
-                user.status === "PENDING" ? "warning" : "error"
-              }
-              variant="outlined"
+              sx={{
+                backgroundColor: user.status === "ACTIVE" ? "transparent" : user.status === "PENDING" ? "transparent" : "transparent",
+                color: user.status === "ACTIVE" ? "#2E7D32" : user.status === "PENDING" ? "#F57C00" : "#666",
+                border: user.status === "ACTIVE" ? "1px solid #2E7D32" : user.status === "PENDING" ? "1px solid #F57C00" : "1px solid #E9ECEF",
+                borderRadius: "0.5rem",
+                fontSize: "0.75rem",
+                fontWeight: 500,
+                height: "22px",
+                "& .MuiChip-label": {
+                  padding: "0 0.5rem"
+                }
+              }}
             />
           </Box>
         </Box>
         
-        <Divider />
+        <Divider sx={{ borderColor: "#E9ECEF" }} />
         
-        <MenuItem onClick={() => handleNavigate("/manage/my-loan-pools")} sx={{ py: 1.5 }}>
-          <Dashboard sx={{ mr: 2, fontSize: 20 }} />
-          <Typography variant="body2">My Loan Pools</Typography>
+        <MenuItem 
+          onClick={() => handleNavigate("/manage/my-loan-pools")} 
+          sx={{ 
+            py: 1.25,
+            px: 2,
+            "&:hover": {
+              backgroundColor: "rgba(114, 90, 162, 0.08)"
+            }
+          }}
+        >
+          <Dashboard sx={{ 
+            mr: 1.5, 
+            fontSize: "1.125rem",
+            color: "#666"
+          }} />
+          <Typography variant="body2" sx={{
+            fontSize: "0.9375rem",
+            color: "#29262a",
+            fontWeight: 500
+          }}>
+            My Loan Pools
+          </Typography>
         </MenuItem>
         
-        <MenuItem onClick={() => handleNavigate("/manage/create-loan-pool")} sx={{ py: 1.5 }}>
-          <Add sx={{ mr: 2, fontSize: 20 }} />
-          <Typography variant="body2">Create Loan Pool</Typography>
+        <MenuItem 
+          onClick={() => handleNavigate("/manage/create-loan-pool")} 
+          sx={{ 
+            py: 1.25,
+            px: 2,
+            "&:hover": {
+              backgroundColor: "rgba(114, 90, 162, 0.08)"
+            }
+          }}
+        >
+          <Add sx={{ 
+            mr: 1.5, 
+            fontSize: "1.125rem",
+            color: "#666"
+          }} />
+          <Typography variant="body2" sx={{
+            fontSize: "0.9375rem",
+            color: "#29262a",
+            fontWeight: 500
+          }}>
+            Create Loan Pool
+          </Typography>
         </MenuItem>
         
-        <Divider />
+        <Divider sx={{ borderColor: "#E9ECEF" }} />
         
-        <MenuItem onClick={handleLogout} sx={{ py: 1.5 }}>
-          <Logout sx={{ mr: 2, fontSize: 20 }} />
-          <Typography variant="body2">Logout</Typography>
+        <MenuItem 
+          onClick={handleLogout} 
+          sx={{ 
+            py: 1.25,
+            px: 2,
+            "&:hover": {
+              backgroundColor: "rgba(198, 40, 40, 0.08)"
+            }
+          }}
+        >
+          <Logout sx={{ 
+            mr: 1.5, 
+            fontSize: "1.125rem",
+            color: "#666"
+          }} />
+          <Typography variant="body2" sx={{
+            fontSize: "0.9375rem",
+            color: "#29262a",
+            fontWeight: 500
+          }}>
+            Logout
+          </Typography>
         </MenuItem>
       </Menu>
     </Box>
